@@ -1,0 +1,104 @@
+import React from "react";
+import Link from "next/link";
+import { Globe, MessageCircle, Mail, Phone, MapPin, AtSign } from "lucide-react";
+
+const Footer = () => {
+  const footerLinks = [
+    {
+      title: "Solutions",
+      links: [
+        { name: "Find Rooms", href: "#rooms" },
+        { name: "Room Vacancy", href: "#vancancy" },
+        { name: "Food Stalls", href: "#food" },
+        { name: "Add Listing", href: "#add" },
+      ],
+    },
+    {
+      title: "Support",
+      links: [
+        { name: "Help Center", href: "#help" },
+        { name: "Safety Guide", href: "#safety" },
+        { name: "Terms of Service", href: "#terms" },
+        { name: "Privacy Policy", href: "#privacy" },
+      ],
+    },
+    {
+      title: "Company",
+      links: [
+        { name: "About Us", href: "#about" },
+        { name: "Contact", href: "#contact" },
+        { name: "Partners", href: "#partners" },
+        { name: "Careers", href: "#careers" },
+      ],
+    },
+  ];
+
+  const socialLinks = [
+    { icon: <Globe className="w-5 h-5" />, href: "#web" },
+    { icon: <AtSign className="w-5 h-5" />, href: "#email" },
+    { icon: <MessageCircle className="w-5 h-5" />, href: "#chat" },
+  ];
+
+  return (
+    <footer className="footer bg-white glass border-t border-border-color pt-16 pb-8 transition-all dark:bg-zinc-950/20">
+      <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="flex flex-col gap-6">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg">
+              BS
+            </div>
+            <span className="text-xl font-bold tracking-tight text-foreground">
+              Batchelor<span className="text-primary">Solution</span>
+            </span>
+          </Link>
+          <p className="text-foreground/70 max-w-xs leading-relaxed text-sm">
+            Everything a bachelor needs to live comfortably. Find rooms, food stalls, and community solutions all in one place.
+          </p>
+          <div className="flex gap-4">
+            {socialLinks.map((link, idx) => (
+              <a
+                key={idx}
+                href={link.href}
+                className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all transform hover:scale-110 shadow-sm"
+              >
+                {link.icon}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {footerLinks.map((section) => (
+          <div key={section.title} className="flex flex-col gap-6">
+            <h3 className="font-bold text-foreground pointer-events-none uppercase tracking-widest text-xs opacity-60">
+              {section.title}
+            </h3>
+            <ul className="flex flex-col gap-3">
+              {section.links.map((link) => (
+                <li key={link.name}>
+                  <Link
+                    href={link.href}
+                    className="text-foreground/70 text-sm hover:text-primary transition-colors flex items-center group"
+                  >
+                    <span className="w-0 group-hover:w-2 h-0.5 bg-primary mr-0 group-hover:mr-2 rounded-full transition-all duration-300" />
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <div className="container mx-auto px-6 border-t border-border-color/50 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-foreground/50">
+        <p>© 2024 BatchelorSolution. All rights reserved.</p>
+        <div className="flex gap-8">
+          <a href="#privacy" className="hover:text-primary transition-colors">Privacy Policy</a>
+          <a href="#terms" className="hover:text-primary transition-colors">Terms of Service</a>
+          <a href="#cookies" className="hover:text-primary transition-colors">Cookie Settings</a>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;
