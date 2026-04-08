@@ -12,7 +12,7 @@ import java.time.OffsetDateTime;
 @Table(name = "listings")
 @Getter
 @Setter
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class ListingsEntity {
@@ -26,7 +26,6 @@ public class ListingsEntity {
 
     @Column(name = "sub_type")
     private String subType;
-
 
     @Column(name = "primary_id")
     private String primaryId;

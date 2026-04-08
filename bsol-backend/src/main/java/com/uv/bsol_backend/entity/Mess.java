@@ -8,13 +8,13 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.OffsetDateTime;
 
 @Entity
-@Table(name = "rooms")
+@Table(name = "messes")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Room {
+public class Mess {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,38 +22,27 @@ public class Room {
 
     // 🔹 Basic Info
     @Column(nullable = false)
-    private String title;   // e.g. "1BHK Room for Boys in Kothrud"
+    private String title;   // e.g. "Shree Ganesh Mess"
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    // 🔹 Room Details
+    // 🔹 Mess Details
     @Column(nullable = false)
-    private String roomType;   // 1RK, 1BHK, 2BHK
+    private String foodType; // VEG / NON-VEG / BOTH
 
     @Column(nullable = false)
-    private String availableFor; // BOYS / GIRLS / FAMILY
-
-    private Boolean furnished; // true / false
-
-    private Integer totalRooms;
-
-    private Integer availableRooms;
+    private String mealType; // BREAKFAST / LUNCH / DINNER / ALL
 
     // 🔹 Pricing
     @Column(nullable = false)
-    private Double rent;
+    private Double monthlyFee;
 
-    private Double deposit;
-
-    private Double maintenance;
+    private Double perMealFee;
 
     // 🔹 Amenities
-    private Boolean wifi;
-    private Boolean parking;
-    private Boolean ac;
-    private Boolean foodIncluded;
-    private Boolean attachedBathroom;
+    private Boolean homeDelivery;
+    private Boolean diningArea;
 
     // 🔹 Location
     @Column(nullable = false)
@@ -78,7 +67,7 @@ public class Room {
 
     // 🔹 Status
     @Column(nullable = false)
-    private String status; // AVAILABLE / FULL / INACTIVE
+    private String status; // AVAILABLE / CLOSED / INACTIVE
 
     // 🔹 Audit Fields
     @CreationTimestamp

@@ -1,9 +1,7 @@
 package com.uv.bsol_backend.transformer;
 
-import com.uv.bsol_backend.entity.ListingsEntity;
-
-public interface ListingTransformer<T> {
-    String getPrimaryId();
+public interface DataTransformer<T> {
+    Long getPrimaryId();
     String getSecondaryId();
     String getType();
     String getSubType();
