@@ -44,6 +44,16 @@ public class MessTransformer extends BaseTransformer<Mess>{
     }
 
     @Override
+    public Double getLatitude() {
+        return null;
+    }
+
+    @Override
+    public Double getLongitude() {
+        return null;
+    }
+
+    @Override
     public Class<?> getTransactionClass() {
         return null;
     }

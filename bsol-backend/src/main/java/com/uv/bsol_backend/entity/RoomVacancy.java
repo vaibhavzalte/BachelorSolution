@@ -12,10 +12,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoomVacancy {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    Listings Entity fields
     private Long id;
+    private String type;
+    private Double latitude;
+    private Double longitude;
+    private String status;
 
     private String roomType;        // Single / Double / Triple
     private int totalBeds;
@@ -29,6 +31,8 @@ public class RoomVacancy {
     private boolean attachedBathroom;
     private boolean furnished;
 
+    private String updatedBy;
+
     private List<String> amenities; // WiFi, AC, Washing Machine
 
     private String availableFrom;   // ISO date (String or LocalDate)
@@ -36,4 +40,6 @@ public class RoomVacancy {
     private String preferredTenant; // Male / Female / Any
 
     private String foodIncluded;    // Yes / No / Optional
+
+
 }

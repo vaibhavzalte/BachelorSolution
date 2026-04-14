@@ -34,6 +34,9 @@ public class ListingService {
                 .secondaryId(transformer.getSecondaryId())
                 .payload(getJsonString(transformer.getPayload()))
                 .type(transformer.getType())
+                .updatedBy(transformer.getUpdatedBy())
+                .latitude(transformer.getLatitude())
+                .longitude(transformer.getLongitude())
                 .status("Active")
                 .build();
         listingsRepository.save(newEntity);
@@ -46,6 +49,7 @@ public class ListingService {
     private <T> T mapToDto(ListingsEntity entity, Class<T> dtoClassName) {
         T dto = null;
         if (entity != null && entity.getPayload() != null) {
+            System.out.println("entity"+entity.getPayload());
             dto = objectMapper.readValue(entity.getPayload(), dtoClassName);
         }
         return dto;

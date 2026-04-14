@@ -4,23 +4,19 @@ import com.uv.bsol_backend.entity.RoomVacancy;
 
 public class RoomVacancyTransformer extends BaseTransformer<RoomVacancy> {
     public static final String LISTING_TYPE = "RoomVacancy";
-    public RoomVacancyTransformer(RoomVacancy roomVacancy){
+
+    public RoomVacancyTransformer(RoomVacancy roomVacancy) {
         super(roomVacancy);
     }
 
     @Override
     public Long getPrimaryId() {
-        return listing.getId();
+        return null;
     }
 
     @Override
     public String getType() {
         return LISTING_TYPE;
-    }
-
-    @Override
-    public String getSubType() {
-        return listing.getRoomType();
     }
 
     @Override
@@ -34,7 +30,18 @@ public class RoomVacancyTransformer extends BaseTransformer<RoomVacancy> {
     }
 
     @Override
-    public Class<RoomVacancy> getTransactionClass() {
-        return RoomVacancy.class;
+    public Double getLatitude() {
+        return listing.getLatitude();
+    }
+
+    @Override
+    public Double getLongitude() {
+        return listing.getLongitude();
+    }
+
+
+    @Override
+    public Class<?> getTransactionClass() {
+        return null;
     }
 }

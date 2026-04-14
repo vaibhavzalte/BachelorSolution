@@ -8,5 +8,7 @@ public interface DataTransformer<T> {
     T getPayload();
     String getCreatedBy();
     String getUpdatedBy();
+    Double getLatitude();
+    Double getLongitude();
     Class<?> getTransactionClass();
 }

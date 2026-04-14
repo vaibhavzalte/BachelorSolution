@@ -25,11 +25,21 @@ public class RoomTransformer extends BaseTransformer<Room> {
 
     @Override
     public String getCreatedBy() {
-        return null;
+        return listing.getCreatedBy();
     }
 
     @Override
     public String getUpdatedBy() {
+        return listing.getUpdatedBy();
+    }
+
+    @Override
+    public Double getLatitude() {
+        return null;
+    }
+
+    @Override
+    public Double getLongitude() {
         return null;
     }
 
