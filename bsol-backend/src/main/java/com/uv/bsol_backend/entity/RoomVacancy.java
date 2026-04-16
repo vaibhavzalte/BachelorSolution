@@ -1,9 +1,7 @@
 package com.uv.bsol_backend.entity;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.*;
+
 import java.util.List;
 
 @Getter
@@ -12,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RoomVacancy {
-//    Listings Entity fields
+    //    Listings Entity fields
     private Long id;
     private String type;
     private Double latitude;

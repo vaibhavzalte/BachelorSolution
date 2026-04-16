@@ -1,10 +1,11 @@
 package com.uv.bsol_backend.transformer;
 
-import com.uv.bsol_backend.entity.Mess;
+import com.uv.bsol_backend.entity.FoodStall;
 
-public class MessTransformer extends BaseTransformer<Mess> {
+public class FoodStallTransformer extends BaseTransformer<FoodStall> {
+    public static final String LISTING_TYPE = "FoodStall";
 
-    MessTransformer(Mess listing) {
+    FoodStallTransformer(FoodStall listing) {
         super(listing);
     }
 
@@ -20,7 +21,7 @@ public class MessTransformer extends BaseTransformer<Mess> {
 
     @Override
     public String getType() {
-        return null;
+        return LISTING_TYPE;
     }
 
     @Override
@@ -29,7 +30,7 @@ public class MessTransformer extends BaseTransformer<Mess> {
     }
 
     @Override
-    public Mess getPayload() {
+    public FoodStall getPayload() {
         return listing;
     }
 
@@ -55,6 +56,6 @@ public class MessTransformer extends BaseTransformer<Mess> {
 
     @Override
     public Class<?> getTransactionClass() {
-        return null;
+        return FoodStall.class;
     }
 }

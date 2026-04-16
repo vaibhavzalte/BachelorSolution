@@ -1,5 +1,6 @@
 package com.uv.bsol_backend.transformer;
 
+import com.uv.bsol_backend.entity.FoodStall;
 import com.uv.bsol_backend.entity.Mess;
 import com.uv.bsol_backend.entity.Room;
 import com.uv.bsol_backend.entity.RoomVacancy;
@@ -21,6 +22,8 @@ public class DataTransformerFactory {
                     transformer = new MessTransformer(payload == null ? null : objectMapper.readValue(payload, Mess.class));
             case RoomVacancy ->
                     transformer = new RoomVacancyTransformer(payload == null ? null : objectMapper.readValue(payload, RoomVacancy.class));
+            case FoodStall ->
+                    transformer = new FoodStallTransformer(payload == null ? null : objectMapper.readValue(payload, FoodStall.class));
             default -> throw new IllegalArgumentException("Invalid Listing Type " + type);
         }
         return transformer;

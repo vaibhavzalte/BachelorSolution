@@ -4,7 +4,8 @@ import com.uv.bsol_backend.entity.Room;
 
 public class RoomTransformer extends BaseTransformer<Room> {
     public static final String LISTING_TYPE = "Room";
-    public RoomTransformer(Room room){
+
+    public RoomTransformer(Room room) {
         super(room);
     }
 

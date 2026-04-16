@@ -57,6 +57,7 @@ public class ListingController {
         List<Object> listings = (List<Object>) listingService.getListingsByTypeAndFilters(transformer.getTransactionClass(), transformer.getType(), allParams);
         return new ResponseEntity<>(listings, HttpStatus.OK);
     }
+
     @GetMapping
     public String getListings() {
         return "Application is running";

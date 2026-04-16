@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,11 +28,20 @@ public class ListingService {
     @Autowired
     private EntityManager entityManager;
 
+    private static void addFixedQueryCondition(String paramName, Map<String, String> allParams, StringBuilder query, Map<String, Object> filterValues) {
+        String paramValue = allParams.get(paramName);
+        if (paramValue != null && !paramValue.isEmpty()) {
+            query.append(" AND  t1.").append(paramName).append(" = :").append(paramName);
+            filterValues.put(paramName, paramValue);
+            allParams.remove(paramName);
+        }
+    }
+
     public <T> T createListing(DataTransformer<T> transformer) {
-       ListingsEntity entity = listingsRepository.findByIdAndTypeAndStatus(transformer.getPrimaryId(), transformer.getType(), "ACTIVE");
-         if(entity != null) {
-              throw new RuntimeException("Listing already exists with primary id: " + transformer.getPrimaryId() + " and type: " + transformer.getType());
-         }
+        ListingsEntity entity = listingsRepository.findByIdAndTypeAndStatus(transformer.getPrimaryId(), transformer.getType(), "ACTIVE");
+        if (entity != null) {
+            throw new RuntimeException("Listing already exists with primary id: " + transformer.getPrimaryId() + " and type: " + transformer.getType());
+        }
         ListingsEntity newEntity = ListingsEntity.builder()
                 .secondaryId(transformer.getSecondaryId())
                 .payload(getJsonString(transformer.getPayload()))
@@ -45,13 +55,15 @@ public class ListingService {
         return mapToDto(newEntity, (Class<T>) transformer.getPayload().getClass());
 
     }
+
     private String getJsonString(Object object) {
         return objectMapper.writeValueAsString(object);
     }
+
     private <T> T mapToDto(ListingsEntity entity, Class<T> dtoClassName) {
         T dto = null;
         if (entity != null && entity.getPayload() != null) {
-            System.out.println("entity"+entity.getPayload());
+            System.out.println("entity" + entity.getPayload());
             dto = objectMapper.readValue(entity.getPayload(), dtoClassName);
         }
         return dto;
@@ -65,7 +77,7 @@ public class ListingService {
         TypedQuery<ListingsEntity> listingsQuery = entityManager.createQuery(query.toString(), ListingsEntity.class);
         setFilterParameters(listingsQuery, filterParams);
         List<ListingsEntity> listings = listingsQuery.getResultList();
-        System.out.println("listings"+listings);
+        System.out.println("listings" + listings);
         List<T> dtoList = new ArrayList<>();
         for (ListingsEntity listingsEntity : listings) {
             T dto = mapToDto(listingsEntity, clazz);
@@ -99,15 +111,6 @@ public class ListingService {
         query.append(" AND exists (select 1 from TransactionAttributesEntity t2 where t2.transaction.id = t1.id and t2.attributeName = '")
                 .append(key).append("' and t2.attributeValue = :").append(key).append(") ");
         filterValues.put(key, value);
-    }
-
-    private static void addFixedQueryCondition(String paramName, Map<String, String> allParams, StringBuilder query, Map<String, Object> filterValues) {
-        String paramValue = allParams.get(paramName);
-        if (paramValue != null && !paramValue.isEmpty()) {
-            query.append(" AND  t1.").append(paramName).append(" = :").append(paramName);
-            filterValues.put(paramName, paramValue);
-            allParams.remove(paramName);
-        }
     }
 
 }

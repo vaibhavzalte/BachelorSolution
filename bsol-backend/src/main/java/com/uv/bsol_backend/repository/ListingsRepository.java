@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ListingsRepository extends JpaRepository<ListingsEntity, Long> {
     ListingsEntity findByIdAndTypeAndStatus(Long id, String type, String status);
+
     ListingsEntity findByPrimaryId(String primaryId);
 }
