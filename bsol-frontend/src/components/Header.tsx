@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCategory } from "@/contexts/CategoryContext";
-import { Home, Search, Building2, Utensils, Menu, X } from "lucide-react";
+import { Home, Search, Building2, Utensils, Menu, X, Plus } from "lucide-react";
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -70,6 +70,14 @@ const Header = () => {
               {link.name}
             </Link>
           ))}
+          <button
+            id="header-post-listing-btn"
+            onClick={() => document.getElementById("post-listing-btn")?.click()}
+            className="flex items-center gap-2 bg-gray-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-md active:scale-95"
+          >
+            <Plus className="w-4 h-4" />
+            Post Listing
+          </button>
           <button className="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all shadow-md shadow-primary/10 active:scale-95">
             Log In
           </button>
@@ -100,6 +108,12 @@ const Header = () => {
               </Link>
             ))}
             <div className="h-px bg-border-color my-2 mx-2" />
+            <button
+              onClick={() => { document.getElementById("post-listing-btn")?.click(); setIsMobileMenuOpen(false); }}
+              className="w-full flex items-center justify-center gap-2 bg-gray-900 text-white p-3 rounded-xl font-bold shadow-md active:scale-95 transition-all mb-2"
+            >
+              <Plus className="w-4 h-4" /> Post Listing
+            </button>
             <button className="w-full bg-primary text-white p-3 rounded-xl font-semibold shadow-md active:scale-95 transition-all">
               Log In
             </button>
