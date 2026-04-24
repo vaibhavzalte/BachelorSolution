@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 
 export const CATEGORIES = [
   { id: "all", label: "Posts", hex: "#fff7ed", light: "bg-orange-50", color: "bg-orange-500" },
-  { id: "vacancies", label: "Vacancies", hex: "#fff1f2", light: "bg-rose-50", color: "bg-rose-500" },
+  { id: "vacancies", label: "Vacancies", hex: "#ecfdf5", light: "bg-emerald-50", color: "bg-emerald-500" },
   { id: "roommate", label: "Roommate", hex: "#f5f3ff", light: "bg-violet-50", color: "bg-violet-500" },
   { id: "rooms", label: "Rooms", hex: "#eef2ff", light: "bg-indigo-50", color: "bg-indigo-500" },
   { id: "food", label: "Food", hex: "#fdf2f8", light: "bg-pink-50", color: "bg-pink-500" },

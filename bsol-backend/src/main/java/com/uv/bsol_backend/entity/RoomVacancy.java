@@ -13,6 +13,7 @@ public class RoomVacancy {
     //    Listings Entity fields
     private Long id;
     private String type;
+    private String location;
     private Double latitude;
     private Double longitude;
     private String status;

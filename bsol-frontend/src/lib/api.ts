@@ -3,7 +3,30 @@ const MGMT_NAME = "bsol";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type ListingType = "room" | "Mess" | "food-stall";
+export type ListingType = "room" | "Mess" | "food-stall" | "room-vacancy";
+
+export interface RoomVacancy {
+  id?: number;
+  type?: string;
+  location?: string;
+  latitude?: number;
+  longitude?: number;
+  status?: string;
+  roomType?: string;        // Single / Double / Triple
+  totalBeds: number;
+  availableBeds: number;
+  rent: number;
+  deposit?: number;
+  brokerage?: number;
+  description?: string;
+  attachedBathroom?: boolean;
+  furnished?: boolean;
+  amenities?: string[];     // WiFi, AC, Washing Machine
+  availableFrom?: string;   // ISO date string
+  preferredTenant?: string; // Male / Female / Any
+  foodIncluded?: string;    // Yes / No / Optional
+  updatedBy?: string;
+}
 
 export interface Room {
   id?: number;
@@ -69,7 +92,7 @@ export interface FoodStall {
   createdBy?: string;
 }
 
-export type AnyListing = Room | Mess | FoodStall;
+export type AnyListing = Room | Mess | FoodStall | RoomVacancy;
 
 // ─── API calls ────────────────────────────────────────────────────────────────
 
@@ -85,11 +108,15 @@ export async function createListing(
   type: ListingType,
   payload: AnyListing
 ): Promise<AnyListing> {
+  // Payload cleanup and normalization for specific types
+  const finalPayload = { ...payload };
+  
   const res = await fetch(`${BASE_URL}/${MGMT_NAME}/${type}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(finalPayload),
   });
+  
   if (!res.ok) {
     const errText = await res.text();
     throw new Error(`Failed to create listing: ${errText}`);

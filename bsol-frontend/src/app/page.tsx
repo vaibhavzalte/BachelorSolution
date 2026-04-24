@@ -14,12 +14,12 @@ const CATEGORY_TO_TYPE: Record<string, ListingType | null> = {
   rooms:        "room",
   mess:         "Mess",
   food:         "food-stall",
-  vacancies:    null,
+  vacancies:    "room-vacancy",
   roommate:     null,
   "study-rooms": null,
 };
 
-const ALL_TYPES: ListingType[] = ["room", "Mess", "food-stall"];
+const ALL_TYPES: ListingType[] = ["room", "Mess", "food-stall", "room-vacancy"];
 
 interface TypedListing {
   type: ListingType;
