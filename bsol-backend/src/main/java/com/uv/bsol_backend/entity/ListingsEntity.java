@@ -50,9 +50,6 @@ public class ListingsEntity {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private OffsetDateTime updateTime;
 
-    @Column(name = "updated_by")
-    private String updatedBy;
-
     @Column(name = "status")
     private String status;
 }

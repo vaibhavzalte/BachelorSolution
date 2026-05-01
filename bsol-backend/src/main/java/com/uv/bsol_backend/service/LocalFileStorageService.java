@@ -1,0 +1,47 @@
+package com.uv.bsol_backend.service;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+public class LocalFileStorageService implements FileStorageService {
+
+    private final Path rootLocation;
+
+    public LocalFileStorageService(String uploadDir) {
+        this.rootLocation = Paths.get(uploadDir);
+        try {
+            Files.createDirectories(rootLocation);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not initialize storage at path: " + rootLocation.toAbsolutePath(), e);
+        }
+
+    }
+
+    @Override
+    public String storeFile(MultipartFile file) throws IOException {
+        String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        Files.copy(file.getInputStream(), this.rootLocation.resolve(filename));
+        // Return a relative path or a full URL if needed. For now, returning filename or relative path.
+        return "/uploads/" + filename;
+    }
+
+    @Override
+    public List<String> storeFiles(List<MultipartFile> files) throws IOException {
+        List<String> fileUrls = new ArrayList<>();
+        for (MultipartFile file : files) {
+            if (!file.isEmpty()) {
+                fileUrls.add(storeFile(file));
+            }
+        }
+        return fileUrls;
+    }
+}

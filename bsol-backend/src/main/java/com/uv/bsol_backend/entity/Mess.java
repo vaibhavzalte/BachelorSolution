@@ -5,13 +5,15 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Mess {
+public class Mess extends CommonListingFields {
+
 
     private Long id;
 
@@ -41,10 +43,6 @@ public class Mess {
 
     private String area;
 
-    private Double latitude;
-
-    private Double longitude;
-
     // 🔹 Owner Info
     private String ownerName;
 
@@ -55,14 +53,6 @@ public class Mess {
     // 🔹 Status
     private String status; // AVAILABLE / CLOSED / INACTIVE
 
-    // 🔹 Audit Fields
-    @CreationTimestamp
-    private OffsetDateTime createdAt;
+    private List<String> images;
 
-    private String createdBy;
-
-    @UpdateTimestamp
-    private OffsetDateTime updatedAt;
-
-    private String updatedBy;
 }

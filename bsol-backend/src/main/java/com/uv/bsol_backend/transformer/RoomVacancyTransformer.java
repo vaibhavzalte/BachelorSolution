@@ -20,12 +20,7 @@ public class RoomVacancyTransformer extends BaseTransformer<RoomVacancy> {
     }
 
     @Override
-    public String getCreatedBy() {
-        return null;
-    }
-
-    @Override
-    public String getUpdatedBy() {
+    public RoomVacancy getPayload() {
         return null;
     }
 

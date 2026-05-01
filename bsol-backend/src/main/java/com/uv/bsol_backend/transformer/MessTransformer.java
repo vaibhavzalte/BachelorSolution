@@ -34,16 +34,6 @@ public class MessTransformer extends BaseTransformer<Mess> {
     }
 
     @Override
-    public String getCreatedBy() {
-        return null;
-    }
-
-    @Override
-    public String getUpdatedBy() {
-        return null;
-    }
-
-    @Override
     public Double getLatitude() {
         return null;
     }

@@ -1,19 +1,23 @@
 package com.uv.bsol_backend.entity;
 
 
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.OffsetDateTime;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FoodStall {
+public class FoodStall extends CommonListingFields {
+
     private Long id;
+
     private String stallName;
 
     private String ownerName;
@@ -32,12 +36,5 @@ public class FoodStall {
     private OffsetDateTime closingTime;
 
     private String description;
-    @CreationTimestamp
-    private OffsetDateTime createdAt;
-
-    private String createdBy;
-
-    @UpdateTimestamp
-    private OffsetDateTime updatedAt;
 
 }

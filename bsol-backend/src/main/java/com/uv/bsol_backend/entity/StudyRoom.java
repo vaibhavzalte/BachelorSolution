@@ -11,9 +11,19 @@ import java.time.OffsetDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudyRoom {
+public class StudyRoom extends CommonListingFields {
+
 
     private Long id;
+
+    private String type = "StudyRoom";
+    private String subType;
+    private String primaryId;
+    private String secondaryId;
+    private String status;
+    private Double latitude;
+    private Double longitude;
+
 
     private String roomName; // e.g. "Silent Study Room A"
 
@@ -48,4 +58,6 @@ public class StudyRoom {
 
     @UpdateTimestamp
     private OffsetDateTime updatedAt;
+
+    private java.util.List<String> images;
 }

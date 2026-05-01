@@ -1,6 +1,6 @@
 package com.uv.bsol_backend.service;
 
-import com.uv.bsol_backend.entity.ListingsEntity;
+import com.uv.bsol_backend.entity.*;
 import com.uv.bsol_backend.repository.ListingsRepository;
 import com.uv.bsol_backend.transformer.DataTransformer;
 import jakarta.persistence.EntityManager;
@@ -8,7 +8,9 @@ import jakarta.persistence.TypedQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import tools.jackson.databind.ObjectMapper;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,6 +30,25 @@ public class ListingService {
     @Autowired
     private EntityManager entityManager;
 
+    @Autowired
+    private FileStorageService fileStorageService;
+
+    public <T> T createListingWithImages(DataTransformer<T> transformer, List<MultipartFile> images ,String typName) {
+        T payload = transformer.getPayload();
+
+        if (images != null && !images.isEmpty()) {
+            try {
+                List<String> imageUrls = fileStorageService.storeFiles(images);
+                    ((CommonListingFields) payload).setImages(imageUrls);
+            } catch (java.io.IOException e) {
+                log.error("Failed to store images", e);
+                throw new RuntimeException("Failed to store images", e);
+            }
+        }
+        return createListing(transformer);
+    }
+
+
     private static void addFixedQueryCondition(String paramName, Map<String, String> allParams, StringBuilder query, Map<String, Object> filterValues) {
         String paramValue = allParams.get(paramName);
         if (paramValue != null && !paramValue.isEmpty()) {
@@ -37,18 +58,16 @@ public class ListingService {
         }
     }
 
-    public <T> T createListing(DataTransformer<T> transformer) {
+        public <T> T createListing(DataTransformer<T> transformer) {
         ListingsEntity entity = listingsRepository.findByIdAndTypeAndStatus(transformer.getPrimaryId(), transformer.getType(), "ACTIVE");
         if (entity != null) {
             throw new RuntimeException("Listing already exists with primary id: " + transformer.getPrimaryId() + " and type: " + transformer.getType());
         }
         ListingsEntity newEntity = ListingsEntity.builder()
-                .secondaryId(transformer.getSecondaryId())
-                .payload(getJsonString(transformer.getPayload()))
                 .type(transformer.getType())
-                .updatedBy(transformer.getUpdatedBy())
                 .latitude(transformer.getLatitude())
                 .longitude(transformer.getLongitude())
+                .payload(getJsonString(transformer.getPayload()))
                 .status("Active")
                 .build();
         listingsRepository.save(newEntity);

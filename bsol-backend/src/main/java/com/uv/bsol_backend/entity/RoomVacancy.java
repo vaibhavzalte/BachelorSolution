@@ -9,10 +9,15 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoomVacancy {
+public class RoomVacancy extends CommonListingFields {
+
     //    Listings Entity fields
     private Long id;
-    private String type;
+    private String type = "RoomVacancy";
+    private String subType;
+    private String primaryId;
+    private String secondaryId;
+
     private String location;
     private Double latitude;
     private Double longitude;
@@ -40,5 +45,5 @@ public class RoomVacancy {
 
     private String foodIncluded;    // Yes / No / Optional
 
-
+    private List<String> images;
 }

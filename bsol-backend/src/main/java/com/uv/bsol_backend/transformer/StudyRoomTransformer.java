@@ -25,12 +25,7 @@ public class StudyRoomTransformer extends BaseTransformer<StudyRoom> {
     }
 
     @Override
-    public String getCreatedBy() {
-        return listing.getCreatedBy();
-    }
-
-    @Override
-    public String getUpdatedBy() {
+    public StudyRoom getPayload() {
         return null;
     }
 

@@ -18,9 +18,4 @@ public abstract class BaseTransformer<T> implements DataTransformer<T> {
         return null;
     }
 
-    @Override
-    public T getPayload() {
-        return listing;
-    }
-
 }

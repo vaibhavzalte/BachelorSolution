@@ -9,9 +9,10 @@ public class RoomTransformer extends BaseTransformer<Room> {
         super(room);
     }
 
+
     @Override
     public Long getPrimaryId() {
-        return listing.getId();
+        return null;
     }
 
     @Override
@@ -25,23 +26,35 @@ public class RoomTransformer extends BaseTransformer<Room> {
     }
 
     @Override
-    public String getCreatedBy() {
-        return listing.getCreatedBy();
+    public Room getPayload() {
+        return Room.builder()
+                .title(listing.getTitle())
+                .description(listing.getDescription())
+                .roomType(listing.getRoomType())
+                .availableFor(listing.getAvailableFor())
+                .furnished(listing.getFurnished())
+                .totalRooms(listing.getTotalRooms())
+                .availableRooms(listing.getAvailableRooms())
+                .rent(listing.getRent())
+                .deposit(listing.getDeposit())
+                .maintenance(listing.getMaintenance())
+                .brokerage(listing.getBrokerage())
+                .amenities(listing.getAmenities())
+                .address(listing.getAddress())
+                .city(listing.getCity())
+                .area(listing.getArea())
+                .build();
     }
 
-    @Override
-    public String getUpdatedBy() {
-        return listing.getUpdatedBy();
-    }
 
     @Override
     public Double getLatitude() {
-        return null;
+        return listing.getLatitude();
     }
 
     @Override
     public Double getLongitude() {
-        return null;
+        return listing.getLongitude();
     }
 
     @Override

@@ -4,21 +4,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
-import java.time.OffsetDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Room {
+public class Room extends CommonListingFields {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+//    private String type = "Room";
+
 
     // 🔹 Basic Info
     private String title;   // e.g. "1BHK Room for Boys in Kothrud"
@@ -43,12 +39,10 @@ public class Room {
 
     private Double maintenance;
 
+    private Double brokerage;
+
     // 🔹 Amenities
-    private Boolean wifi;
-    private Boolean parking;
-    private Boolean ac;
-    private Boolean foodIncluded;
-    private Boolean attachedBathroom;
+    private List<String> amenities; // wifi,parking,ac,foodIncluded,attachedBathroom
 
     // 🔹 Location
     private String address;
@@ -57,9 +51,6 @@ public class Room {
 
     private String area;
 
-    private Double latitude;
-
-    private Double longitude;
 
     // 🔹 Owner Info
     private String ownerName;
@@ -68,17 +59,4 @@ public class Room {
 
     private String ownerEmail;
 
-    // 🔹 Status
-    private String status; // AVAILABLE / FULL / INACTIVE
-
-    // 🔹 Audit Fields
-    @CreationTimestamp
-    private OffsetDateTime createdAt;
-
-    private String createdBy;
-
-    @UpdateTimestamp
-    private OffsetDateTime updatedAt;
-
-    private String updatedBy;
 }
