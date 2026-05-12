@@ -2,6 +2,9 @@ package com.uv.bsol_backend.service;
 
 import com.uv.bsol_backend.entity.CommonListingFields;
 import com.uv.bsol_backend.entity.ListingsEntity;
+import com.uv.bsol_backend.exception.DuplicateListingException;
+import com.uv.bsol_backend.exception.FileStorageException;
+import com.uv.bsol_backend.exception.ListingNotFoundException;
 import com.uv.bsol_backend.repository.ListingsRepository;
 import com.uv.bsol_backend.transformer.DataTransformer;
 import jakarta.persistence.EntityManager;
@@ -39,10 +42,9 @@ public class ListingService {
             try {
                 List<String> imageUrls = fileStorageService.storeFiles(images);
                 transformer.setImages(imageUrls);
-//                    ((CommonListingFields) payload).setImages(imageUrls);
             } catch (java.io.IOException e) {
                 log.error("Failed to store images", e);
-                throw new RuntimeException("Failed to store images", e);
+                throw new FileStorageException("Failed to store images", e);
             }
         }
         return createListing(transformer);
@@ -51,7 +53,7 @@ public class ListingService {
     public <E extends CommonListingFields, D> E createListing(DataTransformer<E, D> transformer) {
         ListingsEntity entity = listingsRepository.findByIdAndTypeAndStatus(transformer.getId(), transformer.getType(), "ACTIVE");
         if (entity != null) {
-            throw new RuntimeException("Listing already exists with id: " + transformer.getId() + " and type: " + transformer.getType());
+            throw new DuplicateListingException( transformer.getType() + " already exists with id: " + transformer.getId());
         }
         ListingsEntity newEntity = ListingsEntity.builder()
                 .type(transformer.getType())
@@ -93,7 +95,7 @@ public class ListingService {
         ListingsEntity entity = listingsRepository.findByIdAndTypeAndStatus(id, type, "Active");
         if (entity == null) {
             log.info("Listing not found with id: {}", id);
-            throw new RuntimeException("Listing not found with id: " + id);
+            throw new ListingNotFoundException(type + " not found with id: "+ id);
         }
         return mapToDto(entity, clazz);
     }
