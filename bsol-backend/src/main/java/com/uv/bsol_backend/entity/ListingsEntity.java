@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "listings")
@@ -53,4 +54,7 @@ public class ListingsEntity {
 
     @Column(name = "status")
     private String status;
+
+    @OneToMany(mappedBy = "listing",cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    private List<ListingAttributesEntity> listingAttributes;
 }

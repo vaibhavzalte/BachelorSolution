@@ -3,6 +3,8 @@ package com.uv.bsol_backend.transformer;
 import com.uv.bsol_backend.dto.RoomPayload;
 import com.uv.bsol_backend.entity.Room;
 
+import java.util.Map;
+
 public class RoomTransformer extends BaseTransformer<Room, RoomPayload> {
     public static final String LISTING_TYPE = "Room";
 
@@ -49,6 +51,20 @@ public class RoomTransformer extends BaseTransformer<Room, RoomPayload> {
     @Override
     public Class<RoomPayload> getDtoClass() {
         return RoomPayload.class;
+    }
+
+    @Override
+    public Map<String, String> getAdditionalAttributes() {
+        try{
+            return Map.of(
+                    "roomType",listing.getRoomType(),
+                    "availableFor",listing.getAvailableFor()
+            );
+        }
+        catch (Exception e){
+            //  Do nothing
+        }
+        return super.getAdditionalAttributes();
     }
 
 

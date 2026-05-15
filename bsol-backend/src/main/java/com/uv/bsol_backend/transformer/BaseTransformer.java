@@ -2,7 +2,9 @@ package com.uv.bsol_backend.transformer;
 
 import com.uv.bsol_backend.entity.CommonListingFields;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public abstract class BaseTransformer<E extends CommonListingFields, D> implements DataTransformer<E, D> {
     // common logic here
@@ -50,5 +52,9 @@ public abstract class BaseTransformer<E extends CommonListingFields, D> implemen
     @Override
     public Double getLongitude() {
         return listing.getLongitude();
+    }
+    @Override
+    public Map<String,String> getAdditionalAttributes(){
+        return Collections.emptyMap();
     }
 }

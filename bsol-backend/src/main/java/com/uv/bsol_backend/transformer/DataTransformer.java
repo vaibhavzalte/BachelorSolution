@@ -4,6 +4,7 @@ package com.uv.bsol_backend.transformer;
 import com.uv.bsol_backend.entity.CommonListingFields;
 
 import java.util.List;
+import java.util.Map;
 
 //entity DTO
 public interface DataTransformer<E extends CommonListingFields, D> {
@@ -31,4 +32,5 @@ public interface DataTransformer<E extends CommonListingFields, D> {
     Class<E> getEntityClass();
 
     Class<D> getDtoClass();
+    Map<String,String> getAdditionalAttributes();
 }

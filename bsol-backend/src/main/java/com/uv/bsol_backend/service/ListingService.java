@@ -1,10 +1,12 @@
 package com.uv.bsol_backend.service;
 
 import com.uv.bsol_backend.entity.CommonListingFields;
+import com.uv.bsol_backend.entity.ListingAttributesEntity;
 import com.uv.bsol_backend.entity.ListingsEntity;
 import com.uv.bsol_backend.exception.DuplicateListingException;
 import com.uv.bsol_backend.exception.FileStorageException;
 import com.uv.bsol_backend.exception.ListingNotFoundException;
+import com.uv.bsol_backend.repository.ListingAttributesRepository;
 import com.uv.bsol_backend.repository.ListingsRepository;
 import com.uv.bsol_backend.transformer.DataTransformer;
 import jakarta.persistence.EntityManager;
@@ -15,9 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import tools.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.util.*;
-import java.io.IOException;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -25,6 +28,8 @@ public class ListingService {
 
     @Autowired
     private ListingsRepository listingsRepository;
+    @Autowired
+    private ListingAttributesRepository attributesRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -51,7 +56,7 @@ public class ListingService {
     public <E extends CommonListingFields, D> E createListing(DataTransformer<E, D> transformer) {
         ListingsEntity entity = listingsRepository.findByIdAndTypeAndStatus(transformer.getId(), transformer.getType(), "ACTIVE");
         if (entity != null) {
-            throw new DuplicateListingException( transformer.getType() + " already exists with id: " + transformer.getId());
+            throw new DuplicateListingException(transformer.getType() + " already exists with id: " + transformer.getId());
         }
         ListingsEntity newEntity = ListingsEntity.builder()
                 .type(transformer.getType())
@@ -64,6 +69,18 @@ public class ListingService {
                 .status("Active")
                 .build();
         ListingsEntity listingDB = listingsRepository.save(newEntity);
+        Map<String, String> additionalAttributes = transformer.getAdditionalAttributes();
+        List<ListingAttributesEntity> attributesEntities = new ArrayList<>();
+        additionalAttributes.keySet().forEach(key -> {
+            ListingAttributesEntity attributesEntity = ListingAttributesEntity.builder()
+                    .listing(listingDB)
+                    .attributeName(key)
+                    .attributeValue(additionalAttributes.get(key))
+                    .id(listingDB.getId() + key)
+                    .build();
+            attributesEntities.add(attributesEntity);
+        });
+        attributesRepository.saveAll(attributesEntities);
         return mapToDto(listingDB, transformer.getEntityClass());
     }
 
@@ -112,7 +129,7 @@ public class ListingService {
         ListingsEntity entity = listingsRepository.findByIdAndTypeAndStatus(id, type, "Active");
         if (entity == null) {
             log.info("Listing not found with id: {}", id);
-            throw new ListingNotFoundException(type + " not found with id: "+ id);
+            throw new ListingNotFoundException(type + " not found with id: " + id);
         }
         return mapToDto(entity, clazz);
     }
@@ -121,7 +138,7 @@ public class ListingService {
         ListingsEntity entity = listingsRepository.findByIdAndTypeAndStatus(id, type, "Active");
         if (entity == null) {
             log.info("Listing not found with id: {}", id);
-            throw new ListingNotFoundException(type + " not found with id: "+ id);
+            throw new ListingNotFoundException(type + " not found with id: " + id);
         }
         if (images != null && !images.isEmpty()) {
             try {
@@ -141,6 +158,19 @@ public class ListingService {
                 .payload(getJsonString(transformer.toDTO()))
                 .build();
         ListingsEntity saved = listingsRepository.save(updated);
+        attributesRepository.deleteAllById(entity.getListingAttributes().stream().map(ListingAttributesEntity::getId).collect(Collectors.toSet()));
+        Map<String, String> additionalAttributes = transformer.getAdditionalAttributes();
+        List<ListingAttributesEntity> attributesEntities = new ArrayList<>();
+        additionalAttributes.forEach((key, value) -> {
+            ListingAttributesEntity attr =
+                    ListingAttributesEntity.builder()
+                            .listing(saved)
+                            .attributeName(key)
+                            .attributeValue(value)
+                            .build();
+            attributesEntities.add(attr);
+        });
+        attributesRepository.saveAll(attributesEntities);
         log.info("Updated listing with id: {}", id);
         return mapToDto(saved, transformer.getEntityClass());
     }
@@ -149,7 +179,7 @@ public class ListingService {
         ListingsEntity entity = listingsRepository.findByIdAndTypeAndStatus(id, transformer.getType(), "Active");
         if (entity == null) {
             log.info("Listing not found with id: {}", id);
-            throw new ListingNotFoundException(transformer.getType() + " not found with id: "+ id);
+            throw new ListingNotFoundException(transformer.getType() + " not found with id: " + id);
         }
         entity.setStatus("InActive");
         listingsRepository.save(entity);
@@ -171,8 +201,8 @@ public class ListingService {
         return dtoList;
     }
 
-    private void setFilterParameters(TypedQuery<ListingsEntity> transactionsQuery, Map<String, Object> filterParams) {
-        filterParams.keySet().forEach(key -> transactionsQuery.setParameter(key, filterParams.get(key)));
+    private void setFilterParameters(TypedQuery<ListingsEntity> listingQuery, Map<String, Object> filterParams) {
+        filterParams.keySet().forEach(key -> listingQuery.setParameter(key, filterParams.get(key)));
     }
 
     private Map<String, Object> addFilterConditions(StringBuilder query, Map<String, String> allParams) {
@@ -202,16 +232,12 @@ public class ListingService {
     }
 
     private void addFlexQueryCondition(String key, String value, StringBuilder query, Map<String, Object> filterValues) {
-        query.append(" AND exists (select 1 from TransactionAttributesEntity t2 where t2.transaction.id = t1.id and t2.attributeName = '")
+        query.append(" AND exists (select 1 from ListingAttributesEntity t2 where t2.listing.id = t1.id and t2.attributeName = '")
                 .append(key).append("' and t2.attributeValue = :").append(key).append(") ");
         filterValues.put(key, value);
     }
 
-    private void addFreshnessCondition(
-            Map<String, String> allParams,
-            StringBuilder query,
-            Map<String, Object> filterValues
-    ) {
+    private void addFreshnessCondition(Map<String, String> allParams, StringBuilder query, Map<String, Object> filterValues) {
 
         String freshness = allParams.get("freshness");
 
