@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { 
   Users, MapPin, Phone, Wifi, Wind, 
-  Bath, IndianRupee, MessageCircle, ShieldCheck, User 
+  Bath, IndianRupee, MessageCircle, ShieldCheck, User,
+  Check, Copy, Receipt, Mail
 } from "lucide-react";
 import { RoomVacancy } from "@/lib/api";
 import { normalizeUrl } from "@/components/shared/utils";
@@ -17,6 +18,14 @@ interface VacancyCardProps {
 export default function VacancyCard({ vacancy }: VacancyCardProps) {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [initialMediaIndex, setInitialMediaIndex] = useState(0);
+
+  const [copiedContact, setCopiedContact] = useState(false);
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedContact(true);
+    setTimeout(() => setCopiedContact(false), 2000);
+  };
 
   const hasAmenity = (name: string) => vacancy.amenities?.includes(name);
   const images = vacancy.images || [];
@@ -109,28 +118,72 @@ export default function VacancyCard({ vacancy }: VacancyCardProps) {
             </div>
           </div>
 
-          <div className="px-5 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl shadow-lg shadow-emerald-200/50 text-white relative overflow-hidden">
-            <div className="relative z-10 flex items-center justify-between">
-              <div className="flex items-center gap-2 opacity-80">
-                <IndianRupee className="w-3.5 h-3.5" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Starting</span>
+          <div className="space-y-3">
+            <div className="px-5 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl shadow-lg shadow-emerald-200/50 text-white relative overflow-hidden">
+              <div className="relative z-10 flex items-center justify-between">
+                <div className="flex items-center gap-2 opacity-80">
+                  <IndianRupee className="w-3.5 h-3.5" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Starting</span>
+                </div>
+                <p className="text-xl font-black">
+                  ₹{vacancy.rent?.toLocaleString() || 0}
+                  <span className="text-[10px] font-bold opacity-70 ml-1 uppercase">/ Mo</span>
+                </p>
               </div>
-              <p className="text-xl font-black">
-                ₹{vacancy.rent?.toLocaleString() || 0}
-                <span className="text-[10px] font-bold opacity-70 ml-1 uppercase">/ Mo</span>
-              </p>
             </div>
+
+            {((vacancy.deposit || 0) > 0 || (vacancy.brokerage || 0) > 0) && (
+              <div className="flex flex-wrap gap-2">
+                {(vacancy.deposit || 0) > 0 && (
+                  <div className="flex-1 min-w-[80px] p-2.5 bg-emerald-50/50 rounded-xl border border-emerald-100/50 flex flex-col gap-0.5 transition-all hover:bg-emerald-50">
+                    <div className="flex items-center gap-1.5 text-emerald-600">
+                      <ShieldCheck className="w-3 h-3" />
+                      <span className="text-[7px] font-black uppercase tracking-widest">Deposit</span>
+                    </div>
+                    <p className="text-[11px] font-black text-emerald-900">₹{vacancy.deposit?.toLocaleString()}</p>
+                  </div>
+                )}
+                {(vacancy.brokerage || 0) > 0 && (
+                  <div className="flex-1 min-w-[80px] p-2.5 bg-indigo-50/50 rounded-xl border border-indigo-100/50 flex flex-col gap-0.5 transition-all hover:bg-indigo-50">
+                    <div className="flex items-center gap-1.5 text-indigo-500">
+                      <Receipt className="w-3 h-3" />
+                      <span className="text-[7px] font-black uppercase tracking-widest">Brokerage</span>
+                    </div>
+                    <p className="text-[11px] font-black text-indigo-900">₹{vacancy.brokerage?.toLocaleString()}</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="pt-4 border-t border-gray-100 flex flex-col gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 border-2 border-white shadow-sm">
-                <User className="w-5 h-5" />
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 border-2 border-white shadow-sm">
+                  <User className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Owner Contact</p>
+                  <p className="text-sm font-black text-gray-900">{vacancy.ownerContact}</p>
+                  {vacancy.ownerEmail && (
+                    <div className="flex items-center gap-1.5 mt-0.5 text-gray-400">
+                      <Mail className="w-3 h-3" />
+                      <span className="text-[10px] font-medium break-all">{vacancy.ownerEmail}</span>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div>
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Owner Contact</p>
-                <p className="text-sm font-black text-gray-900">{vacancy.ownerContact}</p>
-              </div>
+              <button
+                onClick={() => copyToClipboard(vacancy.ownerContact || "")}
+                className="p-2.5 bg-gray-50 hover:bg-white rounded-xl transition-all border border-transparent hover:border-gray-100 shadow-sm group active:scale-95"
+                title="Copy Number"
+              >
+                {copiedContact ? (
+                  <Check className="w-3.5 h-3.5 text-emerald-500" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5 text-gray-400 group-hover:text-emerald-500" />
+                )}
+              </button>
             </div>
 
             <div className="grid grid-cols-2 gap-3">

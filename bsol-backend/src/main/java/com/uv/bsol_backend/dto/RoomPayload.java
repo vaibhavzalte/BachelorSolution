@@ -17,8 +17,6 @@ public class RoomPayload {
     // 🔹 Room Details
     private String roomType;   // 1RK, 1BHK, 2BHK
     private String availableFor; // BOYS / GIRLS / FAMILY
-    private Integer totalRooms;
-    private Integer availableRooms;
     // 🔹 Pricing
     private Double rent;
     private Double deposit;
@@ -33,4 +31,6 @@ public class RoomPayload {
     private String ownerName;
     private String ownerContact;
     private String ownerEmail;
+    // 🔹 Google Map link
+    private String googleMap;
 }

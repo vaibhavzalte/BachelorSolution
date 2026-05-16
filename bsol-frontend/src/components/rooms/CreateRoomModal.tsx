@@ -21,6 +21,8 @@ import {
   Check,
   Search,
   ChevronDown,
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import { createRoomListing } from "@/lib/api";
 
@@ -273,6 +275,7 @@ export interface RoomFormData {
   area: string;
   city: string;
   location: string;
+  googleMap: string;
   latitude: number | null;
   longitude: number | null;
   // Owner
@@ -297,6 +300,7 @@ const INITIAL_FORM: RoomFormData = {
   area: "",
   city: "Pune",
   location: "",
+  googleMap: "",
   latitude: null,
   longitude: null,
   ownerName: "",
@@ -319,6 +323,7 @@ export default function CreateRoomModal({ isOpen, onClose, onSuccess }: CreateRo
   const [customAmenity, setCustomAmenity] = useState("");
   const [cityQuery, setCityQuery] = useState("");
   const [isCityOpen, setIsCityOpen] = useState(false);
+  const [isMapMaximized, setIsMapMaximized] = useState(false);
   const cityDropdownRef = useRef<HTMLDivElement>(null);
 
   const set = <K extends keyof RoomFormData>(k: K, v: RoomFormData[K]) =>
@@ -425,8 +430,13 @@ export default function CreateRoomModal({ isOpen, onClose, onSuccess }: CreateRo
     setStatus("loading");
     setErrorMsg("");
 
+    const finalForm = { ...form };
+    if (!finalForm.googleMap && finalForm.latitude && finalForm.longitude) {
+      finalForm.googleMap = `https://www.google.com/maps?q=${finalForm.latitude},${finalForm.longitude}`;
+    }
+
     try {
-      await createRoomListing("Room", form, images.map((i) => i.file));
+      await createRoomListing("Room", finalForm, images.map((i) => i.file));
       setStatus("success");
       setTimeout(() => {
         onSuccess();
@@ -744,7 +754,7 @@ export default function CreateRoomModal({ isOpen, onClose, onSuccess }: CreateRo
                 <Field label="Address" required>
                   <input
                     className={inputCls}
-                    placeholder="Street address or landmark"
+                    placeholder="e.g. Karvenagar"
                     value={form.address}
                     onChange={(e) => set("address", e.target.value)}
                   />
@@ -752,7 +762,7 @@ export default function CreateRoomModal({ isOpen, onClose, onSuccess }: CreateRo
                 <Field label="Area / Locality">
                   <input
                     className={inputCls}
-                    placeholder="e.g. Dhanori"
+                    placeholder="e.g. flat no. 402, building no. 101"
                     value={form.area}
                     onChange={(e) => set("area", e.target.value)}
                   />
@@ -761,22 +771,12 @@ export default function CreateRoomModal({ isOpen, onClose, onSuccess }: CreateRo
                   <input
                     className={inputCls}
                     placeholder="https://maps.app.goo.gl/AbCdEf12345"
-                    value={form.location}
-                    onChange={(e) => set("location", e.target.value)}
+                    value={form.googleMap}
+                    onChange={(e) => set("googleMap", e.target.value)}
                   />
                 </Field>
               </div>
-              {/* Map picker */}
-              <LocationPicker
-                onLocationSelect={(loc) => {
-                  set("latitude", loc.lat);
-                  set("longitude", loc.lng);
-                  if (!form.address) set("address", loc.address);
-                }}
-                initialLocation={
-                  form.latitude ? { lat: form.latitude, lng: form.longitude! } : undefined
-                }
-              />
+              
               {/* Latitude and Longitude hidden as per request */}
             </div>
 
@@ -845,6 +845,99 @@ export default function CreateRoomModal({ isOpen, onClose, onSuccess }: CreateRo
               />
               <ImageUploader images={images} onChange={setImages} />
             </div>
+            <div className="p-6 bg-indigo-50/50 border-2 border-indigo-100 rounded-[2rem] space-y-3 relative overflow-hidden">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-indigo-600">
+                  <MapPin className="w-5 h-5" />
+                  <h3 className="text-sm font-black uppercase tracking-tight">Pin Your Location</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMapMaximized(true)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-white text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-indigo-100 hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
+                >
+                  <Maximize2 className="w-3 h-3" /> Full Screen
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 font-medium leading-relaxed">
+                Marking your exact location on the map helps users find your post when they search by area or locality.
+              </p>
+              
+              {!isMapMaximized ? (
+                <LocationPicker
+                  onLocationSelect={(loc) => {
+                    set("latitude", loc.lat);
+                    set("longitude", loc.lng);
+                    set("address", loc.address);
+                  }}
+                  initialAddress={form.address}
+                  initialLocation={
+                    form.latitude ? { lat: form.latitude, lng: form.longitude! } : undefined
+                  }
+                />
+              ) : (
+                <div className="h-64 bg-gray-50/50 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed border-indigo-100 gap-3">
+                  <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center">
+                    <Maximize2 className="w-5 h-5 text-indigo-400" />
+                  </div>
+                  <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest animate-pulse">
+                    Map is open in Full Screen
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* ── Full Screen Map Overlay ── */}
+            {isMapMaximized && (
+              <div className="fixed inset-0 z-[1000] bg-white animate-in fade-in zoom-in-95 duration-300 flex flex-col">
+                <div className="p-6 bg-indigo-600 text-white flex items-center justify-between shadow-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                      <MapPin className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-black tracking-tight">Precise Location Picker</h3>
+                      <p className="text-indigo-200 text-xs font-medium">Click on the map to set your room's exact position</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setIsMapMaximized(false)}
+                    className="w-12 h-12 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center justify-center transition-all active:scale-90"
+                  >
+                    <Minimize2 className="w-6 h-6" />
+                  </button>
+                </div>
+                <div className="flex-1 relative flex flex-col">
+                  <LocationPicker
+                    containerClassName="flex-1 min-h-0 p-6"
+                    className="flex-1"
+                    onLocationSelect={(loc) => {
+                      set("latitude", loc.lat);
+                      set("longitude", loc.lng);
+                      set("address", loc.address);
+                    }}
+                    initialAddress={form.address}
+                    initialLocation={
+                      form.latitude ? { lat: form.latitude, lng: form.longitude! } : undefined
+                    }
+                  />
+                  <div className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-white px-8 py-4 rounded-[2rem] shadow-2xl border border-gray-100 flex items-center gap-6">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Selected Position</span>
+                      <span className="text-xs font-bold text-gray-800">
+                        {form.latitude ? `${form.latitude.toFixed(6)}, ${form.longitude?.toFixed(6)}` : "None"}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setIsMapMaximized(false)}
+                      className="px-8 py-3 bg-indigo-600 text-white rounded-xl text-sm font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg active:scale-95"
+                    >
+                      Done
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* ── Footer ── */}

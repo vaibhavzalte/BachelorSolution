@@ -1,59 +1,58 @@
-package com.uv.bsol_backend.entity;
+    package com.uv.bsol_backend.entity;
 
-import lombok.*;
-import lombok.experimental.SuperBuilder;
+    import lombok.*;
+    import lombok.experimental.SuperBuilder;
 
-import java.util.List;
+    import java.util.List;
 
-@Getter
-@Setter
-@SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Room extends CommonListingFields {
-
-
-    // 🔹 Basic Info
-    private String title;
-
-    private String description;
-
-    // 🔹 Room Details
-    private String roomType;   // 1RK, 1BHK, 2BHK
-
-    private String availableFor; // BOYS / GIRLS / FAMILY
-
-    private Integer totalRooms;
-
-    private Integer availableRooms;
-
-    // 🔹 Pricing
-    private Double rent;
-
-    private Double deposit;
-
-    private Double maintenance;
-
-    private Double brokerage;
-
-    // 🔹 Amenities
-    private List<String> amenities;
-
-    // 🔹 Location
-    private String address;
-
-    private String area;
+    @Getter
+    @Setter
+    @SuperBuilder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public class Room extends CommonListingFields {
 
 
-    // 🔹 Owner Info
-    private String ownerName;
+        // 🔹 Basic Info
+        private String title;
 
-    private String ownerContact;
+        private String description;
 
-    private String ownerEmail;
+        // 🔹 Room Details
+        private String roomType;   // 1RK, 1BHK, 2BHK
 
-    // coming soon
-//    private List<String> rules;
-//    private Double rating;
+        private String availableFor; // BOYS / GIRLS / FAMILY
 
-}
+        // 🔹 Pricing
+        private Double rent;
+
+        private Double deposit;
+
+        private Double maintenance;
+
+        private Double brokerage;
+
+        // 🔹 Amenities
+        private List<String> amenities;
+
+        // 🔹 Location
+        private String address;
+
+        private String area;
+
+
+        // 🔹 Owner Info
+        private String ownerName;
+
+        private String ownerContact;
+
+        private String ownerEmail;
+
+        // Google map link
+        private String googleMap;
+
+        // coming soon
+    //    private List<String> rules;
+    //    private Double rating;
+
+    }

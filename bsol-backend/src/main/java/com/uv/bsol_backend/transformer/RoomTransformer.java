@@ -26,8 +26,6 @@ public class RoomTransformer extends BaseTransformer<Room, RoomPayload> {
                 .description(listing.getDescription())
                 .roomType(listing.getRoomType())
                 .availableFor(listing.getAvailableFor())
-                .totalRooms(listing.getTotalRooms())
-                .availableRooms(listing.getAvailableRooms())
                 .rent(listing.getRent())
                 .deposit(listing.getDeposit())
                 .maintenance(listing.getMaintenance())
@@ -39,6 +37,7 @@ public class RoomTransformer extends BaseTransformer<Room, RoomPayload> {
                 .ownerContact(listing.getOwnerContact())
                 .ownerName(listing.getOwnerName())
                 .ownerEmail(listing.getOwnerEmail())
+                .googleMap(listing.getGoogleMap())
                 .build();
     }
 

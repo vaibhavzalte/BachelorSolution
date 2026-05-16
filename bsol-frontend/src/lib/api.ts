@@ -53,6 +53,7 @@ export interface Room {
   rent?: number;
   deposit?: number;
   maintenance?: number;
+  brokerage?: number;
   wifi?: boolean;
   parking?: boolean;
   ac?: boolean;
@@ -72,7 +73,9 @@ export interface Room {
   videos?: string[];
   amenities?: string[];
   location?: string;
+  googleMap?: string;
 }
+
 
 export interface Mess {
   id?: number;
@@ -183,6 +186,7 @@ export interface RoomPayload {
   area: string;
   city: string;
   location: string;
+  googleMap: string;
   latitude: number | null;
   longitude: number | null;
   ownerName: string;

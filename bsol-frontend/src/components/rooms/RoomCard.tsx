@@ -4,7 +4,8 @@ import { useState } from "react";
 import { 
   House, MapPin, Phone, Wifi, Car, Wind, 
   UtensilsCrossed, Bath, CheckCircle, IndianRupee, 
-  MessageCircle, ExternalLink, User, Users 
+  MessageCircle, ExternalLink, User, Users, 
+  Check, Copy, Wallet, ShieldCheck, Receipt, Mail
 } from "lucide-react";
 import { Room } from "@/lib/api";
 import { normalizeUrl } from "@/components/shared/utils";
@@ -18,13 +19,6 @@ export default function RoomCard({ room }: RoomCardProps) {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [initialMediaIndex, setInitialMediaIndex] = useState(0);
 
-  const amenicons = [
-    { key: "wifi", Icon: Wifi, label: "WiFi", color: "bg-indigo-50 text-indigo-600 border-indigo-100" },
-    { key: "parking", Icon: Car, label: "Parking", color: "bg-amber-50 text-amber-600 border-amber-100" },
-    { key: "ac", Icon: Wind, label: "AC", color: "bg-rose-50 text-rose-600 border-rose-100" },
-    { key: "foodIncluded", Icon: UtensilsCrossed, label: "Food", color: "bg-emerald-50 text-emerald-600 border-emerald-100" },
-    { key: "attachedBathroom", Icon: Bath, label: "Bath", color: "bg-sky-50 text-sky-600 border-sky-100" },
-  ] as const;
 
   const images = room.images || [];
   const videos = room.videos || [];
@@ -39,6 +33,22 @@ export default function RoomCard({ room }: RoomCardProps) {
     setInitialMediaIndex(index);
     setGalleryOpen(true);
   };
+
+  const [copiedMap, setCopiedMap] = useState(false);
+  const [copiedContact, setCopiedContact] = useState(false);
+
+  const copyToClipboard = (text: string, type: 'map' | 'contact') => {
+    navigator.clipboard.writeText(text);
+    if (type === 'map') {
+      setCopiedMap(true);
+      setTimeout(() => setCopiedMap(false), 2000);
+    } else {
+      setCopiedContact(true);
+      setTimeout(() => setCopiedContact(false), 2000);
+    }
+  };
+
+  const mapUrl = room.googleMap || room.location;
 
   return (
     <>
@@ -93,73 +103,132 @@ export default function RoomCard({ room }: RoomCardProps) {
             <h4 className="text-sm font-black text-yellow-500 tracking-widest mb-4 flex items-center gap-2">
               Facilities
             </h4>
-            <div className="flex flex-col gap-2.5">
-              {amenicons.map(({ key, Icon, label, color }) =>
-                room[key as keyof Room] ? (
-                  <div 
-                    key={key} 
-                    className={`flex items-center gap-3 px-4 py-2.5 ${color} rounded-xl text-[11px] font-black uppercase tracking-wider border-2 border-white shadow-sm w-full`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    {label}
-                  </div>
-                ) : null
-              )}
-              {room.amenities && room.amenities.slice(0, 3).map((am, i) => (
+            <div className="max-h-32 overflow-y-auto pr-2 flex flex-col gap-2.5 custom-scrollbar">
+              {room.amenities && room.amenities.map((am, i) => (
                 <div 
                   key={i} 
                   className="flex items-center gap-3 px-4 py-2.5 bg-gray-50 text-gray-500 rounded-xl text-[11px] font-black uppercase tracking-wider border-2 border-white shadow-sm w-full"
                 >
                   <CheckCircle className="w-4 h-4 text-indigo-400" />
-                  {am}
+                  <span className="capitalize">{am}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-700 rounded-2xl shadow-xl shadow-indigo-200/50 text-white relative overflow-hidden">
-            <div className="relative z-10 flex items-center justify-between">
-              <div className="flex items-center gap-2 opacity-80">
-                <IndianRupee className="w-4 h-4" />
-                <span className="text-[10px] font-black uppercase tracking-widest">Rent</span>
+          <div className="space-y-3">
+            <div className="px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-700 rounded-2xl shadow-xl shadow-indigo-200/50 text-white relative overflow-hidden">
+              <div className="relative z-10 flex items-center justify-between">
+                <div className="flex items-center gap-2 opacity-80">
+                  <IndianRupee className="w-4 h-4" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Rent</span>
+                </div>
+                <p className="text-xl font-black tracking-tight">
+                  ₹{room.rent?.toLocaleString() || 0}
+                  <span className="text-[10px] font-black opacity-70 ml-1 uppercase tracking-widest">/ Mo</span>
+                </p>
               </div>
-              <p className="text-xl font-black tracking-tight">
-                ₹{room.rent?.toLocaleString() || 0}
-                <span className="text-[10px] font-black opacity-70 ml-1 uppercase tracking-widest">/ Mo</span>
-              </p>
             </div>
+
+            {((room.deposit || 0) > 0 || (room.maintenance || 0) > 0 || (room.brokerage || 0) > 0) && (
+              <div className="flex flex-wrap gap-2">
+                {(room.deposit || 0) > 0 && (
+                  <div className="flex-1 min-w-[80px] p-2.5 bg-indigo-50/50 rounded-xl border border-indigo-100/50 flex flex-col gap-0.5 transition-all hover:bg-indigo-50">
+                    <div className="flex items-center gap-1.5 text-indigo-400">
+                      <ShieldCheck className="w-3 h-3" />
+                      <span className="text-[7px] font-black uppercase tracking-widest">Deposit</span>
+                    </div>
+                    <p className="text-[11px] font-black text-indigo-900">₹{room.deposit?.toLocaleString()}</p>
+                  </div>
+                )}
+                {(room.maintenance || 0) > 0 && (
+                  <div className="flex-1 min-w-[80px] p-2.5 bg-amber-50/50 rounded-xl border border-amber-100/50 flex flex-col gap-0.5 transition-all hover:bg-amber-50">
+                    <div className="flex items-center gap-1.5 text-amber-500">
+                      <Wallet className="w-3 h-3" />
+                      <span className="text-[7px] font-black uppercase tracking-widest">Maintenance</span>
+                    </div>
+                    <p className="text-[11px] font-black text-amber-900">₹{room.maintenance?.toLocaleString()}</p>
+                  </div>
+                )}
+                {(room.brokerage || 0) > 0 && (
+                  <div className="flex-1 min-w-[80px] p-2.5 bg-emerald-50/50 rounded-xl border border-emerald-100/50 flex flex-col gap-0.5 transition-all hover:bg-emerald-50">
+                    <div className="flex items-center gap-1.5 text-emerald-500">
+                      <Receipt className="w-3 h-3" />
+                      <span className="text-[7px] font-black uppercase tracking-widest">Brokerage</span>
+                    </div>
+                    <p className="text-[11px] font-black text-emerald-900">₹{room.brokerage?.toLocaleString()}</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
+          <div className="space-y-4">
+            <div className="flex flex-col gap-1">
               <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5" /> Location
               </h4>
-              {room.location && room.location.startsWith("http") && (
-                <a
-                  href={room.location}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-[10px] font-black text-indigo-600 hover:text-indigo-800 transition-colors uppercase tracking-widest"
-                >
-                  Maps <ExternalLink className="w-2.5 h-2.5" />
-                </a>
-              )}
+              <p className="text-xs font-bold text-gray-600 leading-relaxed line-clamp-2">
+                {[room.address, room.area, room.city].filter(Boolean).join(", ")}
+              </p>
             </div>
-            <p className="text-xs font-bold text-gray-600 leading-relaxed line-clamp-2">
-              {[room.address, room.area, room.city].filter(Boolean).join(", ")}
-            </p>
+
+            {mapUrl && mapUrl.startsWith("http") && (
+              <div className="flex flex-col gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Google Maps Link:</span>
+                <div className="flex items-center justify-between gap-3">
+                  <a
+                    href={mapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 text-[11px] font-bold text-indigo-600 hover:text-indigo-800 transition-colors truncate"
+                  >
+                    {mapUrl}
+                  </a>
+                  <button
+                    onClick={() => copyToClipboard(mapUrl, 'map')}
+                    className="p-2 hover:bg-white rounded-lg transition-colors border border-transparent hover:border-gray-100 shadow-sm group"
+                    title="Copy Link"
+                  >
+                    {copiedMap ? (
+                      <Check className="w-3.5 h-3.5 text-emerald-500" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5 text-gray-400 group-hover:text-indigo-500" />
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="pt-6 border-t border-gray-100 flex flex-col gap-5">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-[1.25rem] bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
-                <User className="w-6 h-6 text-indigo-300" />
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-[1.25rem] bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center border-2 border-white shadow-sm overflow-hidden">
+                  <User className="w-6 h-6 text-indigo-300" />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-gray-900 tracking-widest">Contact</p>
+                  <p className="text-base font-black text-gray-900">{room.ownerContact}</p>
+                  {room.ownerEmail && (
+                    <div className="flex items-center gap-1.5 mt-0.5 text-gray-400">
+                      <Mail className="w-3 h-3" />
+                      <span className="text-[12px] font-medium break-all">{room.ownerEmail}</span>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div>
-                <p className="text-xs font-black text-gray-900 tracking-widest">Contact</p>
-                <p className="text-base font-black text-gray-900">{room.ownerContact}</p>
-              </div>
+              <button
+                onClick={() => copyToClipboard(room.ownerContact || "", 'contact')}
+                className="p-3 bg-gray-50 hover:bg-white rounded-xl transition-all border-2 border-transparent hover:border-gray-100 shadow-sm group active:scale-95"
+                title="Copy Number"
+              >
+                {copiedContact ? (
+                  <Check className="w-4 h-4 text-emerald-500" />
+                ) : (
+                  <Copy className="w-4 h-4 text-gray-400 group-hover:text-indigo-500" />
+                )}
+              </button>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

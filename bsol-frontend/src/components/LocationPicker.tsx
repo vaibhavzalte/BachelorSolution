@@ -25,6 +25,9 @@ interface LocationData {
 interface LocationPickerProps {
   onLocationSelect: (data: LocationData) => void;
   initialLocation?: { lat: number; lng: number };
+  initialAddress?: string;
+  className?: string;
+  containerClassName?: string;
 }
 
 // ─── Sub-components for Map ──────────────────────────────────────────────────
@@ -52,11 +55,21 @@ function ChangeView({ center }: { center: [number, number] }) {
 
 // ─── Main LocationPicker Component ───────────────────────────────────────────
 
-export default function LocationPicker({ onLocationSelect, initialLocation }: LocationPickerProps) {
+export default function LocationPicker({ 
+  onLocationSelect, 
+  initialLocation, 
+  initialAddress = "",
+  className = "h-64",
+  containerClassName = "" 
+}: LocationPickerProps) {
   const [position, setPosition] = useState<[number, number]>(
     initialLocation ? [initialLocation.lat, initialLocation.lng] : [18.5204, 73.8567] // Default Pune
   );
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState(initialAddress);
+
+  useEffect(() => {
+    if (initialAddress) setAddress(initialAddress);
+  }, [initialAddress]);
   const [isSearching, setIsSearching] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [isLocating, setIsLocating] = useState(false);
@@ -124,7 +137,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className={`flex flex-col gap-4 ${containerClassName}`}>
       {/* Search Input */}
       <div className="relative">
         <div className="flex gap-2">
@@ -179,7 +192,7 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
       </div>
 
       {/* Map Container */}
-      <div className="h-64 rounded-2xl overflow-hidden border border-gray-200 relative">
+      <div className={`${className} rounded-2xl overflow-hidden border border-gray-200 relative`}>
         <MapContainer
           center={position}
           zoom={15}
@@ -199,8 +212,6 @@ export default function LocationPicker({ onLocationSelect, initialLocation }: Lo
           Click or Drag map to select location
         </div>
       </div>
-
-      {/* Latitude and Longitude hidden as per request */}
     </div>
   );
 }
