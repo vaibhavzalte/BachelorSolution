@@ -161,16 +161,18 @@ public class ListingService {
         attributesRepository.deleteAllById(entity.getListingAttributes().stream().map(ListingAttributesEntity::getId).collect(Collectors.toSet()));
         Map<String, String> additionalAttributes = transformer.getAdditionalAttributes();
         List<ListingAttributesEntity> attributesEntities = new ArrayList<>();
-        additionalAttributes.forEach((key, value) -> {
-            ListingAttributesEntity attr =
-                    ListingAttributesEntity.builder()
-                            .listing(saved)
-                            .attributeName(key)
-                            .attributeValue(value)
-                            .build();
-            attributesEntities.add(attr);
-        });
-        attributesRepository.saveAll(attributesEntities);
+        if (additionalAttributes != null) {
+            additionalAttributes.forEach((key, value) -> {
+                ListingAttributesEntity attr =
+                        ListingAttributesEntity.builder()
+                                .listing(saved)
+                                .attributeName(key)
+                                .attributeValue(value)
+                                .build();
+                attributesEntities.add(attr);
+            });
+            attributesRepository.saveAll(attributesEntities);
+        }
         log.info("Updated listing with id: {}", id);
         return mapToDto(saved, transformer.getEntityClass());
     }
@@ -208,6 +210,7 @@ public class ListingService {
     private Map<String, Object> addFilterConditions(StringBuilder query, Map<String, String> allParams) {
         Map<String, Object> filterValues = new HashMap<>();
         if (allParams != null && !allParams.isEmpty()) {
+            allParams.remove("rentSort");
             addFixedQueryCondition("subType", allParams, query, filterValues);
             addFixedQueryCondition("city", allParams, query, filterValues);
             addFixedQueryCondition("status", allParams, query, filterValues);

@@ -55,16 +55,10 @@ public class RoomTransformer extends BaseTransformer<Room, RoomPayload> {
 
     @Override
     public Map<String, String> getAdditionalAttributes() {
-        try{
-            return Map.of(
-                    "roomType",listing.getRoomType(),
-                    "availableFor",listing.getAvailableFor()
-            );
-        }
-        catch (Exception e){
-            //  Do nothing
-        }
-        return super.getAdditionalAttributes();
+        Map<String, String> attributes = new java.util.HashMap<>();
+        if (listing.getRoomType() != null) attributes.put("roomType", listing.getRoomType());
+        if (listing.getAvailableFor() != null) attributes.put("availableFor", listing.getAvailableFor());
+        return attributes;
     }
 
 

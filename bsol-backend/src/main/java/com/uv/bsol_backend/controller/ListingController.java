@@ -16,7 +16,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("uv-api/v1")
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin(origins = {
+        "http://localhost:3000",
+        "http://10.169.144.244:3000"
+})
 @Slf4j
 public class ListingController {
     @Autowired
