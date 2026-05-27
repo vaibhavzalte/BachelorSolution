@@ -1,9 +1,21 @@
-todos:
-first complete whole flow for one entity:
-1. create: take data with location and save into database
-2. update: update the data
-3. get: get the data with location and diffrent filters for search and sorting
-4. delete: delete the data
-5. pagination with frontend 
-6. handle custom exception and error handling  
-7. do unit testing
+# Bachelor Solution
+
+Bachelor Solution is a centralized platform built for bachelors to easily discover and access essential services from a single place.
+
+## Features
+- Find rooms and rental listings
+- Discover mess services
+- Search for roommates
+- Explore nearby facilities and services
+- Service listing platform for providers
+
+## Tech Stack
+- Backend: Spring Boot, Microservices
+- Frontend: React, Next.js
+- Database: PostgreSQL
+
+## Highlights
+- Unified listing model to reduce code duplication
+- Scalable microservices architecture
+- Designed for future feature expansion and better maintainability
+
