@@ -1,7 +1,3 @@
-Sure — here are some common interview questions and strong answers you can use for your Bachelor Solution project.
-
----
-
 ## 1. What is your project about?
 
 My project, Bachelor Solution, is a platform for bachelors to find rooms, mess services, food stalls, roommates, and open posts in one place. The main idea is to reduce the problem of searching across multiple Telegram groups or scattered websites.

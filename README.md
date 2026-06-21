@@ -20,3 +20,8 @@ Through this project, I improved my skills in full-stack development, API integr
 
 # In short
 My project, Bachelor Solution, is a centralized platform for bachelors to find rooms, mess services, food stalls, roommates, and open posts in one place. Most of the time, people search in Telegram groups for these needs, so I built this project to solve that problem by creating a single, easy-to-use platform where they can browse and post listings quickly. It combines a modern frontend with a backend API, and it helps users save time instead of searching across multiple sources.
+
+# In shor 2 
+Bachelor Solution is a centralized platform for bachelors to find rooms, roommates, mess services, food stalls, and community posts in one place. I noticed that people usually search through multiple Telegram and WhatsApp groups, which is inefficient. While some websites offer similar services, many charge high fees or monthly subscriptions.
+
+I built this platform to provide a free and simple alternative where users can browse listings and directly contact owners without any charges. In the future, I may charge only for creating certain posts or premium listings, but viewing listings and contacting owners will always remain free. This project helped me strengthen my full-stack development skills, including backend API development, database management, authentication, and frontend integration.
