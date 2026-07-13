@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <circle cx="50" cy="50" r="50" fill="#1e1b4b" />
+  <circle cx="50" cy="50" r="43" fill="none" stroke="#f43f5e" stroke-width="2.5" />
+  <text x="50%" y="42%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="bold" fill="#f43f5e">SPICY</text>
+  <text x="50%" y="62%" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="bold" fill="#f59e0b">BITES</text>
+</svg>
