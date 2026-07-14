@@ -34,7 +34,7 @@ export default function RightSidebar() {
   };
 
   return (
-    <aside className="sticky top-[117px] hidden h-[calc(100vh-117px)] w-72 flex-col gap-5 overflow-y-auto bg-white p-4 dark:bg-zinc-950 xl:flex border-l border-[var(--border)] shrink-0">
+    <aside className="sticky top-[117px] hidden h-[calc(100vh-117px)] w-72 flex-col gap-5 overflow-y-auto mr-10 p-4 dark:bg-zinc-950 xl:flex shrink-0">
       {/* Browse Categories Card */}
       <div className="rounded-2xl border border-slate-100 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 shadow-soft">
         <h3 className="text-xs font-bold text-slate-800 dark:text-slate-100 mb-4">
