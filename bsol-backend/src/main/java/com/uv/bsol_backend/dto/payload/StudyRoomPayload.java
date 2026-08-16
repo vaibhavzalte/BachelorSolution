@@ -1,4 +1,4 @@
-package com.uv.bsol_backend.entity;
+package com.uv.bsol_backend.dto.payload;
 
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -11,7 +11,7 @@ import java.time.OffsetDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudyRoom extends CommonListingFields {
+public class StudyRoomPayload {
 
     private String roomName; // e.g. "Silent Study Room A"
 

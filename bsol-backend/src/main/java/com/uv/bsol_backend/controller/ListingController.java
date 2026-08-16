@@ -3,10 +3,11 @@ package com.uv.bsol_backend.controller;
 import com.uv.bsol_backend.service.ListingService;
 import com.uv.bsol_backend.transformer.DataTransformer;
 import com.uv.bsol_backend.transformer.DataTransformerFactory;
-import com.uv.bsol_backend.transformer.ListingType;
+import com.uv.bsol_backend.enums.ListingType;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("uv-api/v1")
+@RequestMapping("uv-api/v1/listings")
 @CrossOrigin(origins = {
         "http://localhost:3000",
         "http://10.169.144.244:3000"
@@ -28,86 +29,97 @@ public class ListingController {
     @Autowired
     private ListingService listingService;
 
+    // =========================
+    // CREATE
+    // =========================
     @PostMapping(
-            value = "/{mgmtName}/{typeName}",
-            produces = {"application/json;charset=utf-8"},
-            consumes = {"multipart/form-data"}
+            value = "/{typeName}",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ResponseEntity<Object> createListingWithImages(
-            @PathVariable String mgmtName,
             @PathVariable String typeName,
             @RequestPart("listing") String body,
             @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) {
-        log.info("Received request to create listing with images for mgmtName: {}, typeName: {}", mgmtName, typeName);
-        DataTransformer<?, ?> transformer = dataTransformerFactory.getTransformerFor(ListingType.fromValue(typeName), body);
-        Object o = listingService.createListingWithImages(transformer, images);
-        return new ResponseEntity<>(o, HttpStatus.CREATED);
+        log.info("Received request to create listing with images typeName: {}", typeName);
+        DataTransformer<?, ?, ?> transformer = dataTransformerFactory.getTransformerFor(ListingType.fromValue(typeName), body);
+        Object response = listingService.createListingWithImages(transformer, images);
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-
+    // =========================
+    // GET ALL
+    // =========================
     @GetMapping(
-            value = "/{mgmtName}/{typeName}",
+            value = "/{typeName}",
             produces = {"application/json;charset=utf-8"}
     )
     public ResponseEntity<List<Object>> getListings(
-            @PathVariable String mgmtName,
+
             @PathVariable String typeName,
-            @RequestParam Map<String, String> allParams
+            @RequestParam(required = false) Map<String, String> allParams
     ) {
         log.info("Received request to get all listing of type {} with these parameters {}", typeName, allParams);
-        DataTransformer<?, ?> transformer = dataTransformerFactory.getTransformerFor(ListingType.fromValue(typeName), null);
-        List<Object> listings = (List<Object>) listingService.getListingsByTypeAndFilters(transformer.getEntityClass(), transformer.getType(), allParams);
+        DataTransformer<?, ?, ?> transformer = dataTransformerFactory.getTransformerFor(ListingType.fromValue(typeName), null);
+        List<Object> listings = (List<Object>) listingService.getListingsByTypeAndFilters(transformer, allParams);
         return new ResponseEntity<>(listings, HttpStatus.OK);
     }
 
+    // =========================
+    // GET BY ID
+    // =========================
     @GetMapping(
-            value = "/{mgmtName}/{typeName}/{id}",
+            value = "/{typeName}/{id}",
             produces = {"application/json;charset=utf-8"}
     )
     public ResponseEntity<Object> getListingById(
-            @PathVariable String mgmtName,
             @PathVariable String typeName,
             @PathVariable Long id
     ) {
         log.info("Received request to get listing by id: {} for type: {}", id, typeName);
-        DataTransformer<?, ?> transformer = dataTransformerFactory.getTransformerFor(ListingType.fromValue(typeName), null);
-        Object listing = listingService.getListingById(id,typeName,transformer.getEntityClass());
+        DataTransformer<?, ?, ?> transformer = dataTransformerFactory.getTransformerFor(ListingType.fromValue(typeName), null);
+        Object listing = listingService.getListingById(id, transformer);
         return new ResponseEntity<>(listing, HttpStatus.OK);
     }
 
+    // =========================
+    // UPDATE
+    // =========================
     @PutMapping(
-            value = "/{mgmtName}/{typeName}/{id}",
-            produces = {"application/json;charset=utf-8"},
-            consumes = {"multipart/form-data"}
+            value = "/{typeName}/{id}",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public ResponseEntity<Object> updateListingById(
-            @PathVariable String mgmtName,
             @PathVariable String typeName,
             @PathVariable Long id,
             @RequestPart("listing") String body,
             @RequestPart(value = "images", required = false) List<MultipartFile> images
     ) {
         log.info("Received request to update listing id: {} for type: {}", id, typeName);
-        DataTransformer<?, ?> transformer = dataTransformerFactory.getTransformerFor(ListingType.fromValue(typeName), body);
-        Object updated = listingService.updateListingById(id,typeName,transformer, images);
+        DataTransformer<?, ?, ?> transformer = dataTransformerFactory.getTransformerFor(ListingType.fromValue(typeName), body);
+        Object updated = listingService.updateListingById(id, transformer, images);
         return new ResponseEntity<>(updated, HttpStatus.OK);
     }
 
-    @DeleteMapping(
-            value = "/{mgmtName}/{typeName}/{id}"
-    )
+    // =========================
+    // DELETE
+    // =========================
+    @DeleteMapping(value = "/{typeName}/{id}")
     public ResponseEntity<Void> deleteListingById(
-            @PathVariable String mgmtName,
             @PathVariable String typeName,
             @PathVariable Long id
     ) {
         log.info("Received request to soft-delete listing id: {} for type: {}", id, typeName);
-        DataTransformer<?, ?> transformer = dataTransformerFactory.getTransformerFor(ListingType.fromValue(typeName), null);
-        listingService.deleteListingById(transformer,id);
+        DataTransformer<?, ?, ?> transformer = dataTransformerFactory.getTransformerFor(ListingType.fromValue(typeName), null);
+        listingService.deleteListingById(transformer, id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    // =========================
+    // HEALTH CHECK
+    // =========================
     @GetMapping
     public String getListings() {
         return "Application is running";

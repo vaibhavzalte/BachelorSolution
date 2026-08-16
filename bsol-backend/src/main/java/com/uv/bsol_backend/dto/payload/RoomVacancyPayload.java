@@ -1,7 +1,9 @@
-package com.uv.bsol_backend.dto;
+package com.uv.bsol_backend.dto.payload;
 
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Data
@@ -9,24 +11,30 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class RoomPayload {
+public class RoomVacancyPayload {
     protected List<String> images;
     // 🔹 Basic Info
     private String title;
     private String description;
-    // 🔹 Room Details
-    private String roomType;   // 1RK, 1BHK, 2BHK
-    private String availableFor; // BOYS / GIRLS / FAMILY
-    // 🔹 Pricing
+
+    private String roomType;
+    private int totalVacancies;
+    private String preferredTenant; // Male / Female / Any
+
     private Double rent;
     private Double deposit;
     private Double maintenance;
     private Double brokerage;
-    // 🔹 Amenities
-    private List<String> amenities;
+
+    private List<String> amenities; // WiFi, AC, Washing Machine
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private OffsetDateTime availableFrom;    // Yes / No / Optional
     // 🔹 Location
     private String address;
     private String area;
+
+
     // 🔹 Owner Info
     private String ownerName;
     private String ownerContact;

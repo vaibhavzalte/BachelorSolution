@@ -1,37 +1,23 @@
 package com.uv.bsol_backend.transformer;
 
-import com.uv.bsol_backend.entity.CommonListingFields;
+import com.uv.bsol_backend.model.CommonRequestFields;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public abstract class BaseTransformer<E extends CommonListingFields, D> implements DataTransformer<E, D> {
+public abstract class BaseTransformer<REQ extends CommonRequestFields, PAYLOAD, RES> implements DataTransformer<REQ, PAYLOAD, RES> {
     // common logic here
-    protected E listing;
+    protected REQ listing;
 
-    BaseTransformer(E listing) {
+    protected BaseTransformer(REQ listing) {
         this.listing = listing;
     }
 
-    @Override
-    public Long getId() {
-        return null;
-    }
 
     @Override
     public String getPrimaryId() {
         return listing.getPrimaryId();
-    }
-
-    @Override
-    public void setImages(List<String> images) {
-        listing.setImages(images);
-    }
-
-    @Override
-    public E getEntity() {
-        return listing;
     }
 
     @Override
@@ -53,8 +39,19 @@ public abstract class BaseTransformer<E extends CommonListingFields, D> implemen
     public Double getLongitude() {
         return listing.getLongitude();
     }
+
     @Override
-    public Map<String,String> getAdditionalAttributes(){
+    public void setImages(List<String> images) {
+        listing.setImages(images);
+    }
+
+    @Override
+    public REQ getRequest() {
+        return listing;
+    }
+
+    @Override
+    public Map<String, String> getAdditionalAttributes() {
         return Collections.emptyMap();
     }
 }

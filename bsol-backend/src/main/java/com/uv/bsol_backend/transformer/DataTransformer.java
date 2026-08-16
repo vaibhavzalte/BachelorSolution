@@ -1,14 +1,11 @@
 package com.uv.bsol_backend.transformer;
 
-
-import com.uv.bsol_backend.entity.CommonListingFields;
+import com.uv.bsol_backend.entity.ListingEntity;
 
 import java.util.List;
 import java.util.Map;
 
-//entity DTO
-public interface DataTransformer<E extends CommonListingFields, D> {
-    Long getId();
+public interface DataTransformer<REQ, PAYLOAD, RES> {
 
     String getPrimaryId();
 
@@ -18,10 +15,22 @@ public interface DataTransformer<E extends CommonListingFields, D> {
 
     String getSubType();
 
-    //    RES getPayload();
-    E getEntity();     // original entity
+    /**
+     * Original request object received from the API.
+     */
+    REQ getRequest();
 
-    D toDTO();         // mapped DTO
+    /**
+     * Converts the request/model into the payload
+     * that will be stored inside ListingsEntity.payload.
+     */
+    PAYLOAD toPayload();
+
+    /**
+     * Converts the stored payload + common listing information
+     * into the response returned by the API.
+     */
+    RES toResponse(PAYLOAD payload, ListingEntity listingEntity);
 
     Double getLatitude();
 
@@ -29,8 +38,11 @@ public interface DataTransformer<E extends CommonListingFields, D> {
 
     void setImages(List<String> images);
 
-    Class<E> getEntityClass();
+    Class<REQ> getRequestClass();
 
-    Class<D> getDtoClass();
-    Map<String,String> getAdditionalAttributes();
+    Class<PAYLOAD> getPayloadClass();
+
+    Class<RES> getResponseClass();
+
+    Map<String, String> getAdditionalAttributes();
 }

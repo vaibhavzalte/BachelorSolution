@@ -1,14 +1,14 @@
 package com.uv.bsol_backend.transformer;
 
-import com.uv.bsol_backend.dto.RoomVacancyPayload;
-import com.uv.bsol_backend.entity.RoomVacancy;
+import com.uv.bsol_backend.dto.payload.RoomVacancyPayload;
+import com.uv.bsol_backend.dto.request.RoomVacancyRequest;
+import com.uv.bsol_backend.dto.response.RoomVacancyResponse;
+import com.uv.bsol_backend.entity.ListingEntity;
 
-import java.util.Map;
-
-public class RoomVacancyTransformer extends BaseTransformer<RoomVacancy, RoomVacancyPayload> {
+public class RoomVacancyTransformer extends BaseTransformer<RoomVacancyRequest, RoomVacancyPayload, RoomVacancyResponse> {
     public static final String LISTING_TYPE = "RoomVacancy";
 
-    public RoomVacancyTransformer(RoomVacancy roomVacancy) {
+    public RoomVacancyTransformer(RoomVacancyRequest roomVacancy) {
         super(roomVacancy);
     }
 
@@ -19,7 +19,7 @@ public class RoomVacancyTransformer extends BaseTransformer<RoomVacancy, RoomVac
     }
 
     @Override
-    public RoomVacancyPayload toDTO() {
+    public RoomVacancyPayload toPayload() {
         return RoomVacancyPayload.builder()
                 .title(listing.getTitle())
                 .description(listing.getDescription())
@@ -42,21 +42,25 @@ public class RoomVacancyTransformer extends BaseTransformer<RoomVacancy, RoomVac
                 .build();
     }
 
-
     @Override
-    public Class<RoomVacancy> getEntityClass() {
-        return RoomVacancy.class;
+    public RoomVacancyResponse toResponse(RoomVacancyPayload payload, ListingEntity listingEntity) {
+        return null;
     }
 
+
     @Override
-    public Class<RoomVacancyPayload> getDtoClass() {
-        return RoomVacancyPayload.class;
+    public Class<RoomVacancyRequest> getRequestClass() {
+        return null;
     }
+
     @Override
-    public Map<String, String> getAdditionalAttributes() {
-        Map<String, String> attributes = new java.util.HashMap<>();
-        if (listing.getRoomType() != null) attributes.put("roomType", listing.getRoomType());
-        if (listing.getPreferredTenant() != null) attributes.put("preferredTenant", listing.getPreferredTenant());
-        return attributes;
+    public Class<RoomVacancyPayload> getPayloadClass() {
+        return null;
     }
+
+    @Override
+    public Class<RoomVacancyResponse> getResponseClass() {
+        return null;
+    }
+
 }

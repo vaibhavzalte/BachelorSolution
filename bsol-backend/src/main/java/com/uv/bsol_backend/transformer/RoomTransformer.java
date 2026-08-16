@@ -1,26 +1,27 @@
 package com.uv.bsol_backend.transformer;
 
-import com.uv.bsol_backend.dto.RoomPayload;
-import com.uv.bsol_backend.entity.Room;
+import com.uv.bsol_backend.dto.payload.RoomPayload;
+import com.uv.bsol_backend.dto.request.RoomRequest;
+import com.uv.bsol_backend.dto.response.RoomResponse;
+import com.uv.bsol_backend.entity.ListingEntity;
 
+import java.util.HashMap;
 import java.util.Map;
 
-public class RoomTransformer extends BaseTransformer<Room, RoomPayload> {
+public class RoomTransformer extends BaseTransformer<RoomRequest, RoomPayload, RoomResponse> {
     public static final String LISTING_TYPE = "Room";
 
-    public RoomTransformer(Room room) {
+    public RoomTransformer(RoomRequest room) {
         super(room);
     }
-
 
     @Override
     public String getType() {
         return LISTING_TYPE;
     }
 
-
     @Override
-    public RoomPayload toDTO() {
+    public RoomPayload toPayload() {
         return RoomPayload.builder()
                 .title(listing.getTitle())
                 .description(listing.getDescription())
@@ -41,20 +42,54 @@ public class RoomTransformer extends BaseTransformer<Room, RoomPayload> {
                 .build();
     }
 
-
     @Override
-    public Class<Room> getEntityClass() {
-        return Room.class;
+    public RoomResponse toResponse(RoomPayload roomPayload, ListingEntity entity) {
+        return RoomResponse.builder()
+                .id(entity.getId())
+                .type(entity.getType())
+                .subType(entity.getSubType())
+                .city(entity.getCity())
+                .latitude(entity.getLatitude())
+                .longitude(entity.getLongitude())
+//                .status(entity.getStatus().toString())
+
+                .title(roomPayload.getTitle())
+                .description(roomPayload.getDescription())
+                .roomType(roomPayload.getRoomType())
+                .availableFor(roomPayload.getAvailableFor())
+                .rent(roomPayload.getRent())
+                .deposit(roomPayload.getDeposit())
+                .maintenance(roomPayload.getMaintenance())
+                .brokerage(roomPayload.getBrokerage())
+                .amenities(roomPayload.getAmenities())
+                .address(roomPayload.getAddress())
+                .area(roomPayload.getArea())
+                .images(roomPayload.getImages())
+                .ownerContact(roomPayload.getOwnerContact())
+                .ownerName(roomPayload.getOwnerName())
+                .ownerEmail(roomPayload.getOwnerEmail())
+                .googleMap(roomPayload.getGoogleMap())
+                .build();
     }
 
     @Override
-    public Class<RoomPayload> getDtoClass() {
+    public Class<RoomRequest> getRequestClass() {
+        return RoomRequest.class;
+    }
+
+    @Override
+    public Class<RoomPayload> getPayloadClass() {
         return RoomPayload.class;
     }
 
     @Override
+    public Class<RoomResponse> getResponseClass() {
+        return RoomResponse.class;
+    }
+
+    @Override
     public Map<String, String> getAdditionalAttributes() {
-        Map<String, String> attributes = new java.util.HashMap<>();
+        Map<String, String> attributes = new HashMap<>();
         if (listing.getRoomType() != null) attributes.put("roomType", listing.getRoomType());
         if (listing.getAvailableFor() != null) attributes.put("availableFor", listing.getAvailableFor());
         return attributes;

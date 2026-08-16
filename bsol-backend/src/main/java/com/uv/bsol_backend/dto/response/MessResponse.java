@@ -1,14 +1,18 @@
-package com.uv.bsol_backend.entity;
+package com.uv.bsol_backend.dto.response;
 
+import com.uv.bsol_backend.model.CommonResponseFields;
 import lombok.*;
 
-@Getter
-@Setter
+import java.util.List;
+
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Mess extends CommonListingFields {
+public class MessResponse extends CommonResponseFields {
+
+    protected List<String> images;
 
     // 🔹 Basic Info
     private String messName;
@@ -31,8 +35,6 @@ public class Mess extends CommonListingFields {
 
     // 🔹 Location
     private String address;
-
-
     private String area;
 
     // 🔹 Owner Info
@@ -41,5 +43,4 @@ public class Mess extends CommonListingFields {
     private String ownerContact;
 
     private String ownerEmail;
-
 }

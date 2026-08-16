@@ -1,5 +1,6 @@
-package com.uv.bsol_backend.dto;
+package com.uv.bsol_backend.dto.request;
 
+import com.uv.bsol_backend.model.CommonRequestFields;
 import lombok.*;
 
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class MessPayload {
+public class MessRequest extends CommonRequestFields {
 
     protected List<String> images;
 

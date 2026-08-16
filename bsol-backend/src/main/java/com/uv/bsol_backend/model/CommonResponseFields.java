@@ -1,4 +1,4 @@
-package com.uv.bsol_backend.entity;
+package com.uv.bsol_backend.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,11 +13,11 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class CommonListingFields {
-    protected Long id; // no need to send from frontend
-    protected String type; // no need to send from frontend
+public abstract class CommonResponseFields {
+    protected Long id;
+    protected String type;
     protected String subType;
-    protected String primaryId; 
+    protected String primaryId;
     protected String city;
     protected Double latitude;
     protected Double longitude;

@@ -24,5 +24,5 @@ public class ListingAttributesEntity {
 
     @ManyToOne
     @JoinColumn(name = "listing_id")
-    private ListingsEntity listing;
+    private ListingEntity listing;
 }

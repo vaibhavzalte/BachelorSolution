@@ -1,6 +1,7 @@
-package com.uv.bsol_backend.entity;
+package com.uv.bsol_backend.dto.response;
 
 
+import com.uv.bsol_backend.model.CommonResponseFields;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,7 @@ import java.time.OffsetDateTime;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FoodStall extends CommonListingFields {
+public class FoodStallResponse extends CommonResponseFields {
 
 
     private String stallName;

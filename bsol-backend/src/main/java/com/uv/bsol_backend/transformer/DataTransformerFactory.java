@@ -1,6 +1,7 @@
 package com.uv.bsol_backend.transformer;
 
-import com.uv.bsol_backend.entity.*;
+import com.uv.bsol_backend.dto.request.*;
+import com.uv.bsol_backend.enums.ListingType;
 import com.uv.bsol_backend.exception.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,21 +12,19 @@ public class DataTransformerFactory {
     @Autowired
     ObjectMapper objectMapper;
 
-    public DataTransformer<?, ?> getTransformerFor(ListingType type, String payload) {
-        DataTransformer<?, ?> transformer = null;
-        switch (type) {
+    public DataTransformer<?, ?, ?> getTransformerFor(ListingType type, String payload) {
+        return switch (type) {
             case ROOM ->
-                    transformer = new RoomTransformer(payload == null ? null : objectMapper.readValue(payload, Room.class));
+                    new RoomTransformer(payload == null ? null : objectMapper.readValue(payload, RoomRequest.class));
             case MESS ->
-                    transformer = new MessTransformer(payload == null ? null : objectMapper.readValue(payload, Mess.class));
+                    new MessTransformer(payload == null ? null : objectMapper.readValue(payload, MessRequest.class));
             case ROOM_VACANCY ->
-                    transformer = new RoomVacancyTransformer(payload == null ? null : objectMapper.readValue(payload, RoomVacancy.class));
+                    new RoomVacancyTransformer(payload == null ? null : objectMapper.readValue(payload, RoomVacancyRequest.class));
             case FOOD_STALL ->
-                    transformer = new FoodStallTransformer(payload == null ? null : objectMapper.readValue(payload, FoodStall.class));
+                    new FoodStallTransformer(payload == null ? null : objectMapper.readValue(payload, FoodStallRequest.class));
             case STUDY_ROOM ->
-                    transformer = new StudyRoomTransformer(payload == null ? null : objectMapper.readValue(payload, StudyRoom.class));
+                    new StudyRoomTransformer(payload == null ? null : objectMapper.readValue(payload, StudyRoomRequest.class));
             default -> throw new BadRequestException("Invalid Listing Type " + type);
-        }
-        return transformer;
+        };
     }
 }

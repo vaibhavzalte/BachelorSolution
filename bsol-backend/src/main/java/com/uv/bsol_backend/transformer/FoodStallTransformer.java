@@ -1,11 +1,14 @@
 package com.uv.bsol_backend.transformer;
 
-import com.uv.bsol_backend.entity.FoodStall;
+import com.uv.bsol_backend.dto.payload.FoodStallPayload;
+import com.uv.bsol_backend.dto.request.FoodStallRequest;
+import com.uv.bsol_backend.dto.response.FoodStallResponse;
+import com.uv.bsol_backend.entity.ListingEntity;
 
-public class FoodStallTransformer extends BaseTransformer<FoodStall, FoodStall> {
+public class FoodStallTransformer extends BaseTransformer<FoodStallRequest, FoodStallPayload, FoodStallResponse> {
     public static final String LISTING_TYPE = "FoodStall";
 
-    FoodStallTransformer(FoodStall listing) {
+    FoodStallTransformer(FoodStallRequest listing) {
         super(listing);
     }
 
@@ -21,28 +24,28 @@ public class FoodStallTransformer extends BaseTransformer<FoodStall, FoodStall> 
     }
 
     @Override
-    public FoodStall toDTO() {
+    public FoodStallPayload toPayload() {
+        return null;
+    }
+
+    @Override
+    public FoodStallResponse toResponse(FoodStallPayload foodStallPayload, ListingEntity listingEntity) {
         return null;
     }
 
 
     @Override
-    public Double getLatitude() {
+    public Class<FoodStallRequest> getRequestClass() {
         return null;
     }
 
     @Override
-    public Double getLongitude() {
+    public Class<FoodStallPayload> getPayloadClass() {
         return null;
     }
 
     @Override
-    public Class<FoodStall> getEntityClass() {
-        return FoodStall.class;
-    }
-
-    @Override
-    public Class<FoodStall> getDtoClass() {
+    public Class<FoodStallResponse> getResponseClass() {
         return null;
     }
 

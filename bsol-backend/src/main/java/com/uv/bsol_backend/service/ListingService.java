@@ -1,11 +1,12 @@
 package com.uv.bsol_backend.service;
 
-import com.uv.bsol_backend.entity.CommonListingFields;
 import com.uv.bsol_backend.entity.ListingAttributesEntity;
-import com.uv.bsol_backend.entity.ListingsEntity;
+import com.uv.bsol_backend.entity.ListingEntity;
+import com.uv.bsol_backend.enums.ListingStatus;
 import com.uv.bsol_backend.exception.DuplicateListingException;
 import com.uv.bsol_backend.exception.FileStorageException;
 import com.uv.bsol_backend.exception.ListingNotFoundException;
+import com.uv.bsol_backend.model.CommonRequestFields;
 import com.uv.bsol_backend.repository.ListingAttributesRepository;
 import com.uv.bsol_backend.repository.ListingsRepository;
 import com.uv.bsol_backend.transformer.DataTransformer;
@@ -14,6 +15,7 @@ import jakarta.persistence.TypedQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import tools.jackson.databind.ObjectMapper;
 
@@ -40,7 +42,24 @@ public class ListingService {
     @Autowired
     private FileStorageService fileStorageService;
 
-    public <E extends CommonListingFields, D> E createListingWithImages(DataTransformer<E, D> transformer, List<MultipartFile> images) {
+    private static void addFixedQueryCondition(
+            String paramName,
+            Map<String, String> allParams,
+            StringBuilder query,
+            Map<String, Object> filterValues
+    ) {
+        String paramValue = allParams.get(paramName);
+        if (paramValue != null && !paramValue.isEmpty()) {
+            query.append(" AND  t1.").append(paramName).append(" = :").append(paramName);
+            filterValues.put(paramName, paramValue);
+            allParams.remove(paramName);
+        }
+    }
+
+    public <REQ, PAYLOAD, RES> RES createListingWithImages(
+            DataTransformer<REQ, PAYLOAD, RES> transformer,
+            List<MultipartFile> images
+    ) {
         if (images != null && !images.isEmpty()) {
             try {
                 List<String> imageUrls = fileStorageService.storeFiles(images);
@@ -53,92 +72,101 @@ public class ListingService {
         return createListing(transformer);
     }
 
-    public <E extends CommonListingFields, D> E createListing(DataTransformer<E, D> transformer) {
-        ListingsEntity entity = listingsRepository.findByIdAndTypeAndStatus(transformer.getId(), transformer.getType(), "ACTIVE");
-        if (entity != null) {
-            throw new DuplicateListingException(transformer.getType() + " already exists with id: " + transformer.getId());
-        }
-        ListingsEntity newEntity = ListingsEntity.builder()
+    @Transactional
+    public <REQ, PAYLOAD, RES> RES createListing(
+            DataTransformer<REQ, PAYLOAD, RES> transformer
+    ) {
+//         Request -> Transformer -> Payload -> JSON -> ListingsEntity
+        ListingEntity newEntity = ListingEntity.builder()
                 .type(transformer.getType())
                 .subType(transformer.getSubType())
                 .primaryId(transformer.getPrimaryId())
                 .city(transformer.getCity())
                 .latitude(transformer.getLatitude())
                 .longitude(transformer.getLongitude())
-                .payload(getJsonString(transformer.toDTO()))
-                .status("Active")
+                .payload(getJsonString(transformer.toPayload()))
+                .status(ListingStatus.ACTIVE)
                 .build();
-        ListingsEntity listingDB = listingsRepository.save(newEntity);
+
+        ListingEntity listingDB = listingsRepository.save(newEntity);
+
         Map<String, String> additionalAttributes = transformer.getAdditionalAttributes();
         List<ListingAttributesEntity> attributesEntities = new ArrayList<>();
-        additionalAttributes.keySet().forEach(key -> {
-            ListingAttributesEntity attributesEntity = ListingAttributesEntity.builder()
-                    .listing(listingDB)
-                    .attributeName(key)
-                    .attributeValue(additionalAttributes.get(key))
-                    .id(listingDB.getId() + key)
-                    .build();
-            attributesEntities.add(attributesEntity);
-        });
-        attributesRepository.saveAll(attributesEntities);
-        return mapToDto(listingDB, transformer.getEntityClass());
-    }
+        if (additionalAttributes != null) {
 
-    private String getJsonString(Object object) {
-        return objectMapper.writeValueAsString(object);
-    }
+            additionalAttributes.forEach((key, value) -> {
 
-    private <T extends CommonListingFields> T mapToDto(ListingsEntity entity, Class<T> dtoClass) {
-        T dto = null;
+                ListingAttributesEntity attributesEntity =
+                        ListingAttributesEntity.builder()
+                                .listing(listingDB)
+                                .attributeName(key)
+                                .attributeValue(value)
+                                .id(listingDB.getId() + key)
+                                .build();
 
-        if (entity != null && entity.getPayload() != null) {
-            dto = objectMapper.readValue(entity.getPayload(), dtoClass);
-            if (dto != null) {
-                if (dto.getImages() != null) {
-                    List<String> base64Images = new ArrayList<>();
-                    for (String url : dto.getImages()) {
-                        try {
-                            byte[] bytes = fileStorageService.loadFile(url);
-                            String base64 = Base64.getEncoder().encodeToString(bytes);
-                            String mimeType = "image/jpeg";
-                            if (url.toLowerCase().endsWith(".png")) mimeType = "image/png";
-                            else if (url.toLowerCase().endsWith(".gif")) mimeType = "image/gif";
-                            else if (url.toLowerCase().endsWith(".webp")) mimeType = "image/webp";
-                            base64Images.add("data:" + mimeType + ";base64," + base64);
-                        } catch (IOException e) {
-                            log.error("Failed to load image: " + url, e);
-                        }
-                    }
-                    dto.setImages(base64Images);
-                }
-                dto.setId(entity.getId());
-                dto.setPrimaryId(entity.getPrimaryId());
-                dto.setCity(entity.getCity());
-                dto.setType(entity.getType());
-                dto.setSubType(entity.getSubType());
-                dto.setStatus(entity.getStatus());
-                dto.setLatitude(entity.getLatitude());
-                dto.setLongitude(entity.getLongitude());
-            }
+                attributesEntities.add(attributesEntity);
+            });
         }
 
-        return dto;
-    }
-
-    public <T extends CommonListingFields> T getListingById(Long id, String type, Class<T> clazz) {
-        ListingsEntity entity = listingsRepository.findByIdAndTypeAndStatus(id, type, "Active");
-        if (entity == null) {
-            log.info("Listing not found with id: {}", id);
-            throw new ListingNotFoundException(type + " not found with id: " + id);
+        if (!attributesEntities.isEmpty()) {
+            attributesRepository.saveAll(
+                    attributesEntities
+            );
         }
-        return mapToDto(entity, clazz);
+
+        return mapToResponse(listingDB, transformer);
     }
 
-    public <E extends CommonListingFields, D> E updateListingById(Long id, String type, DataTransformer<E, D> transformer, List<MultipartFile> images) {
-        ListingsEntity entity = listingsRepository.findByIdAndTypeAndStatus(id, type, "Active");
+    public <REQ, PAYLOAD, RES> RES getListingById(
+            Long id,
+            DataTransformer<REQ, PAYLOAD, RES> transformer
+    ) {
+        ListingEntity entity = listingsRepository.findByIdAndTypeAndStatus(id, transformer.getType(), ListingStatus.ACTIVE);
         if (entity == null) {
             log.info("Listing not found with id: {}", id);
-            throw new ListingNotFoundException(type + " not found with id: " + id);
+            throw new ListingNotFoundException(transformer.getType() + " not found with id: " + id);
+        }
+        return mapToResponse(entity, transformer);
+    }
+
+    public <REQ, PAYLOAD, RES> List<RES> getListingsByTypeAndFilters(
+            DataTransformer<REQ, PAYLOAD, RES> transformer,
+            Map<String, String> allParams
+    ) {
+        log.info("Creating listing query...");
+        StringBuilder query =
+                new StringBuilder(
+                        "SELECT DISTINCT t1 FROM ListingEntity t1 " +
+                                "WHERE t1.type = :type " +
+                                "AND t1.status = :status"
+                );
+        Map<String, Object> filterParams = addFilterConditions(query, allParams);
+        filterParams.put(
+                "type", transformer.getType()
+        );
+        filterParams.put("status", ListingStatus.ACTIVE);
+        TypedQuery<ListingEntity> listingsQuery = entityManager.createQuery(query.toString(), ListingEntity.class);
+        setFilterParameters(listingsQuery, filterParams);
+        List<ListingEntity> listings = listingsQuery.getResultList();
+
+        List<RES> responseList = new ArrayList<>();
+        for (ListingEntity entity : listings) {
+            RES response = mapToResponse(entity, transformer);
+            responseList.add(response);
+        }
+        return responseList;
+    }
+
+    @Transactional
+    public <REQ, PAYLOAD, RES> RES updateListingById(
+            Long id,
+            DataTransformer<REQ, PAYLOAD, RES> transformer,
+            List<MultipartFile> images
+    ) {
+        ListingEntity entity = listingsRepository.findByIdAndTypeAndStatus(id, transformer.getType(), ListingStatus.ACTIVE);
+        if (entity == null) {
+            log.info("Listing not found with id: {}", id);
+            throw new ListingNotFoundException(transformer.getType() + " not found with id: " + id);
         }
         if (images != null && !images.isEmpty()) {
             try {
@@ -149,71 +177,118 @@ public class ListingService {
                 throw new FileStorageException("Failed to store images", e);
             }
         }
-        ListingsEntity updated = entity.toBuilder()
+        ListingEntity updated = entity.toBuilder()
                 .subType(transformer.getSubType())
                 .primaryId(transformer.getPrimaryId())
                 .city(transformer.getCity())
                 .latitude(transformer.getLatitude())
                 .longitude(transformer.getLongitude())
-                .payload(getJsonString(transformer.toDTO()))
+                .payload(getJsonString(transformer.toPayload()))
                 .build();
-        ListingsEntity saved = listingsRepository.save(updated);
+
+        ListingEntity saved = listingsRepository.save(updated);
+
         attributesRepository.deleteAllById(entity.getListingAttributes().stream().map(ListingAttributesEntity::getId).collect(Collectors.toSet()));
+        attributesRepository.flush();
         Map<String, String> additionalAttributes = transformer.getAdditionalAttributes();
         List<ListingAttributesEntity> attributesEntities = new ArrayList<>();
         if (additionalAttributes != null) {
             additionalAttributes.forEach((key, value) -> {
-                ListingAttributesEntity attr =
+                ListingAttributesEntity attribute =
                         ListingAttributesEntity.builder()
+                                .id(saved.getId().toString()+key)
                                 .listing(saved)
                                 .attributeName(key)
                                 .attributeValue(value)
                                 .build();
-                attributesEntities.add(attr);
+                attributesEntities.add(attribute);
             });
-            attributesRepository.saveAll(attributesEntities);
+            if (!attributesEntities.isEmpty()) {
+
+                attributesRepository.saveAll(
+                        attributesEntities
+                );
+            }
         }
         log.info("Updated listing with id: {}", id);
-        return mapToDto(saved, transformer.getEntityClass());
+        return mapToResponse(saved, transformer);
     }
 
-    public <E extends CommonListingFields, D> void deleteListingById(DataTransformer<E, D> transformer, Long id) {
-        ListingsEntity entity = listingsRepository.findByIdAndTypeAndStatus(id, transformer.getType(), "Active");
+    @Transactional
+    public <REQ, PAYLOAD, RES> void deleteListingById(
+            DataTransformer<REQ, PAYLOAD, RES> transformer,
+            Long id
+    ) {
+        ListingEntity entity = listingsRepository.findByIdAndTypeAndStatus(id, transformer.getType(), ListingStatus.ACTIVE);
         if (entity == null) {
             log.info("Listing not found with id: {}", id);
             throw new ListingNotFoundException(transformer.getType() + " not found with id: " + id);
         }
-        entity.setStatus("InActive");
+        entity.setStatus(ListingStatus.INACTIVE);
         listingsRepository.save(entity);
     }
 
-    public <T extends CommonListingFields> List<T> getListingsByTypeAndFilters(Class<T> clazz, String type, Map<String, String> allParams) {
-        log.info("get listing sql creating...");
-        StringBuilder query = new StringBuilder("SELECT DISTINCT t1 FROM ListingsEntity t1 WHERE type=:type");
-        Map<String, Object> filterParams = addFilterConditions(query, allParams);
-        filterParams.put("type", type);
-        TypedQuery<ListingsEntity> listingsQuery = entityManager.createQuery(query.toString(), ListingsEntity.class);
-        setFilterParameters(listingsQuery, filterParams);
-        List<ListingsEntity> listings = listingsQuery.getResultList();
-        List<T> dtoList = new ArrayList<>();
-        for (ListingsEntity listingsEntity : listings) {
-            T dto = mapToDto(listingsEntity, clazz);
-            dtoList.add(dto);
+    private <REQ, PAYLOAD, RES> RES mapToResponse(
+            ListingEntity entity,
+            DataTransformer<REQ, PAYLOAD, RES> transformer
+    ) {
+        if (entity == null || entity.getPayload() == null) {
+            return null;
         }
-        return dtoList;
+//        Database -> ListingsEntity.payload -> JSON -> RoomPayload
+
+        PAYLOAD payload = objectMapper.readValue(
+                entity.getPayload(),
+                transformer.getPayloadClass()
+        );
+//        LOAD IMAGES
+        if (payload instanceof CommonRequestFields payloadFields) {
+            if (payloadFields.getImages() != null) {
+                List<String> base64Images = new ArrayList<>();
+                for (String url : payloadFields.getImages()) {
+                    try {
+                        byte[] bytes = fileStorageService.loadFile(url);
+                        String base64 = Base64.getEncoder().encodeToString(bytes);
+                        String mimeType = "image/jpeg";
+                        if (url.toLowerCase().endsWith(".png")) {
+                            mimeType = "image/png";
+                        } else if (url.toLowerCase().endsWith(".gif")) {
+                            mimeType = "image/gif";
+                        } else if (url.toLowerCase().endsWith(".webp")) {
+                            mimeType = "image/webp";
+                        }
+                        base64Images.add("data:" + mimeType + ";base64," + base64);
+                    } catch (IOException e) {
+                        log.error("Failed to load image: {}", url, e);
+                    }
+                }
+                payloadFields.setImages(base64Images);
+            }
+        }
+//      RoomPayload -> RoomTransformer -> RoomResponse
+        return transformer.toResponse(payload, entity);
     }
 
-    private void setFilterParameters(TypedQuery<ListingsEntity> listingQuery, Map<String, Object> filterParams) {
+    private String getJsonString(Object object) {
+        return objectMapper.writeValueAsString(object);
+    }
+
+    private void setFilterParameters(
+            TypedQuery<ListingEntity> listingQuery,
+            Map<String, Object> filterParams
+    ) {
         filterParams.keySet().forEach(key -> listingQuery.setParameter(key, filterParams.get(key)));
     }
 
-    private Map<String, Object> addFilterConditions(StringBuilder query, Map<String, String> allParams) {
+    private Map<String, Object> addFilterConditions(
+            StringBuilder query,
+            Map<String, String> allParams
+    ) {
         Map<String, Object> filterValues = new HashMap<>();
         if (allParams != null && !allParams.isEmpty()) {
             allParams.remove("rentSort");
             addFixedQueryCondition("subType", allParams, query, filterValues);
             addFixedQueryCondition("city", allParams, query, filterValues);
-            addFixedQueryCondition("status", allParams, query, filterValues);
             addFixedQueryCondition("primaryId", allParams, query, filterValues);
             addFreshnessCondition(allParams, query, filterValues);
             addFlexQueryConditions(allParams, query, filterValues);
@@ -221,26 +296,30 @@ public class ListingService {
         return filterValues;
     }
 
-    private static void addFixedQueryCondition(String paramName, Map<String, String> allParams, StringBuilder query, Map<String, Object> filterValues) {
-        String paramValue = allParams.get(paramName);
-        if (paramValue != null && !paramValue.isEmpty()) {
-            query.append(" AND  t1.").append(paramName).append(" = :").append(paramName);
-            filterValues.put(paramName, paramValue);
-            allParams.remove(paramName);
-        }
-    }
-
-    private void addFlexQueryConditions(Map<String, String> allParams, StringBuilder query, Map<String, Object> filterValues) {
+    private void addFlexQueryConditions(
+            Map<String, String> allParams,
+            StringBuilder query,
+            Map<String, Object> filterValues
+    ) {
         allParams.keySet().forEach(key -> addFlexQueryCondition(key, allParams.get(key), query, filterValues));
     }
 
-    private void addFlexQueryCondition(String key, String value, StringBuilder query, Map<String, Object> filterValues) {
+    private void addFlexQueryCondition(
+            String key,
+            String value,
+            StringBuilder query,
+            Map<String, Object> filterValues
+    ) {
         query.append(" AND exists (select 1 from ListingAttributesEntity t2 where t2.listing.id = t1.id and t2.attributeName = '")
                 .append(key).append("' and t2.attributeValue = :").append(key).append(") ");
         filterValues.put(key, value);
     }
 
-    private void addFreshnessCondition(Map<String, String> allParams, StringBuilder query, Map<String, Object> filterValues) {
+    private void addFreshnessCondition(
+            Map<String, String> allParams,
+            StringBuilder query,
+            Map<String, Object> filterValues
+    ) {
 
         String freshness = allParams.get("freshness");
 

@@ -20,7 +20,7 @@ export default function Home() {
         {/* Right portion: sticky filter bar on top, feed + right sidebar below */}
         <div className="flex flex-1 flex-col min-w-0">
 
-          {/* ── Sticky filter bar — spans above feed AND Browse Categories */}
+          {/* ── Sticky filter bar — spans above feed AND Quick Actions */}
           <div className="sticky top-[69px] z-30 bg-[var(--feed-bg)]/95 dark:bg-zinc-950/95 backdrop-blur-md border-b border-slate-100 dark:border-zinc-900 px-3 md:px-5 py-2.5">
             <CategoryFilters />
           </div>

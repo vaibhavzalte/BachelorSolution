@@ -1,11 +1,14 @@
 package com.uv.bsol_backend.transformer;
 
-import com.uv.bsol_backend.dto.MessPayload;
-import com.uv.bsol_backend.entity.Mess;
+import com.uv.bsol_backend.dto.payload.MessPayload;
+import com.uv.bsol_backend.dto.request.MessRequest;
+import com.uv.bsol_backend.dto.response.MessResponse;
+import com.uv.bsol_backend.entity.ListingEntity;
 
-public class MessTransformer extends BaseTransformer<Mess, MessPayload> {
+public class MessTransformer extends BaseTransformer<MessRequest, MessPayload, MessResponse> {
     public static final String LISTING_TYPE = "Mess";
-    MessTransformer(Mess mess) {
+
+    MessTransformer(MessRequest mess) {
         super(mess);
     }
 
@@ -14,35 +17,29 @@ public class MessTransformer extends BaseTransformer<Mess, MessPayload> {
         return LISTING_TYPE;
     }
 
-
     @Override
-    public MessPayload toDTO() {
-        return MessPayload.builder()
-                .messName(listing.getMessName())
-                .description(listing.getDescription())
-                .foodType(listing.getFoodType())
-                .mealType(listing.getMealType())
-                .monthlyFee(listing.getMonthlyFee())
-                .perMealFee(listing.getPerMealFee())
-                .homeDelivery(listing.getHomeDelivery())
-                .diningArea(listing.getDiningArea())
-                .address(listing.getAddress())
-                .area(listing.getArea())
-                .ownerName(listing.getOwnerName())
-                .ownerContact(listing.getOwnerContact())
-                .ownerEmail(listing.getOwnerEmail())
-                .images(listing.getImages())
-                .build();
+    public MessPayload toPayload() {
+        return null;
     }
 
     @Override
-    public Class<Mess> getEntityClass() {
-        return Mess.class;
+    public MessResponse toResponse(MessPayload messPayload, ListingEntity listingEntity) {
+        return null;
     }
 
     @Override
-    public Class<MessPayload> getDtoClass() {
-        return MessPayload.class;
+    public Class<MessRequest> getRequestClass() {
+        return null;
+    }
+
+    @Override
+    public Class<MessPayload> getPayloadClass() {
+        return null;
+    }
+
+    @Override
+    public Class<MessResponse> getResponseClass() {
+        return null;
     }
 
 

@@ -1,6 +1,6 @@
 package com.uv.bsol_backend.exception;
 
-import com.uv.bsol_backend.entity.ErrorResponse;
+import com.uv.bsol_backend.dto.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +44,10 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<String> handleBadRequestException(BadRequestException e){
-        log.error("Exception in Transaction API ",e);
-        return  new ResponseEntity<>("Error occurred while processing listing data, bad request",HttpStatus.BAD_REQUEST);
+    public ResponseEntity<String> handleBadRequestException(BadRequestException e) {
+        log.error("Exception in Transaction API ", e);
+        return new ResponseEntity<>("Error occurred while processing listing data, bad request", HttpStatus.BAD_REQUEST);
     }
 }

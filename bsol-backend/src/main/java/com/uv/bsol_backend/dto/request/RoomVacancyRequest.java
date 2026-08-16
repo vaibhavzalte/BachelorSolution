@@ -1,5 +1,6 @@
-package com.uv.bsol_backend.dto;
+package com.uv.bsol_backend.dto.request;
 
+import com.uv.bsol_backend.model.CommonRequestFields;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -11,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class RoomVacancyPayload {
+public class RoomVacancyRequest extends CommonRequestFields {
     protected List<String> images;
     // 🔹 Basic Info
     private String title;

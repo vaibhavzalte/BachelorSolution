@@ -1,13 +1,11 @@
-package com.uv.bsol_backend.entity;
+package com.uv.bsol_backend.dto.request;
 
+import com.uv.bsol_backend.model.CommonRequestFields;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import org.springframework.format.annotation.DateTimeFormat;
-
-import java.time.OffsetDateTime;
 import java.util.List;
 
 @Getter
@@ -15,25 +13,26 @@ import java.util.List;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoomVacancy extends CommonListingFields {
+public class RoomRequest extends CommonRequestFields {
+
 
     // 🔹 Basic Info
     private String title;
     private String description;
 
-    private String roomType;
-    private int totalVacancies;
-    private String preferredTenant; // Male / Female / Any
+    // 🔹 Room Details
+    private String roomType;   // 1RK, 1BHK, 2BHK
+    private String availableFor; // BOYS / GIRLS / FAMILY
 
+    // 🔹 Pricing
     private Double rent;
     private Double deposit;
     private Double maintenance;
     private Double brokerage;
 
-    private List<String> amenities; // WiFi, AC, Washing Machine
+    // 🔹 Amenities
+    private List<String> amenities;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private OffsetDateTime availableFrom;    // Yes / No / Optional
     // 🔹 Location
     private String address;
     private String area;
@@ -44,9 +43,11 @@ public class RoomVacancy extends CommonListingFields {
     private String ownerContact;
     private String ownerEmail;
 
-    // coming soon
-//    private List<String> rules;
-//    private Double rating;
     // Google map link
     private String googleMap;
+
+    // coming soon
+    //    private List<String> rules;
+    //    private Double rating;
+
 }

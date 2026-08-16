@@ -1,4 +1,4 @@
-package com.uv.bsol_backend.transformer;
+package com.uv.bsol_backend.enums;
 
 public enum ListingType {
     ROOM("Room"),

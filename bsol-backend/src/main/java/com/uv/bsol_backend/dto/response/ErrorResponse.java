@@ -1,4 +1,4 @@
-package com.uv.bsol_backend.entity;
+package com.uv.bsol_backend.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
