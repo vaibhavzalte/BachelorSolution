@@ -1,18 +1,18 @@
 package com.uv.bsol_backend.dto.response;
 
 import com.uv.bsol_backend.model.CommonResponseFields;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-import java.util.List;
-
-@Data
-@Builder
+@Getter
+@Setter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class MessResponse extends CommonResponseFields {
-
-    protected List<String> images;
 
     // 🔹 Basic Info
     private String messName;

@@ -1,15 +1,17 @@
 package com.uv.bsol_backend.dto.request;
 
 import com.uv.bsol_backend.model.CommonRequestFields;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.OffsetDateTime;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudyRoomRequest extends CommonRequestFields {
@@ -40,12 +42,5 @@ public class StudyRoomRequest extends CommonRequestFields {
 
     private String description;
 
-    @CreationTimestamp
-    private OffsetDateTime createdAt;
-
     private String createdBy;
-
-    @UpdateTimestamp
-    private OffsetDateTime updatedAt;
-
 }

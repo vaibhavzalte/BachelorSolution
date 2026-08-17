@@ -1,5 +1,6 @@
 package com.uv.bsol_backend.dto.payload;
 
+import com.uv.bsol_backend.model.HasImages;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,14 +8,16 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FoodStallPayload {
+public class FoodStallPayload implements HasImages {
 
+    private List<String> images;
 
     private String stallName;
 

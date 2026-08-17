@@ -1,5 +1,6 @@
 package com.uv.bsol_backend.dto.payload;
 
+import com.uv.bsol_backend.model.HasImages;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -11,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class RoomVacancyPayload {
+public class RoomVacancyPayload implements HasImages {
     protected List<String> images;
     // 🔹 Basic Info
     private String title;

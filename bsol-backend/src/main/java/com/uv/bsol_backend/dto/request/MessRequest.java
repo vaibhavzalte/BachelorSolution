@@ -1,18 +1,18 @@
 package com.uv.bsol_backend.dto.request;
 
 import com.uv.bsol_backend.model.CommonRequestFields;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-import java.util.List;
-
-@Data
-@Builder
+@Getter
+@Setter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class MessRequest extends CommonRequestFields {
-
-    protected List<String> images;
 
     // 🔹 Basic Info
     private String messName;

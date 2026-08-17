@@ -1,0 +1,536 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Bachelor Solution API",
+    "description": "Unified listing APIs for Room, Mess, RoomVacancy, FoodStall and StudyRoom.\n\nBase URL for the frontend axios client: `http://localhost:8080/uv-api/v1`\n\nCreate and update use `multipart/form-data`:\n- `listing`: JSON string matching the request schema for `typeName`\n- `images`: optional image files\n\n`typeName` values: `Room`, `Mess`, `RoomVacancy`, `FoodStall`, `StudyRoom`.",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/uv-api/v1",
+      "description": "Local development (frontend base URL)"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Listings",
+      "description": "CRUD for all listing types through one controller"
+    }
+  ],
+  "paths": {
+    "/listings": {
+      "get": {
+        "tags": ["Listings"],
+        "summary": "API health check",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {
+            "description": "Application is running",
+            "content": {
+              "text/plain": {
+                "schema": { "type": "string", "example": "Application is running" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/listings/{typeName}": {
+      "get": {
+        "tags": ["Listings"],
+        "summary": "Get listings by type",
+        "operationId": "getListings",
+        "parameters": [
+          { "$ref": "#/components/parameters/TypeName" },
+          { "$ref": "#/components/parameters/City" },
+          { "$ref": "#/components/parameters/SubType" },
+          { "$ref": "#/components/parameters/PrimaryId" },
+          { "$ref": "#/components/parameters/Freshness" },
+          { "$ref": "#/components/parameters/RoomType" },
+          { "$ref": "#/components/parameters/AvailableFor" },
+          { "$ref": "#/components/parameters/FoodType" },
+          { "$ref": "#/components/parameters/MealType" },
+          { "$ref": "#/components/parameters/PreferredTenant" },
+          { "$ref": "#/components/parameters/IsOpen" },
+          { "$ref": "#/components/parameters/IsAvailable" },
+          { "$ref": "#/components/parameters/HasWifi" },
+          { "$ref": "#/components/parameters/HasAC" },
+          { "$ref": "#/components/parameters/HomeDelivery" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Active listings for the given type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ListingResponse" }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" }
+        }
+      },
+      "post": {
+        "tags": ["Listings"],
+        "summary": "Create a listing",
+        "operationId": "createListing",
+        "parameters": [
+          { "$ref": "#/components/parameters/TypeName" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": { "$ref": "#/components/schemas/ListingForm" },
+              "encoding": {
+                "listing": { "contentType": "application/json" },
+                "images": { "contentType": "image/*" }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Listing created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ListingResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" }
+        }
+      }
+    },
+    "/listings/{typeName}/{id}": {
+      "get": {
+        "tags": ["Listings"],
+        "summary": "Get listing by id",
+        "operationId": "getListingById",
+        "parameters": [
+          { "$ref": "#/components/parameters/TypeName" },
+          { "$ref": "#/components/parameters/ListingId" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listing found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ListingResponse" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "put": {
+        "tags": ["Listings"],
+        "summary": "Update a listing",
+        "operationId": "updateListing",
+        "parameters": [
+          { "$ref": "#/components/parameters/TypeName" },
+          { "$ref": "#/components/parameters/ListingId" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": { "$ref": "#/components/schemas/ListingForm" },
+              "encoding": {
+                "listing": { "contentType": "application/json" },
+                "images": { "contentType": "image/*" }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Listing updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ListingResponse" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "delete": {
+        "tags": ["Listings"],
+        "summary": "Soft-delete a listing",
+        "operationId": "deleteListing",
+        "parameters": [
+          { "$ref": "#/components/parameters/TypeName" },
+          { "$ref": "#/components/parameters/ListingId" }
+        ],
+        "responses": {
+          "204": { "description": "Listing deleted" },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "TypeName": {
+        "name": "typeName",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "enum": ["Room", "Mess", "RoomVacancy", "FoodStall", "StudyRoom"]
+        }
+      },
+      "ListingId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer", "format": "int64", "example": 1 }
+      },
+      "City": {
+        "name": "city",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "example": "Pune" }
+      },
+      "SubType": {
+        "name": "subType",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "example": "ROOM" }
+      },
+      "PrimaryId": {
+        "name": "primaryId",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "example": "ROOM-1001" }
+      },
+      "Freshness": {
+        "name": "freshness",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "enum": ["24h", "4d", "1w"] }
+      },
+      "RoomType": {
+        "name": "roomType",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "example": "1BHK" }
+      },
+      "AvailableFor": {
+        "name": "availableFor",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "example": "BOYS" }
+      },
+      "FoodType": {
+        "name": "foodType",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "example": "VEG" }
+      },
+      "MealType": {
+        "name": "mealType",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "example": "ALL" }
+      },
+      "PreferredTenant": {
+        "name": "preferredTenant",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "example": "Male" }
+      },
+      "IsOpen": {
+        "name": "isOpen",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "example": "true" }
+      },
+      "IsAvailable": {
+        "name": "isAvailable",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "example": "true" }
+      },
+      "HasWifi": {
+        "name": "hasWifi",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "example": "true" }
+      },
+      "HasAC": {
+        "name": "hasAC",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "example": "true" }
+      },
+      "HomeDelivery": {
+        "name": "homeDelivery",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "example": "true" }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Invalid listing type or payload",
+        "content": {
+          "text/plain": {
+            "schema": { "type": "string", "example": "Error occurred while processing listing data, bad request" }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Listing not found",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorResponse" }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "ListingForm": {
+        "type": "object",
+        "required": ["listing"],
+        "properties": {
+          "listing": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/RoomRequest" },
+              { "$ref": "#/components/schemas/MessRequest" },
+              { "$ref": "#/components/schemas/RoomVacancyRequest" },
+              { "$ref": "#/components/schemas/FoodStallRequest" },
+              { "$ref": "#/components/schemas/StudyRoomRequest" }
+            ],
+            "description": "JSON body for the listing. In FormData this can be sent as JSON.stringify(object)."
+          },
+          "images": {
+            "type": "array",
+            "items": { "type": "string", "format": "binary" },
+            "description": "Optional image files"
+          }
+        }
+      },
+      "CommonRequestFields": {
+        "type": "object",
+        "properties": {
+          "subType": { "type": "string", "example": "ROOM" },
+          "primaryId": { "type": "string", "example": "ROOM-1001" },
+          "city": { "type": "string", "example": "Pune" },
+          "latitude": { "type": "number", "format": "double", "example": 18.5204 },
+          "longitude": { "type": "number", "format": "double", "example": 73.8567 },
+          "images": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Usually omitted on create/update; files are sent in the images part"
+          }
+        }
+      },
+      "CommonResponseFields": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64", "example": 1 },
+          "type": { "type": "string", "example": "Room" },
+          "subType": { "type": "string", "example": "ROOM" },
+          "primaryId": { "type": "string", "example": "ROOM-1001" },
+          "city": { "type": "string", "example": "Pune" },
+          "latitude": { "type": "number", "format": "double" },
+          "longitude": { "type": "number", "format": "double" },
+          "images": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Base64 data URLs when images exist"
+          },
+          "status": { "type": "string", "example": "ACTIVE" }
+        }
+      },
+      "RoomRequest": {
+        "allOf": [
+          { "$ref": "#/components/schemas/CommonRequestFields" },
+          {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string", "example": "Spacious 1BHK Room for Rent" },
+              "description": { "type": "string" },
+              "roomType": { "type": "string", "example": "1BHK" },
+              "availableFor": { "type": "string", "example": "BOYS" },
+              "rent": { "type": "number", "format": "double", "example": 15000.0 },
+              "deposit": { "type": "number", "format": "double", "example": 30000.0 },
+              "maintenance": { "type": "number", "format": "double", "example": 1500.0 },
+              "brokerage": { "type": "number", "format": "double", "example": 7500.0 },
+              "amenities": { "type": "array", "items": { "type": "string" }, "example": ["WiFi", "Parking", "AC"] },
+              "address": { "type": "string", "example": "Baner Road, Near Balewadi High Street" },
+              "area": { "type": "string", "example": "Baner" },
+              "ownerName": { "type": "string", "example": "Rahul Sharma" },
+              "ownerContact": { "type": "string", "example": "9876543210" },
+              "ownerEmail": { "type": "string", "example": "rahul.sharma@example.com" },
+              "googleMap": { "type": "string", "example": "https://maps.google.com/?q=18.5590,73.7868" }
+            }
+          }
+        ]
+      },
+      "MessRequest": {
+        "allOf": [
+          { "$ref": "#/components/schemas/CommonRequestFields" },
+          {
+            "type": "object",
+            "properties": {
+              "messName": { "type": "string", "example": "Shree Veg Mess" },
+              "description": { "type": "string" },
+              "foodType": { "type": "string", "example": "VEG" },
+              "mealType": { "type": "string", "example": "ALL" },
+              "monthlyFee": { "type": "number", "format": "double", "example": 3500.0 },
+              "perMealFee": { "type": "number", "format": "double", "example": 80.0 },
+              "homeDelivery": { "type": "boolean", "example": true },
+              "diningArea": { "type": "boolean", "example": true },
+              "address": { "type": "string" },
+              "area": { "type": "string", "example": "Baner" },
+              "ownerName": { "type": "string" },
+              "ownerContact": { "type": "string" },
+              "ownerEmail": { "type": "string" }
+            }
+          }
+        ]
+      },
+      "RoomVacancyRequest": {
+        "allOf": [
+          { "$ref": "#/components/schemas/CommonRequestFields" },
+          {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string", "example": "1 sharing vacancy in 2BHK" },
+              "description": { "type": "string" },
+              "roomType": { "type": "string", "example": "2BHK" },
+              "totalVacancies": { "type": "integer", "example": 1 },
+              "preferredTenant": { "type": "string", "example": "Male" },
+              "rent": { "type": "number", "format": "double", "example": 8000.0 },
+              "deposit": { "type": "number", "format": "double", "example": 16000.0 },
+              "maintenance": { "type": "number", "format": "double" },
+              "brokerage": { "type": "number", "format": "double" },
+              "amenities": { "type": "array", "items": { "type": "string" } },
+              "availableFrom": { "type": "string", "format": "date-time" },
+              "address": { "type": "string" },
+              "area": { "type": "string", "example": "Wakad" },
+              "ownerName": { "type": "string" },
+              "ownerContact": { "type": "string" },
+              "ownerEmail": { "type": "string" },
+              "googleMap": { "type": "string" }
+            }
+          }
+        ]
+      },
+      "FoodStallRequest": {
+        "allOf": [
+          { "$ref": "#/components/schemas/CommonRequestFields" },
+          {
+            "type": "object",
+            "properties": {
+              "stallName": { "type": "string", "example": "Campus Maggi Point" },
+              "ownerName": { "type": "string" },
+              "contactNumber": { "type": "string" },
+              "location": { "type": "string", "example": "Near Gate 2, Baner" },
+              "foodType": { "type": "string", "example": "VEG" },
+              "rating": { "type": "number", "format": "double", "example": 4.3 },
+              "isOpen": { "type": "boolean", "example": true },
+              "openingTime": { "type": "string", "format": "date-time" },
+              "closingTime": { "type": "string", "format": "date-time" },
+              "description": { "type": "string" }
+            }
+          }
+        ]
+      },
+      "StudyRoomRequest": {
+        "allOf": [
+          { "$ref": "#/components/schemas/CommonRequestFields" },
+          {
+            "type": "object",
+            "properties": {
+              "roomName": { "type": "string", "example": "Silent Study Room A" },
+              "location": { "type": "string", "example": "2nd Floor, Building B, Baner" },
+              "capacity": { "type": "integer", "example": 40 },
+              "availableSeats": { "type": "integer", "example": 12 },
+              "isAvailable": { "type": "boolean", "example": true },
+              "hasWifi": { "type": "boolean", "example": true },
+              "hasChargingPoints": { "type": "boolean", "example": true },
+              "hasAC": { "type": "boolean", "example": true },
+              "rules": { "type": "string", "example": "No talking, No phone calls" },
+              "openingTime": { "type": "string", "format": "date-time" },
+              "closingTime": { "type": "string", "format": "date-time" },
+              "rating": { "type": "number", "format": "double", "example": 4.6 },
+              "description": { "type": "string" },
+              "createdBy": { "type": "string", "example": "admin" }
+            }
+          }
+        ]
+      },
+      "RoomResponse": {
+        "allOf": [
+          { "$ref": "#/components/schemas/CommonResponseFields" },
+          { "$ref": "#/components/schemas/RoomRequest" }
+        ]
+      },
+      "MessResponse": {
+        "allOf": [
+          { "$ref": "#/components/schemas/CommonResponseFields" },
+          { "$ref": "#/components/schemas/MessRequest" }
+        ]
+      },
+      "RoomVacancyResponse": {
+        "allOf": [
+          { "$ref": "#/components/schemas/CommonResponseFields" },
+          { "$ref": "#/components/schemas/RoomVacancyRequest" }
+        ]
+      },
+      "FoodStallResponse": {
+        "allOf": [
+          { "$ref": "#/components/schemas/CommonResponseFields" },
+          { "$ref": "#/components/schemas/FoodStallRequest" }
+        ]
+      },
+      "StudyRoomResponse": {
+        "allOf": [
+          { "$ref": "#/components/schemas/CommonResponseFields" },
+          { "$ref": "#/components/schemas/StudyRoomRequest" },
+          {
+            "type": "object",
+            "properties": {
+              "createdAt": { "type": "string", "format": "date-time" },
+              "updatedAt": { "type": "string", "format": "date-time" }
+            }
+          }
+        ]
+      },
+      "ListingResponse": {
+        "oneOf": [
+          { "$ref": "#/components/schemas/RoomResponse" },
+          { "$ref": "#/components/schemas/MessResponse" },
+          { "$ref": "#/components/schemas/RoomVacancyResponse" },
+          { "$ref": "#/components/schemas/FoodStallResponse" },
+          { "$ref": "#/components/schemas/StudyRoomResponse" }
+        ],
+        "discriminator": {
+          "propertyName": "type",
+          "mapping": {
+            "Room": "#/components/schemas/RoomResponse",
+            "Mess": "#/components/schemas/MessResponse",
+            "RoomVacancy": "#/components/schemas/RoomVacancyResponse",
+            "FoodStall": "#/components/schemas/FoodStallResponse",
+            "StudyRoom": "#/components/schemas/StudyRoomResponse"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "integer", "example": 404 },
+          "message": { "type": "string", "example": "Room not found with id: 1" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        }
+      }
+    }
+  }
+}

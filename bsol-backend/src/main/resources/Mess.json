@@ -1,0 +1,20 @@
+{
+  "subType": "MESS",
+  "primaryId": "MESS-1001",
+  "city": "Pune",
+  "latitude": 18.5204,
+  "longitude": 73.8567,
+  "messName": "Shree Veg Mess",
+  "description": "Home-style vegetarian meals with unlimited chapati and dal. Walking distance from Baner IT parks.",
+  "foodType": "VEG",
+  "mealType": "ALL",
+  "monthlyFee": 3500.0,
+  "perMealFee": 80.0,
+  "homeDelivery": true,
+  "diningArea": true,
+  "address": "Baner Road, Near Balewadi High Street",
+  "area": "Baner",
+  "ownerName": "Suresh Patil",
+  "ownerContact": "9876501234",
+  "ownerEmail": "suresh.patil@example.com"
+}

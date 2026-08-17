@@ -1,19 +1,22 @@
 package com.uv.bsol_backend.dto.response;
 
 import com.uv.bsol_backend.model.CommonResponseFields;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.OffsetDateTime;
 import java.util.List;
 
-@Data
-@Builder
+@Getter
+@Setter
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class RoomVacancyResponse extends CommonResponseFields {
-    protected List<String> images;
     // 🔹 Basic Info
     private String title;
     private String description;
@@ -30,7 +33,7 @@ public class RoomVacancyResponse extends CommonResponseFields {
     private List<String> amenities; // WiFi, AC, Washing Machine
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private OffsetDateTime availableFrom;    // Yes / No / Optional
+    private OffsetDateTime availableFrom;
     // 🔹 Location
     private String address;
     private String area;

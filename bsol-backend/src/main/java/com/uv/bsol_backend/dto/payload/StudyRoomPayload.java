@@ -1,17 +1,19 @@
 package com.uv.bsol_backend.dto.payload;
 
+import com.uv.bsol_backend.model.HasImages;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudyRoomPayload {
+public class StudyRoomPayload implements HasImages {
+
+    private List<String> images;
 
     private String roomName; // e.g. "Silent Study Room A"
 
@@ -39,12 +41,6 @@ public class StudyRoomPayload {
 
     private String description;
 
-    @CreationTimestamp
-    private OffsetDateTime createdAt;
-
     private String createdBy;
-
-    @UpdateTimestamp
-    private OffsetDateTime updatedAt;
 
 }

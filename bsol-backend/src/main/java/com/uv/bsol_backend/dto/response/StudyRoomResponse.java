@@ -1,15 +1,17 @@
 package com.uv.bsol_backend.dto.response;
 
 import com.uv.bsol_backend.model.CommonResponseFields;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.time.OffsetDateTime;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 public class StudyRoomResponse extends CommonResponseFields {
@@ -40,12 +42,10 @@ public class StudyRoomResponse extends CommonResponseFields {
 
     private String description;
 
-    @CreationTimestamp
     private OffsetDateTime createdAt;
 
     private String createdBy;
 
-    @UpdateTimestamp
     private OffsetDateTime updatedAt;
 
 }

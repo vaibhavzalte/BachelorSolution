@@ -1,5 +1,6 @@
 package com.uv.bsol_backend.dto.payload;
 
+import com.uv.bsol_backend.model.HasImages;
 import lombok.*;
 
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class RoomPayload {
+public class RoomPayload implements HasImages {
     protected List<String> images;
     // 🔹 Basic Info
     private String title;

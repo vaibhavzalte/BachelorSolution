@@ -1,0 +1,28 @@
+{
+  "subType": "ROOM_VACANCY",
+  "primaryId": "VACANCY-1001",
+  "city": "Pune",
+  "latitude": 18.5204,
+  "longitude": 73.8567,
+  "title": "1 sharing vacancy in 2BHK",
+  "description": "Looking for a working professional to share a 2BHK flat. Fully furnished with WiFi and washing machine.",
+  "roomType": "2BHK",
+  "totalVacancies": 1,
+  "preferredTenant": "Male",
+  "rent": 8000.0,
+  "deposit": 16000.0,
+  "maintenance": 500.0,
+  "brokerage": 0.0,
+  "amenities": [
+    "WiFi",
+    "Washing Machine",
+    "Parking"
+  ],
+  "availableFrom": "2026-09-01T00:00:00+05:30",
+  "address": "Wakad Road, Near Hinjewadi Phase 1",
+  "area": "Wakad",
+  "ownerName": "Rohit Deshmukh",
+  "ownerContact": "9876523456",
+  "ownerEmail": "rohit.deshmukh@example.com",
+  "googleMap": "https://maps.google.com/?q=18.5993,73.7625"
+}

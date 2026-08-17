@@ -6,7 +6,7 @@ import com.uv.bsol_backend.enums.ListingStatus;
 import com.uv.bsol_backend.exception.DuplicateListingException;
 import com.uv.bsol_backend.exception.FileStorageException;
 import com.uv.bsol_backend.exception.ListingNotFoundException;
-import com.uv.bsol_backend.model.CommonRequestFields;
+import com.uv.bsol_backend.model.HasImages;
 import com.uv.bsol_backend.repository.ListingAttributesRepository;
 import com.uv.bsol_backend.repository.ListingsRepository;
 import com.uv.bsol_backend.transformer.DataTransformer;
@@ -242,7 +242,7 @@ public class ListingService {
                 transformer.getPayloadClass()
         );
 //        LOAD IMAGES
-        if (payload instanceof CommonRequestFields payloadFields) {
+        if (payload instanceof HasImages payloadFields) {
             if (payloadFields.getImages() != null) {
                 List<String> base64Images = new ArrayList<>();
                 for (String url : payloadFields.getImages()) {

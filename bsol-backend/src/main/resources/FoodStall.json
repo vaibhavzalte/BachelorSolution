@@ -1,0 +1,17 @@
+{
+  "subType": "FOOD_STALL",
+  "primaryId": "STALL-1001",
+  "city": "Pune",
+  "latitude": 18.5204,
+  "longitude": 73.8567,
+  "stallName": "Campus Maggi Point",
+  "ownerName": "Amit Kale",
+  "contactNumber": "9876512345",
+  "location": "Near Gate 2, Baner",
+  "foodType": "VEG",
+  "rating": 4.3,
+  "isOpen": true,
+  "openingTime": "2026-08-17T08:00:00+05:30",
+  "closingTime": "2026-08-17T22:00:00+05:30",
+  "description": "Quick snacks, Maggi, sandwiches and chai for students."
+}
