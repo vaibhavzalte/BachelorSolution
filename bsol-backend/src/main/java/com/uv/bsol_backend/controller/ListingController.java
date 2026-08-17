@@ -53,7 +53,7 @@ public class ListingController {
     // =========================
     @GetMapping(
             value = "/{typeName}",
-            produces = {"application/json;charset=utf-8"}
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<List<Object>> getListings(
 
@@ -71,7 +71,7 @@ public class ListingController {
     // =========================
     @GetMapping(
             value = "/{typeName}/{id}",
-            produces = {"application/json;charset=utf-8"}
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Object> getListingById(
             @PathVariable String typeName,
