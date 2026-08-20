@@ -52,46 +52,7 @@
             "$ref": "#/components/parameters/TypeName"
           },
           {
-            "$ref": "#/components/parameters/City"
-          },
-          {
-            "$ref": "#/components/parameters/SubType"
-          },
-          {
-            "$ref": "#/components/parameters/PrimaryId"
-          },
-          {
-            "$ref": "#/components/parameters/Freshness"
-          },
-          {
-            "$ref": "#/components/parameters/RoomType"
-          },
-          {
-            "$ref": "#/components/parameters/AvailableFor"
-          },
-          {
-            "$ref": "#/components/parameters/FoodType"
-          },
-          {
-            "$ref": "#/components/parameters/MealType"
-          },
-          {
-            "$ref": "#/components/parameters/PreferredTenant"
-          },
-          {
-            "$ref": "#/components/parameters/IsOpen"
-          },
-          {
-            "$ref": "#/components/parameters/IsAvailable"
-          },
-          {
-            "$ref": "#/components/parameters/HasWifi"
-          },
-          {
-            "$ref": "#/components/parameters/HasAC"
-          },
-          {
-            "$ref": "#/components/parameters/HomeDelivery"
+            "$ref": "#/components/parameters/ListingQueryParams"
           }
         ],
         "responses": {
@@ -133,7 +94,7 @@
               },
               "encoding": {
                 "listing": {
-                  "contentType": "application/json"
+                  "contentType": "text/plain"
                 },
                 "images": {
                   "contentType": "image/*"
@@ -213,7 +174,7 @@
               },
               "encoding": {
                 "listing": {
-                  "contentType": "application/json"
+                  "contentType": "text/plain"
                 },
                 "images": {
                   "contentType": "image/*"
@@ -293,134 +254,15 @@
           "example": 1
         }
       },
-      "City": {
-        "name": "city",
+      "ListingQueryParams": {
+        "name": "listingQueryParams",
         "in": "query",
         "required": false,
+        "style": "form",
+        "explode": true,
+        "description": "Optional filters for listing search",
         "schema": {
-          "type": "string",
-          "example": "Pune"
-        }
-      },
-      "SubType": {
-        "name": "subType",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "example": "ROOM"
-        }
-      },
-      "PrimaryId": {
-        "name": "primaryId",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "example": "ROOM-1001"
-        }
-      },
-      "Freshness": {
-        "name": "freshness",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "enum": [
-            "24h",
-            "4d",
-            "1w"
-          ]
-        }
-      },
-      "RoomType": {
-        "name": "roomType",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "example": "1BHK"
-        }
-      },
-      "AvailableFor": {
-        "name": "availableFor",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "example": "BOYS"
-        }
-      },
-      "FoodType": {
-        "name": "foodType",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "example": "VEG"
-        }
-      },
-      "MealType": {
-        "name": "mealType",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "example": "ALL"
-        }
-      },
-      "PreferredTenant": {
-        "name": "preferredTenant",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "example": "Male"
-        }
-      },
-      "IsOpen": {
-        "name": "isOpen",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "example": "true"
-        }
-      },
-      "IsAvailable": {
-        "name": "isAvailable",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "example": "true"
-        }
-      },
-      "HasWifi": {
-        "name": "hasWifi",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "example": "true"
-        }
-      },
-      "HasAC": {
-        "name": "hasAC",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "example": "true"
-        }
-      },
-      "HomeDelivery": {
-        "name": "homeDelivery",
-        "in": "query",
-        "required": false,
-        "schema": {
-          "type": "string",
-          "example": "true"
+          "$ref": "#/components/schemas/ListingQueryParams"
         }
       }
     },
@@ -448,6 +290,72 @@
       }
     },
     "schemas": {
+      "ListingQueryParams": {
+        "type": "object",
+        "description": "Optional query filters for GET /listings/{typeName}",
+        "properties": {
+          "city": {
+            "type": "string",
+            "example": "Pune"
+          },
+          "subType": {
+            "type": "string",
+            "example": "ROOM"
+          },
+          "primaryId": {
+            "type": "string",
+            "example": "ROOM-1001"
+          },
+          "freshness": {
+            "type": "string",
+            "enum": [
+              "24h",
+              "4d",
+              "1w"
+            ]
+          },
+          "roomType": {
+            "type": "string",
+            "example": "1BHK"
+          },
+          "availableFor": {
+            "type": "string",
+            "example": "BOYS"
+          },
+          "foodType": {
+            "type": "string",
+            "example": "VEG"
+          },
+          "mealType": {
+            "type": "string",
+            "example": "ALL"
+          },
+          "preferredTenant": {
+            "type": "string",
+            "example": "Male"
+          },
+          "isOpen": {
+            "type": "string",
+            "example": "true"
+          },
+          "isAvailable": {
+            "type": "string",
+            "example": "true"
+          },
+          "hasWifi": {
+            "type": "string",
+            "example": "true"
+          },
+          "hasAC": {
+            "type": "string",
+            "example": "true"
+          },
+          "homeDelivery": {
+            "type": "string",
+            "example": "true"
+          }
+        }
+      },
       "ListingForm": {
         "type": "object",
         "required": [
@@ -455,24 +363,8 @@
         ],
         "properties": {
           "listing": {
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/RoomRequest"
-              },
-              {
-                "$ref": "#/components/schemas/MessRequest"
-              },
-              {
-                "$ref": "#/components/schemas/RoomVacancyRequest"
-              },
-              {
-                "$ref": "#/components/schemas/FoodStallRequest"
-              },
-              {
-                "$ref": "#/components/schemas/StudyRoomRequest"
-              }
-            ],
-            "description": "JSON body for the listing. In FormData this can be sent as JSON.stringify(object)."
+            "type": "string",
+            "description": "JSON string matching the request schema for typeName (RoomRequest, MessRequest, RoomVacancyRequest, FoodStallRequest, or StudyRoomRequest). Send as a form-data text field."
           },
           "images": {
             "type": "array",
