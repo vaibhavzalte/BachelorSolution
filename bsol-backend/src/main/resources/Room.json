@@ -5,18 +5,14 @@
   "latitude": 18.5204,
   "longitude": 73.8567,
   "status": "AVAILABLE",
-
   "title": "Spacious 1BHK Room for Rent",
   "description": "Fully furnished 1BHK apartment available in a prime location with easy access to public transport, restaurants and shopping areas.",
-
   "roomType": "1BHK",
   "availableFor": "BOYS",
-
   "rent": 15000.0,
   "deposit": 30000.0,
   "maintenance": 1500.0,
   "brokerage": 7500.0,
-
   "amenities": [
     "WiFi",
     "Parking",
@@ -25,13 +21,10 @@
     "24x7 Water",
     "Power Backup"
   ],
-
   "address": "Baner Road, Near Balewadi High Street",
   "area": "Baner",
-
   "ownerName": "Rahul Sharma",
   "ownerContact": "9876543210",
   "ownerEmail": "rahul.sharma@example.com",
-
   "googleMap": "https://maps.google.com/?q=18.5590,73.7868"
 }

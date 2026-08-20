@@ -196,7 +196,7 @@ public class ListingService {
             additionalAttributes.forEach((key, value) -> {
                 ListingAttributesEntity attribute =
                         ListingAttributesEntity.builder()
-                                .id(saved.getId().toString()+key)
+                                .id(saved.getId().toString() + key)
                                 .listing(saved)
                                 .attributeName(key)
                                 .attributeValue(value)
