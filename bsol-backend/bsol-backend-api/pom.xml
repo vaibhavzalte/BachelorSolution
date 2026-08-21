@@ -42,10 +42,17 @@
                             <generatorName>spring</generatorName>
                             <generateApiTests>false</generateApiTests>
                             <generateModelTests>false</generateModelTests>
+                            <generateApiDocumentation>false</generateApiDocumentation>
+                            <generateModelDocumentation>false</generateModelDocumentation>
                             <ignoreFileOverride>${project.basedir}/.openapi-generator-ignore</ignoreFileOverride>
+                            <openapiNormalizer>REF_AS_PARENT_IN_ALLOF=true</openapiNormalizer>
                             <configOptions>
                                 <modelPackage>com.uv.generated.app.model</modelPackage>
                                 <apiPackage>com.uv.generated.app.api</apiPackage>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <documentationProvider>springdoc</documentationProvider>
+                                <interfaceOnly>false</interfaceOnly>
+                                <skipDefaultInterface>false</skipDefaultInterface>
                             </configOptions>
                         </configuration>
                     </execution>

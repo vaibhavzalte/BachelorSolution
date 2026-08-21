@@ -46,13 +46,14 @@
           "Listings"
         ],
         "summary": "Get listings by type",
+        "description": "Returns active listings for the given type. Common query filters: city, subType, primaryId, freshness (24h, 4d, 1w). Extra query params are matched against listing_attributes, for example roomType, availableFor, foodType, mealType, preferredTenant, isOpen, isAvailable, hasWifi, hasAC, homeDelivery.",
         "operationId": "getListings",
         "parameters": [
           {
             "$ref": "#/components/parameters/TypeName"
           },
           {
-            "$ref": "#/components/parameters/ListingQueryParams"
+            "$ref": "#/components/parameters/AllParams"
           }
         ],
         "responses": {
@@ -254,15 +255,23 @@
           "example": 1
         }
       },
-      "ListingQueryParams": {
-        "name": "listingQueryParams",
+      "AllParams": {
+        "name": "allParams",
         "in": "query",
         "required": false,
         "style": "form",
         "explode": true,
-        "description": "Optional filters for listing search",
+        "description": "Optional query filters. Common keys: city, subType, primaryId, freshness (24h, 4d, 1w), roomType, availableFor, foodType, mealType, preferredTenant, isOpen, isAvailable, hasWifi, hasAC, homeDelivery. Extra keys are matched against listing_attributes.",
         "schema": {
-          "$ref": "#/components/schemas/ListingQueryParams"
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "example": {
+            "city": "Pune",
+            "freshness": "24h",
+            "roomType": "1BHK"
+          }
         }
       }
     },
@@ -290,72 +299,6 @@
       }
     },
     "schemas": {
-      "ListingQueryParams": {
-        "type": "object",
-        "description": "Optional query filters for GET /listings/{typeName}",
-        "properties": {
-          "city": {
-            "type": "string",
-            "example": "Pune"
-          },
-          "subType": {
-            "type": "string",
-            "example": "ROOM"
-          },
-          "primaryId": {
-            "type": "string",
-            "example": "ROOM-1001"
-          },
-          "freshness": {
-            "type": "string",
-            "enum": [
-              "24h",
-              "4d",
-              "1w"
-            ]
-          },
-          "roomType": {
-            "type": "string",
-            "example": "1BHK"
-          },
-          "availableFor": {
-            "type": "string",
-            "example": "BOYS"
-          },
-          "foodType": {
-            "type": "string",
-            "example": "VEG"
-          },
-          "mealType": {
-            "type": "string",
-            "example": "ALL"
-          },
-          "preferredTenant": {
-            "type": "string",
-            "example": "Male"
-          },
-          "isOpen": {
-            "type": "string",
-            "example": "true"
-          },
-          "isAvailable": {
-            "type": "string",
-            "example": "true"
-          },
-          "hasWifi": {
-            "type": "string",
-            "example": "true"
-          },
-          "hasAC": {
-            "type": "string",
-            "example": "true"
-          },
-          "homeDelivery": {
-            "type": "string",
-            "example": "true"
-          }
-        }
-      },
       "ListingForm": {
         "type": "object",
         "required": [
@@ -378,6 +321,8 @@
       },
       "CommonRequestFields": {
         "type": "object",
+        "description": "Shared fields on all listing create/update request bodies",
+        "x-parent": true,
         "properties": {
           "subType": {
             "type": "string",
@@ -412,6 +357,8 @@
       },
       "CommonResponseFields": {
         "type": "object",
+        "description": "Shared fields on all listing response bodies",
+        "x-parent": true,
         "properties": {
           "id": {
             "type": "integer",
