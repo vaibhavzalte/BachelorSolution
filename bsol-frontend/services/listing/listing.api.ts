@@ -1,46 +1,65 @@
 import { api } from '@/services/api/axios';
-import { ListingCategory } from '@/types/listing.types';
+import {
+  ListingApiResponse,
+  ListingQueryParams,
+  ListingRequestPayload,
+  ListingTypeName,
+} from '@/types/api.types';
 
-type ListingFilterParams = {
-  category?: string;
-  query?: string;
-  keyword?: string;
-  location?: string;
-  time?: string;
+const buildListingFormData = (
+  objListing: ListingRequestPayload,
+  arrImages?: File[],
+): FormData => {
+  const formData = new FormData();
+  formData.append('listing', JSON.stringify(objListing));
+
+  if (Array.isArray(arrImages)) {
+    arrImages.forEach((objFile) => {
+      formData.append('images', objFile);
+    });
+  }
+
+  return formData;
 };
 
 export const listingApi = {
-  getListings: (
-    category: ListingCategory | 'all' = 'all',
-    query = '',
-    location = 'Pune',
-    time = 'Any Time',
-  ) => {
-    const params: ListingFilterParams = {};
+  healthCheck: () => api.get<string>('/listings'),
 
-    if (category && category !== 'all') {
-      params.category = category;
-    }
+  getListings: (strTypeName: ListingTypeName, objParams?: ListingQueryParams) =>
+    api.get<ListingApiResponse[]>(`/listings/${strTypeName}`, {
+      params: objParams,
+    }),
 
-    if (query) {
-      params.query = query;
-      params.keyword = query;
-    }
+  getListingById: (strTypeName: ListingTypeName, intId: number | string) =>
+    api.get<ListingApiResponse>(`/listings/${strTypeName}/${intId}`),
 
-    if (location) {
-      params.location = location;
-    }
+  createListing: (
+    strTypeName: ListingTypeName,
+    objListing: ListingRequestPayload,
+    arrImages?: File[],
+  ) =>
+    api.post<ListingApiResponse>(
+      `/listings/${strTypeName}`,
+      buildListingFormData(objListing, arrImages),
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      },
+    ),
 
-    if (time && time !== 'Any Time') {
-      params.time = time;
-    }
+  updateListing: (
+    strTypeName: ListingTypeName,
+    intId: number | string,
+    objListing: ListingRequestPayload,
+    arrImages?: File[],
+  ) =>
+    api.put<ListingApiResponse>(
+      `/listings/${strTypeName}/${intId}`,
+      buildListingFormData(objListing, arrImages),
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      },
+    ),
 
-    return api.get('/listings', { params });
-  },
-
-  getListingsByCategory: (category: string, params?: ListingFilterParams) =>
-    api.get(`/listings/category/${category}`, { params }),
-
-  getRooms: (params?: Record<string, string | undefined>) =>
-    api.get('/roomManagment/Room', { params }),
+  deleteListing: (strTypeName: ListingTypeName, intId: number | string) =>
+    api.delete(`/listings/${strTypeName}/${intId}`),
 };

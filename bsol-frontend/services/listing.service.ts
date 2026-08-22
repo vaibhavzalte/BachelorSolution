@@ -1,71 +1,34 @@
 import { Listing, ListingCategory } from '@/types/listing.types';
+import { ListingApiResponse } from '@/types/api.types';
 import { listingApi } from '@/services/listing/listing.api';
 import { parseMediaUrls } from '@/lib/media.utils';
 import { CategoryFiltersState } from '@/types/filter.types';
 import {
   applyClientFilters,
-  buildRoomApiParams,
+  buildListingApiParams,
   getCategoryFilters,
 } from '@/lib/filter.utils';
-
-const normalizeCategory = (value?: string | null): ListingCategory => {
-  switch (value?.toLowerCase()) {
-    case 'room':
-    case 'rooms':
-      return 'rooms';
-    case 'roommate':
-    case 'roommates':
-    case 'flatmate':
-    case 'flatmates':
-      return 'roommates';
-    case 'food':
-    case 'foodstall':
-    case 'food-stall':
-      return 'food';
-    case 'mess':
-    case 'meal':
-    case 'meals':
-      return 'mess';
-    case 'study':
-    case 'studyroom':
-    case 'study-room':
-    case 'vacancy':
-    case 'vacancies':
-      return 'study';
-    default:
-      return 'rooms';
-  }
-};
+import {
+  categoryToTypeName,
+  typeNameToCategory,
+} from '@/constants/listing-routes';
+import {
+  ListingRequestPayload,
+  ListingTypeName,
+} from '@/types/api.types';
 
 const normalizeStringArray = (value: unknown): string[] => {
   if (Array.isArray(value)) {
-    return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+    return value.filter(
+      (item): item is string => typeof item === 'string' && item.trim().length > 0,
+    );
   }
 
   if (typeof value === 'string' && value.trim()) {
-    return value.split(',').map((item) => item.trim()).filter(Boolean);
-  }
-
-  return [];
-};
-
-const extractPayloadArray = (payload: unknown): Record<string, unknown>[] => {
-  if (Array.isArray(payload)) {
-    return payload as Record<string, unknown>[];
-  }
-
-  if (!payload || typeof payload !== 'object') {
-    return [];
-  }
-
-  const data = payload as Record<string, unknown>;
-  const keys = ['content', 'data', 'listings', 'items', 'result', 'records'];
-
-  for (const key of keys) {
-    const value = data[key];
-    if (Array.isArray(value)) {
-      return value as Record<string, unknown>[];
-    }
+    return value
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
   }
 
   return [];
@@ -99,10 +62,13 @@ const formatAmenity = (strValue: string): string => {
     security: 'Security',
   };
 
-  return objAmenityLabels[strNormalized] ?? strValue
-    .split(/[\s_-]+/)
-    .map((strPart) => strPart.charAt(0).toUpperCase() + strPart.slice(1).toLowerCase())
-    .join(' ');
+  return (
+    objAmenityLabels[strNormalized] ??
+    strValue
+      .split(/[\s_-]+/)
+      .map((strPart) => strPart.charAt(0).toUpperCase() + strPart.slice(1).toLowerCase())
+      .join(' ')
+  );
 };
 
 const formatAvailableFor = (strValue: string): string => {
@@ -143,10 +109,18 @@ const formatTimePosted = (value: unknown): string => {
   const intDiffDays = Math.floor(intDiffMs / (1000 * 60 * 60 * 24));
 
   if (intDiffDays === 0) {
-    return dtdValue.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true });
+    return dtdValue.toLocaleTimeString('en-IN', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    });
   }
   if (intDiffDays === 1) {
-    return `Yesterday, ${dtdValue.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
+    return `Yesterday, ${dtdValue.toLocaleTimeString('en-IN', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })}`;
   }
   if (intDiffDays < 7) {
     return `${intDiffDays} days ago`;
@@ -155,47 +129,95 @@ const formatTimePosted = (value: unknown): string => {
   return dtdValue.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 };
 
-const isRoomPayload = (payload: Record<string, unknown>): boolean => {
-  const strType = String(payload.type ?? payload.category ?? '').toLowerCase();
-  return strType === 'room' || strType === 'rooms' || Boolean(payload.roomType ?? payload.rent);
+const getListingTitle = (payload: ListingApiResponse): string => {
+  return String(
+    payload.title ??
+      payload.messName ??
+      payload.stallName ??
+      payload.roomName ??
+      'Untitled listing',
+  );
 };
 
-const buildRoomListingFromPayload = (payload: Record<string, unknown>): Listing => {
-  const strTitle = String(payload.title ?? 'Untitled Room');
+export const mapApiListingToUi = (
+  payload: ListingApiResponse,
+  strPreferredCategory?: ListingCategory,
+): Listing => {
+  const strType = String(payload.type ?? '');
+  const strCategory = typeNameToCategory(strType || 'Room', strPreferredCategory);
+  const strTitle = getListingTitle(payload);
   const strArea = String(payload.area ?? '');
   const strCity = String(payload.city ?? 'Pune');
-  const strAddress = String(payload.address ?? '');
+  const strAddress = String(payload.address ?? payload.location ?? '');
   const strRoomType = String(payload.roomType ?? '');
-  const strAvailableFor = String(payload.availableFor ?? '');
+  const strAvailableFor = String(payload.availableFor ?? payload.preferredTenant ?? '');
   const strDescription = String(payload.description ?? '');
-  const strOwnerName = String(payload.ownerName ?? payload.userName ?? 'Owner');
+  const strOwnerName = String(payload.ownerName ?? 'Owner');
   const strStatus = String(payload.status ?? '');
+  const strFoodType = String(payload.foodType ?? '');
 
-  const strLocation = [strArea, strCity]
-    .filter(Boolean)
-    .map((strPart) => capitalizeWords(strPart))
-    .join(', ') || capitalizeWords(strAddress) || 'Pune';
+  const strLocation =
+    [strArea, strCity]
+      .filter(Boolean)
+      .map((strPart) => capitalizeWords(strPart))
+      .join(', ') ||
+    capitalizeWords(strAddress) ||
+    'Pune';
+
+  const priceValue =
+    payload.rent ?? payload.monthlyFee ?? payload.perMealFee ?? payload.rating;
+
+  let strPricePeriod = 'month';
+  if (strCategory === 'food') strPricePeriod = 'visit';
+  if (strCategory === 'mess' && payload.perMealFee && !payload.monthlyFee) {
+    strPricePeriod = 'meal';
+  }
+  if (strCategory === 'study') strPricePeriod = 'seat';
 
   const arrDetails: string[] = [];
   if (strRoomType) arrDetails.push(strRoomType);
+  if (payload.totalVacancies != null) {
+    arrDetails.push(`${payload.totalVacancies} vacancy`);
+  }
+  if (payload.capacity != null) {
+    arrDetails.push(`Capacity ${payload.capacity}`);
+  }
+  if (payload.availableSeats != null) {
+    arrDetails.push(`${payload.availableSeats} seats free`);
+  }
+  if (strFoodType) arrDetails.push(strFoodType);
+  if (payload.mealType) arrDetails.push(String(payload.mealType));
   if (strAddress && strAddress.toLowerCase() !== strCity.toLowerCase()) {
     arrDetails.push(capitalizeWords(strAddress));
   }
 
   const arrAmenities = normalizeStringArray(payload.amenities).map(formatAmenity);
+  if (payload.homeDelivery) arrAmenities.push('Home Delivery');
+  if (payload.diningArea) arrAmenities.push('Dining Area');
+  if (payload.hasWifi) arrAmenities.push('WiFi');
+  if (payload.hasAC) arrAmenities.push('AC');
+  if (payload.hasChargingPoints) arrAmenities.push('Charging');
 
   const arrTags: string[] = [];
   if (strAvailableFor) arrTags.push(formatAvailableFor(strAvailableFor));
-  if (strRoomType && !arrDetails.includes(strRoomType)) arrTags.push(strRoomType);
+  if (strFoodType) arrTags.push(strFoodType);
+  if (payload.isOpen === true) arrTags.push('Open Now');
+  if (payload.isAvailable === true) arrTags.push('Available');
 
   const numDeposit = typeof payload.deposit === 'number' ? payload.deposit : undefined;
-  const numMaintenance = typeof payload.maintenance === 'number' ? payload.maintenance : undefined;
-  const numBrokerage = typeof payload.brokerage === 'number' ? payload.brokerage : undefined;
+  const numMaintenance =
+    typeof payload.maintenance === 'number' ? payload.maintenance : undefined;
+  const numBrokerage =
+    typeof payload.brokerage === 'number' ? payload.brokerage : undefined;
 
   if (numDeposit && numDeposit > 0) arrTags.push(`Deposit ${toDisplayPrice(numDeposit)}`);
-  if (numMaintenance && numMaintenance > 0) arrTags.push(`Maint. ${toDisplayPrice(numMaintenance)}/mo`);
-  if (numBrokerage && numBrokerage > 0) arrTags.push(`Brokerage ${toDisplayPrice(numBrokerage)}`);
-  if (strStatus === 'Active') arrTags.push('Active');
+  if (numMaintenance && numMaintenance > 0) {
+    arrTags.push(`Maint. ${toDisplayPrice(numMaintenance)}/mo`);
+  }
+  if (numBrokerage && numBrokerage > 0) {
+    arrTags.push(`Brokerage ${toDisplayPrice(numBrokerage)}`);
+  }
+  if (strStatus.toUpperCase() === 'ACTIVE') arrTags.push('Active');
 
   const arrImages = Array.isArray(payload.images) ? payload.images : [];
   const arrImageUrls = arrImages.filter(
@@ -205,28 +227,28 @@ const buildRoomListingFromPayload = (payload: Record<string, unknown>): Listing 
   const strImageUrl = arrMedia[0]?.url ?? '';
 
   const strTimePosted = formatTimePosted(
-    payload.createTime ?? payload.createdAt ?? payload.timePosted ?? payload.timestamp,
+    payload.createTime ?? payload.createdAt ?? payload.updatedAt,
   );
 
   return {
-    id: String(payload.id ?? `room-${strTitle}`),
+    id: String(payload.id ?? `${strCategory}-${strTitle}`),
     title: strTitle,
-    category: 'rooms',
+    category: strCategory,
     location: strLocation,
-    price: toDisplayPrice(payload.rent ?? payload.price ?? payload.monthlyRent),
-    pricePeriod: 'month',
-    negotiable: Boolean(payload.negotiable ?? payload.isNegotiable),
+    price: toDisplayPrice(priceValue),
+    pricePeriod: strPricePeriod,
+    negotiable: false,
     userName: strOwnerName,
     userAvatar: '',
     imageUrl: strImageUrl,
     media: arrMedia,
-    verified: strStatus === 'Active',
+    verified: strStatus.toUpperCase() === 'ACTIVE',
     timestamp: strTimePosted,
     details: arrDetails.length > 0 ? arrDetails : ['Contact for details'],
     amenities: arrAmenities,
-    tags: arrTags.length > 0 ? arrTags : ['Room Available'],
+    tags: arrTags.length > 0 ? arrTags : ['Listing Available'],
     timePosted: strTimePosted,
-    checkmarks: strStatus === 'Active',
+    checkmarks: strStatus.toUpperCase() === 'ACTIVE',
     description: strDescription || undefined,
     roomType: strRoomType || undefined,
     availableFor: strAvailableFor || undefined,
@@ -236,73 +258,15 @@ const buildRoomListingFromPayload = (payload: Record<string, unknown>): Listing 
     deposit: numDeposit,
     maintenance: numMaintenance,
     brokerage: numBrokerage,
-    ownerContact: payload.ownerContact != null ? String(payload.ownerContact) : undefined,
+    ownerContact:
+      payload.ownerContact != null
+        ? String(payload.ownerContact)
+        : payload.contactNumber != null
+          ? String(payload.contactNumber)
+          : undefined,
     ownerEmail: typeof payload.ownerEmail === 'string' ? payload.ownerEmail : undefined,
-  };
-};
-
-const buildListingFromPayload = (payload: Record<string, unknown>): Listing => {
-  if (isRoomPayload(payload)) {
-    return buildRoomListingFromPayload(payload);
-  }
-
-  const title = String(payload.title ?? payload.name ?? payload.description ?? 'Untitled listing');
-  const category = normalizeCategory(String(payload.category ?? payload.type ?? payload.listingType ?? 'rooms'));
-  const city = String(payload.city ?? payload.location ?? payload.area ?? 'Pune');
-  const address = String(payload.address ?? '');
-  const location = [city, address].filter(Boolean).join(', ');
-  const priceValue = payload.price ?? payload.rent ?? payload.monthlyRent ?? payload.amount ?? payload.pricePerMonth;
-  const pricePeriod = String(payload.pricePeriod ?? payload.period ?? payload.rentType ?? payload.priceType ?? 'month');
-  const details = normalizeStringArray(payload.details ?? payload.specs ?? payload.highlights);
-  const amenities = normalizeStringArray(payload.amenities ?? payload.features ?? payload.facilities);
-  const tags = normalizeStringArray(payload.tags ?? payload.badges ?? payload.labels);
-  const userName = String(payload.userName ?? payload.ownerName ?? payload.postedBy ?? payload.contactName ?? 'Owner');
-  const timePosted = String(payload.timePosted ?? payload.createdAt ?? payload.timestamp ?? payload.postedAt ?? 'Just now');
-
-  const arrImages = Array.isArray(payload.images)
-    ? payload.images.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
-    : [];
-  const imageValue = payload.imageUrl ?? payload.image ?? payload.thumbnail ?? payload.avatar;
-  const strSingleImage = typeof imageValue === 'string' && imageValue.trim() ? imageValue : '';
-  const arrImageUrls = arrImages.length > 0 ? arrImages : strSingleImage ? [strSingleImage] : [];
-  const arrMedia = parseMediaUrls(arrImageUrls);
-  const imageUrl = arrMedia[0]?.url ?? '';
-
-  const roomType = typeof payload.roomType === 'string' && payload.roomType.trim() ? payload.roomType : '';
-  const availableFor = typeof payload.availableFor === 'string' && payload.availableFor.trim() ? payload.availableFor : '';
-  const status = typeof payload.status === 'string' && payload.status.trim() ? payload.status : '';
-
-  const finalDetails = details.length > 0
-    ? details
-    : [roomType, availableFor].filter(Boolean);
-  const finalAmenities = amenities.length > 0
-    ? amenities
-    : [status].filter(Boolean);
-  const finalTags = tags.length > 0
-    ? tags
-    : [roomType, availableFor, status].filter(Boolean);
-
-  return {
-    id: String(payload.id ?? `${category}-${title}`),
-    title,
-    category,
-    location: location || 'Pune',
-    price: toDisplayPrice(priceValue),
-    pricePeriod,
-    negotiable: Boolean(payload.negotiable ?? payload.isNegotiable),
-    userName,
-    userAvatar: typeof payload.userAvatar === 'string' && payload.userAvatar.trim()
-      ? payload.userAvatar
-      : '/images/avatar_default.svg',
-    imageUrl,
-    media: arrMedia.length > 0 ? arrMedia : undefined,
-    verified: Boolean(payload.verified ?? payload.isVerified ?? status === 'Active'),
-    timestamp: timePosted,
-    details: finalDetails.length > 0 ? finalDetails : ['Available now'],
-    amenities: finalAmenities.length > 0 ? finalAmenities : ['Contact owner'],
-    tags: finalTags.length > 0 ? finalTags : ['Verified listing'],
-    timePosted,
-    checkmarks: Boolean(payload.checkmarks ?? payload.isVerified ?? status === 'Active'),
+    typeName: (payload.type as ListingTypeName) || categoryToTypeName(strCategory),
+    raw: payload,
   };
 };
 
@@ -313,38 +277,68 @@ export const getListings = async (
   time?: string,
   categoryFilters?: CategoryFiltersState,
 ): Promise<Listing[]> => {
-  const strCategory = (category && category !== 'all' ? category : 'rooms') as ListingCategory;
+  const strCategory = (
+    category && category !== 'all' ? category : 'rooms'
+  ) as ListingCategory;
   const objFilters = getCategoryFilters(categoryFilters ?? {}, strCategory);
+  const strTypeName = categoryToTypeName(strCategory);
+  const objParams = buildListingApiParams(
+    objFilters,
+    location ?? 'Pune',
+    time ?? 'Any Time',
+    strCategory,
+  );
 
-  try {
-    const normalizedCategory: ListingCategory | 'all' = category && category !== 'all'
-      ? (category as ListingCategory)
-      : 'all';
-    const response = await listingApi.getListings(normalizedCategory, query ?? '', location ?? 'Pune', time ?? 'Any Time');
-    const payload = extractPayloadArray(response.data);
-
-    if (payload.length > 0) {
-      const arrListings = payload.map((item) => buildListingFromPayload(item));
-      return applyClientFilters(arrListings, strCategory, objFilters, location ?? 'Pune');
-    }
-  } catch (error) {
-    console.warn('[listing-service] /listings request failed, trying room endpoint.', error);
+  if (query?.trim()) {
+    objParams.keyword = query.trim();
   }
 
-  if (strCategory === 'rooms') {
-    try {
-      const objRoomParams = buildRoomApiParams(objFilters, location ?? 'Pune', time ?? 'Any Time');
-      const roomResponse = await listingApi.getRooms(objRoomParams);
-      const payload = extractPayloadArray(roomResponse.data);
+  const response = await listingApi.getListings(strTypeName, objParams);
+  const arrPayload = Array.isArray(response.data) ? response.data : [];
+  const arrListings = arrPayload.map((item) => mapApiListingToUi(item, strCategory));
 
-      if (payload.length > 0) {
-        const arrListings = payload.map((item) => buildListingFromPayload(item));
-        return applyClientFilters(arrListings, strCategory, objFilters, location ?? 'Pune');
-      }
-    } catch (error) {
-      console.warn('[listing-service] Backend room request failed.', error);
-    }
-  }
+  return applyClientFilters(arrListings, strCategory, objFilters, location ?? 'Pune');
+};
 
-  return [];
+export const getListingById = async (
+  strCategory: ListingCategory,
+  strId: string | number,
+): Promise<Listing> => {
+  const strTypeName = categoryToTypeName(strCategory);
+  const response = await listingApi.getListingById(strTypeName, strId);
+  return mapApiListingToUi(response.data, strCategory);
+};
+
+export const createListing = async (
+  strCategory: ListingCategory,
+  objListing: ListingRequestPayload,
+  arrImages?: File[],
+): Promise<Listing> => {
+  const strTypeName = categoryToTypeName(strCategory);
+  const response = await listingApi.createListing(strTypeName, objListing, arrImages);
+  return mapApiListingToUi(response.data, strCategory);
+};
+
+export const updateListing = async (
+  strCategory: ListingCategory,
+  strId: string | number,
+  objListing: ListingRequestPayload,
+  arrImages?: File[],
+): Promise<Listing> => {
+  const strTypeName = categoryToTypeName(strCategory);
+  const response = await listingApi.updateListing(
+    strTypeName,
+    strId,
+    objListing,
+    arrImages,
+  );
+  return mapApiListingToUi(response.data, strCategory);
+};
+
+export const deleteListing = async (
+  strCategory: ListingCategory,
+  strId: string | number,
+): Promise<void> => {
+  const strTypeName = categoryToTypeName(strCategory);
+  await listingApi.deleteListing(strTypeName, strId);
 };

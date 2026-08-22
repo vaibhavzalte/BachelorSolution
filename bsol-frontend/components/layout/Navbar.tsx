@@ -2,18 +2,33 @@
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Search, MapPin, ChevronDown, Bell, MessageSquare, Menu } from 'lucide-react';
 import { useLayoutStore } from '@/store/useLayoutStore';
 import { Button } from '@/components/ui/button';
+import {
+  buildListingCreatePath,
+  DEFAULT_LISTING_ROUTE,
+  getRouteByCategory,
+} from '@/constants/listing-routes';
+import { ListingCategory } from '@/types/listing.types';
 
 export default function Navbar() {
   const { 
     selectedLocation, 
-    setSelectedLocation, 
     searchQuery, 
     setSearchQuery, 
-    setMobileSidebarOpen 
+    setMobileSidebarOpen,
+    activeCategory,
   } = useLayoutStore();
+
+  const strCategory: ListingCategory =
+    activeCategory === 'all' ? 'rooms' : activeCategory;
+  const strCreatePath = buildListingCreatePath(strCategory);
+  const strHomePath =
+    activeCategory === 'all'
+      ? DEFAULT_LISTING_ROUTE.path
+      : getRouteByCategory(strCategory).path;
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-[var(--border)] bg-white px-3 py-3 md:px-5">
@@ -30,10 +45,8 @@ export default function Navbar() {
             <Menu className="h-6 w-6" />
           </Button>
 
-          {/* Logo */}
-          <div className="flex items-center gap-2">
+          <Link href={strHomePath} className="flex items-center gap-2">
             <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 p-1.5 text-white shadow-soft">
-              {/* Custom building graduation cap SVG */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -47,13 +60,13 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col">
               <span className="text-base font-bold leading-none tracking-tight text-slate-800 dark:text-slate-100">
-                Batchelor<span className="text-blue-600">Solution</span>
+                Bachelor<span className="text-blue-600">Solution</span>
               </span>
               <span className="text-[9px] font-semibold leading-none tracking-wider text-slate-400">
                 PREMIUM LIVING
               </span>
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Search & Location Bar (Hidden on Mobile, flex on desktop) */}
@@ -82,12 +95,12 @@ export default function Navbar() {
 
         {/* Right Side: Post Listing & User Icons */}
         <div className="flex items-center gap-3 md:gap-4">
-          <Button
-            className="rounded-full bg-[var(--primary)] px-5 text-xs font-semibold text-white hover:bg-blue-600 shadow-soft hidden sm:flex items-center gap-1.5"
-            size="sm"
+          <Link
+            href={strCreatePath}
+            className="hidden items-center gap-1.5 rounded-full bg-[var(--primary)] px-5 py-2 text-xs font-semibold text-white shadow-soft hover:bg-blue-600 sm:flex"
           >
             <span className="text-sm font-bold">+</span> Post Listing
-          </Button>
+          </Link>
 
           {/* Action Icons */}
           <div className="flex items-center gap-1 sm:gap-2">

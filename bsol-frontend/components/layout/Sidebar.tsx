@@ -11,10 +11,12 @@ import {
   LogOut,
   ArrowRight
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useLayoutStore } from '@/store/useLayoutStore';
 import { ListingCategory } from '@/types/listing.types';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
+import { DEFAULT_LISTING_ROUTE } from '@/constants/listing-routes';
 
 const SIDEBAR_MIN_WIDTH = 60;
 const SIDEBAR_MAX_WIDTH = 320;
@@ -116,6 +118,7 @@ function SidebarInner({ isCollapsed, activeSidebarItem, onItemClick }: SidebarIn
 }
 
 export default function Sidebar() {
+  const router = useRouter();
   const { 
     activeSidebarItem, 
     setActiveSidebarItem,
@@ -133,9 +136,12 @@ export default function Sidebar() {
 
   const handleItemClick = useCallback((item: MenuItem) => {
     setActiveSidebarItem(item.name);
-    if (item.category) setActiveCategory(item.category);
+    if (item.category) {
+      setActiveCategory(item.category === 'all' ? 'rooms' : item.category);
+      router.push(DEFAULT_LISTING_ROUTE.path);
+    }
     setMobileSidebarOpen(false);
-  }, [setActiveSidebarItem, setActiveCategory, setMobileSidebarOpen]);
+  }, [setActiveSidebarItem, setActiveCategory, setMobileSidebarOpen, router]);
 
   // Mouse resize handlers
   const onMouseDown = useCallback((e: React.MouseEvent) => {

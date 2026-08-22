@@ -1,3 +1,5 @@
+import { ListingApiResponse, ListingTypeName } from '@/types/api.types';
+
 export type ListingCategory = 'rooms' | 'roommates' | 'food' | 'mess' | 'study' | 'vacancies';
 
 export type ListingMediaType = 'image' | 'video';
@@ -13,19 +15,19 @@ export interface Listing {
   category: ListingCategory;
   location: string;
   price: string;
-  pricePeriod: string; // e.g. "month", "plate", etc.
+  pricePeriod: string;
   negotiable?: boolean;
   userName: string;
   userAvatar: string;
   imageUrl: string;
-  media?: ListingMediaItem[];  verified?: boolean;
+  media?: ListingMediaItem[];
+  verified?: boolean;
   timestamp: string;
-  details: string[]; // e.g. ["2BHK", "2nd Floor"]
-  amenities: string[]; // e.g. ["Fully Furnished", "WiFi", "Parking"]
-  tags: string[]; // e.g. ["Any Gender", "2 Sharing", "Available from 1 Aug"]
-  timePosted: string; // e.g. "10:30 AM", "Yesterday, 8:45 PM"
-  checkmarks?: boolean; // Show visual tick marks
-  // Room-specific fields from backend
+  details: string[];
+  amenities: string[];
+  tags: string[];
+  timePosted: string;
+  checkmarks?: boolean;
   description?: string;
   roomType?: string;
   availableFor?: string;
@@ -37,6 +39,8 @@ export interface Listing {
   brokerage?: number;
   ownerContact?: string;
   ownerEmail?: string;
+  typeName?: ListingTypeName;
+  raw?: ListingApiResponse;
 }
 
 export interface CategoryCount {

@@ -90,10 +90,11 @@ const formatCityForApi = (strCity: string): string => {
     .join(' ');
 };
 
-export const buildRoomApiParams = (
+export const buildListingApiParams = (
   objFilters: CategoryFilterValues,
   strLocation: string,
   strTime: string,
+  strCategory?: ListingCategory,
 ): Record<string, string | undefined> => {
   const objParams: Record<string, string | undefined> = {};
   const arrPuneAreas = ['Wakad', 'Hinjawadi', 'Baner', 'Aundh', 'FC Road'];
@@ -111,7 +112,16 @@ export const buildRoomApiParams = (
 
   const strAvailableFor = String(objFilters.availableFor ?? '');
   if (strAvailableFor && strAvailableFor !== ANY_VALUE) {
-    objParams.availableFor = strAvailableFor;
+    if (strCategory === 'roommates' || strCategory === 'vacancies') {
+      objParams.preferredTenant = strAvailableFor;
+    } else {
+      objParams.availableFor = strAvailableFor;
+    }
+  }
+
+  const strFoodType = String(objFilters.foodType ?? '');
+  if (strFoodType && strFoodType !== ANY_VALUE) {
+    objParams.foodType = strFoodType.toUpperCase();
   }
 
   const strFreshness = mapTimeToFreshness(strTime);
@@ -121,6 +131,9 @@ export const buildRoomApiParams = (
 
   return objParams;
 };
+
+/** @deprecated Use buildListingApiParams */
+export const buildRoomApiParams = buildListingApiParams;
 
 const matchesPriceRange = (
   strPrice: string,
