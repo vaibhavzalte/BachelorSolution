@@ -1,5 +1,5 @@
-import '@/services/api/interceptors';
 import axios from 'axios';
+import { attachInterceptors } from '@/services/api/interceptors';
 
 export const api = axios.create({
   baseURL:
@@ -10,3 +10,5 @@ export const api = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+attachInterceptors(api);

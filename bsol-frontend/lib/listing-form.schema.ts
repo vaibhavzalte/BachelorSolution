@@ -185,8 +185,16 @@ export const toListingRequestPayload = (
 
 export const getDefaultListingValues = (
   strCategory: ListingCategory,
-  strCity = 'Pune',
+  objMasterDefaults: {
+    strCity?: string;
+    strRoomType?: string;
+    strAvailableFor?: string;
+    strFoodType?: string;
+    strMealType?: string;
+    strPreferredTenant?: string;
+  } = {},
 ): ListingFormValues => {
+  const strCity = objMasterDefaults.strCity ?? '';
   const objCommon = {
     city: strCity,
     area: '',
@@ -204,8 +212,8 @@ export const getDefaultListingValues = (
         ...objCommon,
         messName: '',
         description: '',
-        foodType: 'VEG',
-        mealType: 'ALL',
+        foodType: objMasterDefaults.strFoodType ?? '',
+        mealType: objMasterDefaults.strMealType ?? '',
         monthlyFee: undefined,
         perMealFee: undefined,
         homeDelivery: false,
@@ -217,9 +225,9 @@ export const getDefaultListingValues = (
         ...objCommon,
         title: '',
         description: '',
-        roomType: '',
+        roomType: objMasterDefaults.strRoomType ?? '',
         totalVacancies: 1,
-        preferredTenant: 'Any',
+        preferredTenant: objMasterDefaults.strPreferredTenant ?? '',
         rent: undefined,
         deposit: undefined,
         maintenance: undefined,
@@ -237,7 +245,7 @@ export const getDefaultListingValues = (
         ownerName: '',
         contactNumber: '',
         location: '',
-        foodType: 'VEG',
+        foodType: objMasterDefaults.strFoodType ?? '',
         rating: undefined,
         isOpen: true,
         description: '',
@@ -266,8 +274,8 @@ export const getDefaultListingValues = (
         ...objCommon,
         title: '',
         description: '',
-        roomType: '1BHK',
-        availableFor: 'ANY',
+        roomType: objMasterDefaults.strRoomType ?? '',
+        availableFor: objMasterDefaults.strAvailableFor ?? '',
         rent: undefined,
         deposit: undefined,
         maintenance: undefined,

@@ -16,11 +16,15 @@ import {
 } from 'lucide-react';
 import { useLayoutStore } from '@/store/useLayoutStore';
 import { ListingCategory } from '@/types/listing.types';
-import { CATEGORY_FILTER_CONFIGS } from '@/constants/listing-filters.config';
+import {
+  buildCategoryFilterConfigs,
+} from '@/constants/listing-filters.config';
 import { countActiveFilters, getCategoryFilters } from '@/lib/filter.utils';
 import ListingFiltersSheet from '@/components/listing/ListingFiltersSheet';
 import { LISTING_ROUTES, getRouteByCategory } from '@/constants/listing-routes';
 import { cn } from '@/lib/utils';
+import { useMasters } from '@/providers/MasterProvider';
+import { getLocationOptions, getMasterOptions } from '@/lib/master.utils';
 
 const iconMap = {
   rooms: { icon: Bed, color: 'text-indigo-500' },
@@ -43,6 +47,13 @@ export default function CategoryFilters() {
     setSelectedTime,
     categoryFilters,
   } = useLayoutStore();
+  const { objCatalog } = useMasters();
+  const objFilterConfigs = useMemo(
+    () => buildCategoryFilterConfigs(objCatalog),
+    [objCatalog],
+  );
+  const arrLocationOptions = useMemo(() => getLocationOptions(objCatalog), [objCatalog]);
+  const arrTimeOptions = useMemo(() => getMasterOptions(objCatalog, 'TIME'), [objCatalog]);
 
   const strCategory = activeCategory === 'all' ? 'rooms' : activeCategory;
   const objActiveFilters = useMemo(
@@ -51,7 +62,7 @@ export default function CategoryFilters() {
   );
   const intFilterCount = countActiveFilters(
     objActiveFilters,
-    CATEGORY_FILTER_CONFIGS[strCategory as ListingCategory],
+    objFilterConfigs[strCategory as ListingCategory],
   );
 
   const handleCategoryClick = (strNextCategory: ListingCategory) => {
@@ -101,11 +112,11 @@ export default function CategoryFilters() {
               onChange={(e) => setSelectedLocation(e.target.value)}
               className="cursor-pointer appearance-none rounded-full border border-slate-200 bg-white py-2 pl-7 pr-7 text-[11px] font-bold text-slate-700 shadow-soft focus:outline-none focus:ring-1 focus:ring-blue-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-slate-300"
             >
-              <option>Pune</option>
-              <option>Wakad</option>
-              <option>Hinjawadi</option>
-              <option>Baner</option>
-              <option>Aundh</option>
+              {arrLocationOptions.map((objOption) => (
+                <option key={objOption.value} value={objOption.value}>
+                  {objOption.label}
+                </option>
+              ))}
             </select>
             <MapPin className="pointer-events-none absolute left-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
             <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
@@ -117,10 +128,11 @@ export default function CategoryFilters() {
               onChange={(e) => setSelectedTime(e.target.value)}
               className="cursor-pointer appearance-none rounded-full border border-slate-200 bg-white py-2 pl-7 pr-7 text-[11px] font-bold text-slate-700 shadow-soft focus:outline-none focus:ring-1 focus:ring-blue-400 dark:border-zinc-800 dark:bg-zinc-900 dark:text-slate-300"
             >
-              <option>Any Time</option>
-              <option>Today</option>
-              <option>This Week</option>
-              <option>This Month</option>
+              {arrTimeOptions.map((objOption) => (
+                <option key={objOption.value} value={objOption.value}>
+                  {objOption.label}
+                </option>
+              ))}
             </select>
             <Clock className="pointer-events-none absolute left-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />
             <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400" />

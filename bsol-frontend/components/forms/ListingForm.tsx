@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   useForm,
   Controller,
@@ -26,6 +26,10 @@ import {
 } from '@/constants/listing-routes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useMasters } from '@/providers/MasterProvider';
+import { getMasterDefault, getMasterOptions } from '@/lib/master.utils';
+import { MASTER_GROUPS } from '@/types/master.types';
+import { FilterOption } from '@/types/filter.types';
 
 interface ListingFormProps {
   category: ListingCategory;
@@ -61,10 +65,55 @@ export default function ListingForm({
   const createMutation = useCreateListing(category);
   const updateMutation = useUpdateListing(category);
   const strLabel = getRouteByCategory(category).label;
+  const { objCatalog, boolReady } = useMasters();
+
+  const objMasterDefaults = useMemo(
+    () => ({
+      strCity: getMasterDefault(objCatalog, MASTER_GROUPS.CITY),
+      strRoomType: getMasterDefault(objCatalog, MASTER_GROUPS.ROOM_TYPE),
+      strAvailableFor: getMasterDefault(objCatalog, MASTER_GROUPS.AVAILABLE_FOR),
+      strFoodType: getMasterDefault(objCatalog, MASTER_GROUPS.FOOD_TYPE),
+      strMealType: getMasterDefault(objCatalog, MASTER_GROUPS.MEAL_TYPE),
+      strPreferredTenant: getMasterDefault(objCatalog, MASTER_GROUPS.PREFERRED_TENANT),
+    }),
+    [objCatalog],
+  );
+
+  const arrCityOptions = useMemo(
+    () => getMasterOptions(objCatalog, MASTER_GROUPS.CITY),
+    [objCatalog],
+  );
+  const arrAreaOptions = useMemo(
+    () => getMasterOptions(objCatalog, MASTER_GROUPS.AREA),
+    [objCatalog],
+  );
+  const arrRoomTypeOptions = useMemo(
+    () => getMasterOptions(objCatalog, MASTER_GROUPS.ROOM_TYPE),
+    [objCatalog],
+  );
+  const arrAvailableForOptions = useMemo(
+    () => getMasterOptions(objCatalog, MASTER_GROUPS.AVAILABLE_FOR),
+    [objCatalog],
+  );
+  const arrFoodTypeOptions = useMemo(
+    () => getMasterOptions(objCatalog, MASTER_GROUPS.FOOD_TYPE),
+    [objCatalog],
+  );
+  const arrMealTypeOptions = useMemo(
+    () => getMasterOptions(objCatalog, MASTER_GROUPS.MEAL_TYPE),
+    [objCatalog],
+  );
+  const arrPreferredTenantOptions = useMemo(
+    () => getMasterOptions(objCatalog, MASTER_GROUPS.PREFERRED_TENANT),
+    [objCatalog],
+  );
 
   const objDefaultValues = useMemo((): ListingFormValues => {
     if (initialRaw) {
-      const objBase = getDefaultListingValues(category, initialRaw.city ?? 'Pune');
+      const objBase = getDefaultListingValues(category, {
+        ...objMasterDefaults,
+        strCity: initialRaw.city ?? objMasterDefaults.strCity,
+      });
       return {
         ...objBase,
         ...initialRaw,
@@ -74,19 +123,26 @@ export default function ListingForm({
         ownerEmail: initialRaw.ownerEmail ?? '',
       } as ListingFormValues;
     }
-    return getDefaultListingValues(category);
-  }, [category, initialRaw]);
+    return getDefaultListingValues(category, objMasterDefaults);
+  }, [category, initialRaw, objMasterDefaults]);
 
   const {
     register,
     control,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ListingFormValues>({
     // Category-specific schemas are resolved at runtime
     resolver: zodResolver(objSchema) as never,
     defaultValues: objDefaultValues as DefaultValues<ListingFormValues>,
   });
+
+  useEffect(() => {
+    if (boolReady) {
+      reset(objDefaultValues);
+    }
+  }, [boolReady, objDefaultValues, reset]);
 
   const getError = (strKey: string): string | undefined => {
     const objError = (errors as Record<string, { message?: string }>)[strKey];
@@ -156,6 +212,38 @@ export default function ListingForm({
     </label>
   );
 
+  const renderSelect = (
+    strName: Path<ListingFormValues>,
+    strLabel: string,
+    arrOptions: FilterOption[],
+    strPlaceholder?: string,
+  ) => (
+    <Field label={strLabel}>
+      <select
+        className="h-8 w-full rounded-xl border border-transparent bg-input/50 px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/30 dark:bg-zinc-900"
+        {...register(strName)}
+      >
+        {strPlaceholder && <option value="">{strPlaceholder}</option>}
+        {arrOptions.map((objOption) => (
+          <option key={`${strName}-${objOption.value}`} value={objOption.value}>
+            {objOption.label}
+          </option>
+        ))}
+      </select>
+      {getError(strName) && (
+        <span className="text-[11px] text-rose-500">{getError(strName)}</span>
+      )}
+    </Field>
+  );
+
+  if (!boolReady) {
+    return (
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-3 rounded-3xl border border-slate-100 bg-white p-8 text-sm text-slate-500 shadow-soft dark:border-zinc-800 dark:bg-zinc-900">
+        Loading form options...
+      </div>
+    );
+  }
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit as (data: FieldValues) => Promise<void>)}
@@ -174,8 +262,8 @@ export default function ListingForm({
         {category === 'rooms' && (
           <>
             {renderTextInput('title', 'Title', 'Spacious 1BHK Room')}
-            {renderTextInput('roomType', 'Room Type', '1BHK')}
-            {renderTextInput('availableFor', 'Available For', 'BOYS / GIRLS / ANY')}
+            {renderSelect('roomType', 'Room Type', arrRoomTypeOptions)}
+            {renderSelect('availableFor', 'Available For', arrAvailableForOptions)}
             {renderTextInput('rent', 'Rent', '15000', 'number')}
             {renderTextInput('deposit', 'Deposit', '30000', 'number')}
             {renderTextInput('maintenance', 'Maintenance', '1500', 'number')}
@@ -188,8 +276,8 @@ export default function ListingForm({
         {(category === 'roommates' || category === 'vacancies') && (
           <>
             {renderTextInput('title', 'Title', '1 sharing vacancy')}
-            {renderTextInput('roomType', 'Room Type', '2BHK')}
-            {renderTextInput('preferredTenant', 'Preferred Tenant', 'Male / Female / Any')}
+            {renderSelect('roomType', 'Room Type', arrRoomTypeOptions)}
+            {renderSelect('preferredTenant', 'Preferred Tenant', arrPreferredTenantOptions)}
             {renderTextInput('totalVacancies', 'Total Vacancies', '1', 'number')}
             {renderTextInput('rent', 'Rent', '8000', 'number')}
             {renderTextInput('deposit', 'Deposit', '16000', 'number')}
@@ -201,8 +289,8 @@ export default function ListingForm({
         {category === 'mess' && (
           <>
             {renderTextInput('messName', 'Mess Name', 'Shree Veg Mess')}
-            {renderTextInput('foodType', 'Food Type', 'VEG / NONVEG')}
-            {renderTextInput('mealType', 'Meal Type', 'ALL / LUNCH / DINNER')}
+            {renderSelect('foodType', 'Food Type', arrFoodTypeOptions)}
+            {renderSelect('mealType', 'Meal Type', arrMealTypeOptions)}
             {renderTextInput('monthlyFee', 'Monthly Fee', '3500', 'number')}
             {renderTextInput('perMealFee', 'Per Meal Fee', '80', 'number')}
             <div className="flex flex-col gap-3 md:col-span-2">
@@ -216,7 +304,7 @@ export default function ListingForm({
           <>
             {renderTextInput('stallName', 'Stall Name', 'Campus Maggi Point')}
             {renderTextInput('location', 'Location', 'Near Gate 2')}
-            {renderTextInput('foodType', 'Food Type', 'VEG')}
+            {renderSelect('foodType', 'Food Type', arrFoodTypeOptions)}
             {renderTextInput('contactNumber', 'Contact Number')}
             {renderTextInput('rating', 'Rating', '4.5', 'number')}
             <div className="flex flex-col gap-3">{renderCheckbox('isOpen', 'Open Now')}</div>
@@ -240,10 +328,10 @@ export default function ListingForm({
           </>
         )}
 
-        {renderTextInput('city', 'City', 'Pune')}
+        {renderSelect('city', 'City', arrCityOptions)}
         {category !== 'food' && category !== 'study' && (
           <>
-            {renderTextInput('area', 'Area', 'Baner')}
+            {renderSelect('area', 'Area', arrAreaOptions, 'Select area')}
             {renderTextInput('address', 'Address')}
             {renderTextInput('ownerName', 'Owner Name')}
             {renderTextInput('ownerContact', 'Owner Contact')}

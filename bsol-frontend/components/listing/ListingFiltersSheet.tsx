@@ -6,7 +6,7 @@ import { useLayoutStore } from '@/store/useLayoutStore';
 import { ListingCategory } from '@/types/listing.types';
 import { CategoryFilterValues } from '@/types/filter.types';
 import {
-  CATEGORY_FILTER_CONFIGS,
+  buildCategoryFilterConfigs,
   getDefaultCategoryFilters,
 } from '@/constants/listing-filters.config';
 import { countActiveFilters } from '@/lib/filter.utils';
@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useMasters } from '@/providers/MasterProvider';
 
 interface ListingFiltersSheetProps {
   open: boolean;
@@ -33,9 +34,13 @@ export default function ListingFiltersSheet({ open, onOpenChange }: ListingFilte
     setCategoryFilters,
     clearCategoryFilters,
   } = useLayoutStore();
+  const { objCatalog } = useMasters();
 
   const strCategory = activeCategory === 'all' ? 'rooms' : activeCategory;
-  const arrFieldConfig = CATEGORY_FILTER_CONFIGS[strCategory as ListingCategory];
+  const arrFieldConfig = useMemo(
+    () => buildCategoryFilterConfigs(objCatalog)[strCategory as ListingCategory],
+    [objCatalog, strCategory],
+  );
 
   const objAppliedFilters = useMemo(
     () => categoryFilters[strCategory as ListingCategory] ?? getDefaultCategoryFilters(strCategory as ListingCategory),

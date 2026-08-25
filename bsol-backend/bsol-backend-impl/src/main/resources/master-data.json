@@ -1,0 +1,64 @@
+{
+  "groups": [
+    {
+      "groupCode": "CITY",
+      "groupLabel": "City",
+      "data": ["PUNE", "MUMBAI", "NASHIK"]
+    },
+    {
+      "groupCode": "AREA",
+      "groupLabel": "Area",
+      "data": ["WAKAD", "HINJAWADI", "BANER", "AUNDH"]
+    },
+    {
+      "groupCode": "TIME",
+      "groupLabel": "Time",
+      "data": ["ANY_TIME", "TODAY", "THIS_WEEK", "THIS_MONTH"]
+    },
+    {
+      "groupCode": "ROOM_TYPE",
+      "groupLabel": "Room Type",
+      "data": ["1RK", "1BHK", "2BHK", "3BHK"]
+    },
+    {
+      "groupCode": "AVAILABLE_FOR",
+      "groupLabel": "Available For",
+      "data": ["ANY", "BOYS", "GIRLS", "FAMILY"]
+    },
+    {
+      "groupCode": "ROOM_AMENITY",
+      "groupLabel": "Amenities",
+      "data": ["WIFI", "PARKING", "AC", "LIFT"]
+    },
+    {
+      "groupCode": "PRICE_RANGE",
+      "groupLabel": "Price Range",
+      "data": ["BUDGET", "MID", "PREMIUM"]
+    },
+    {
+      "groupCode": "CUISINE",
+      "groupLabel": "Cuisine",
+      "data": ["STREET", "FAST", "SOUTH", "NORTH"]
+    },
+    {
+      "groupCode": "FOOD_TYPE",
+      "groupLabel": "Food Type",
+      "data": ["VEG", "NONVEG", "EGG"]
+    },
+    {
+      "groupCode": "MEAL_TYPE",
+      "groupLabel": "Meal Type",
+      "data": ["ALL", "BREAKFAST", "LUNCH", "DINNER"]
+    },
+    {
+      "groupCode": "PREFERRED_TENANT",
+      "groupLabel": "Preferred Tenant",
+      "data": ["ANY", "STUDENTS", "WORKING_PROFESSIONAL", "BOYS", "GIRLS"]
+    },
+    {
+      "groupCode": "STUDY_FACILITY",
+      "groupLabel": "Facilities",
+      "data": ["WIFI", "AC", "QUIET_ZONE", "ACCESS_24X7"]
+    }
+  ]
+}

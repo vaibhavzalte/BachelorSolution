@@ -1,0 +1,206 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Bachelor Solution Master API",
+    "description": "Master data APIs for dropdowns and default values (city, area, time, room type, and other listing filters).\n\nBase URL for the frontend axios client: `http://localhost:8080/uv-api/v1`\n\nCall `POST /masters/seed` once to load default rows from `master-data.json`. If rows already exist, the call is skipped.",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080/uv-api/v1",
+      "description": "Local development (frontend base URL)"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Masters",
+      "description": "Read and seed master dropdown data"
+    }
+  ],
+  "paths": {
+    "/masters": {
+      "get": {
+        "tags": [
+          "Masters"
+        ],
+        "summary": "Get all master data",
+        "description": "Returns every active master group. Each group has a JSON `data` array of codes, for example CITY: `[\"PUNE\",\"MUMBAI\",\"NASHIK\"]`. The first code in each array is the default.",
+        "operationId": "getMasters",
+        "responses": {
+          "200": {
+            "description": "Master catalog",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MasterCatalogResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/masters/seed": {
+      "post": {
+        "tags": [
+          "Masters"
+        ],
+        "summary": "Seed default master data",
+        "description": "Inserts default master rows from the classpath resource `master-data.json`. If any master row already exists, nothing is inserted.",
+        "operationId": "seedMasters",
+        "responses": {
+          "200": {
+            "description": "Seed completed or skipped because data already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MasterSeedResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/masters/{groupCode}": {
+      "get": {
+        "tags": [
+          "Masters"
+        ],
+        "summary": "Get master data by group",
+        "description": "Returns one master group and its `data` array. Unknown group codes return 404.",
+        "operationId": "getMastersByGroup",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/GroupCode"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Master group found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MasterGroupResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "GroupCode": {
+        "name": "groupCode",
+        "in": "path",
+        "required": true,
+        "description": "Master group code such as CITY, AREA, TIME, ROOM_TYPE",
+        "schema": {
+          "type": "string",
+          "example": "CITY"
+        }
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "Master group not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "MasterGroupResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "example": 1
+          },
+          "groupCode": {
+            "type": "string",
+            "example": "CITY"
+          },
+          "groupLabel": {
+            "type": "string",
+            "example": "City"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "PUNE",
+              "MUMBAI",
+              "NASHIK"
+            ]
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "MasterCatalogResponse": {
+        "type": "object",
+        "properties": {
+          "groups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MasterGroupResponse"
+            }
+          }
+        }
+      },
+      "MasterSeedResponse": {
+        "type": "object",
+        "properties": {
+          "seeded": {
+            "type": "boolean",
+            "example": true
+          },
+          "skipped": {
+            "type": "boolean",
+            "example": false
+          },
+          "itemCount": {
+            "type": "integer",
+            "example": 40
+          },
+          "message": {
+            "type": "string",
+            "example": "Master data seeded"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 404
+          },
+          "message": {
+            "type": "string",
+            "example": "Master group not found: UNKNOWN"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}

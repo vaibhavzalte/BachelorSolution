@@ -22,6 +22,16 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(MasterGroupNotFoundException.class)
+    public ResponseEntity<ErrorResponse> masterGroupNotFound(MasterGroupNotFoundException e) {
+        log.error("Master group not found", e);
+        ErrorResponse error = new ErrorResponse()
+                .status(HttpStatus.NOT_FOUND.value())
+                .message(e.getMessage())
+                .timestamp(OffsetDateTime.now());
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(DuplicateListingException.class)
     public ResponseEntity<ErrorResponse> duplicateListing(DuplicateListingException e) {
         log.error("Duplicate listing", e);

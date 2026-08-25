@@ -1,29 +1,20 @@
-import { api } from "./axios";
+import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
-api.interceptors.request.use((config) => {
-
+export const attachInterceptors = (objApi: AxiosInstance) => {
+  objApi.interceptors.request.use((objConfig: InternalAxiosRequestConfig) => {
     console.log(
-        `[API] ${config.method?.toUpperCase()} ${config.url}`
+      `[API] ${objConfig.method?.toUpperCase()} ${objConfig.url}`,
     );
+    return objConfig;
+  });
 
-    return config;
-});
-
-
-api.interceptors.response.use(
-
-    (response) => response,
-
-    (error) => {
-
-        if (error.response?.status === 401) {
-
-            console.log("Unauthorized");
-
-        }
-
-        return Promise.reject(error);
-
-    }
-
-);
+  objApi.interceptors.response.use(
+    (objResponse) => objResponse,
+    (objError) => {
+      if (objError.response?.status === 401) {
+        console.log('Unauthorized');
+      }
+      return Promise.reject(objError);
+    },
+  );
+};

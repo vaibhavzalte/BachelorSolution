@@ -9,6 +9,7 @@ import {
 import { ListingCategory } from '@/types/listing.types';
 import { CategoryFiltersState } from '@/types/filter.types';
 import { ListingRequestPayload } from '@/types/api.types';
+import { useMasters } from '@/providers/MasterProvider';
 
 export const listingQueryKeys = {
   all: ['listings'] as const,
@@ -27,13 +28,16 @@ export const listingQueryKeys = {
 export const useListings = (
   category: ListingCategory | 'all' = 'all',
   query: string = '',
-  location: string = 'Pune',
-  time: string = 'Any Time',
+  location: string = '',
+  time: string = '',
   categoryFilters: CategoryFiltersState = {},
 ) => {
+  const { objCatalog, boolReady } = useMasters();
+
   return useQuery({
     queryKey: listingQueryKeys.list(category, query, location, time, categoryFilters),
-    queryFn: () => getListings(category, query, location, time, categoryFilters),
+    queryFn: () => getListings(category, query, location, time, categoryFilters, objCatalog),
+    enabled: boolReady && Boolean(location),
     staleTime: 1000 * 60 * 5,
   });
 };

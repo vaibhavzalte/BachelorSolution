@@ -1,8 +1,22 @@
 import { ListingCategory, Listing } from '@/types/listing.types';
 import { CategoryFilterValues, CategoryFiltersState, FilterFieldConfig } from '@/types/filter.types';
 import { getDefaultCategoryFilters } from '@/constants/listing-filters.config';
+import { MasterCatalog } from '@/types/master.types';
+import { buildAreaParentCityMap, getMasterDefault } from '@/lib/master.utils';
 
 const ANY_VALUE = 'Any';
+
+export interface ListingFilterContext {
+  strDefaultCity: string;
+  objAreaParentCity: Record<string, string>;
+}
+
+export const buildListingFilterContext = (
+  objCatalog: MasterCatalog | undefined,
+): ListingFilterContext => ({
+  strDefaultCity: getMasterDefault(objCatalog, 'CITY'),
+  objAreaParentCity: buildAreaParentCityMap(objCatalog),
+});
 
 export const mapTimeToFreshness = (strTime: string): string | undefined => {
   switch (strTime) {
@@ -75,14 +89,18 @@ const matchesAvailableFor = (strListingValue: string | undefined, strFilter: str
   return strListingValue.toLowerCase().includes(strFilter.toLowerCase());
 };
 
-const matchesLocation = (strListingLocation: string, strSelectedLocation: string): boolean => {
-  if (!strSelectedLocation || strSelectedLocation === 'Pune') return true;
+const matchesLocation = (
+  strListingLocation: string,
+  strSelectedLocation: string,
+  strDefaultCity: string,
+): boolean => {
+  if (!strSelectedLocation || strSelectedLocation === strDefaultCity) return true;
   return strListingLocation.toLowerCase().includes(strSelectedLocation.toLowerCase());
 };
 
-const formatCityForApi = (strCity: string): string => {
+const formatCityForApi = (strCity: string, strDefaultCity: string): string => {
   const strTrimmed = strCity.trim();
-  if (!strTrimmed) return 'Pune';
+  if (!strTrimmed) return strDefaultCity;
 
   return strTrimmed
     .split(/\s+/)
@@ -90,19 +108,34 @@ const formatCityForApi = (strCity: string): string => {
     .join(' ');
 };
 
+const resolveCityForApi = (
+  strLocation: string,
+  objContext: ListingFilterContext,
+): string => {
+  const strTrimmed = strLocation.trim();
+  if (!strTrimmed) {
+    return objContext.strDefaultCity;
+  }
+
+  const strParentCity = objContext.objAreaParentCity[strTrimmed];
+  if (strParentCity) {
+    return strParentCity;
+  }
+
+  return formatCityForApi(strTrimmed, objContext.strDefaultCity);
+};
+
 export const buildListingApiParams = (
   objFilters: CategoryFilterValues,
   strLocation: string,
   strTime: string,
   strCategory?: ListingCategory,
+  objContext: ListingFilterContext = { strDefaultCity: '', objAreaParentCity: {} },
 ): Record<string, string | undefined> => {
   const objParams: Record<string, string | undefined> = {};
-  const arrPuneAreas = ['Wakad', 'Hinjawadi', 'Baner', 'Aundh', 'FC Road'];
-
-  if (strLocation && !arrPuneAreas.includes(strLocation)) {
-    objParams.city = formatCityForApi(strLocation);
-  } else {
-    objParams.city = 'Pune';
+  const strCity = resolveCityForApi(strLocation, objContext);
+  if (strCity) {
+    objParams.city = strCity;
   }
 
   const strRoomType = String(objFilters.roomType ?? '');
@@ -122,6 +155,11 @@ export const buildListingApiParams = (
   const strFoodType = String(objFilters.foodType ?? '');
   if (strFoodType && strFoodType !== ANY_VALUE) {
     objParams.foodType = strFoodType.toUpperCase();
+  }
+
+  const strPreferredTenant = String(objFilters.preferredTenant ?? '');
+  if (strPreferredTenant && strPreferredTenant !== ANY_VALUE) {
+    objParams.preferredTenant = strPreferredTenant;
   }
 
   const strFreshness = mapTimeToFreshness(strTime);
@@ -154,9 +192,10 @@ export const applyClientFilters = (
   strCategory: ListingCategory,
   objFilters: CategoryFilterValues,
   strLocation: string,
+  strDefaultCity = '',
 ): Listing[] => {
   return arrListings.filter((objListing) => {
-    if (!matchesLocation(objListing.location, strLocation)) return false;
+    if (!matchesLocation(objListing.location, strLocation, strDefaultCity)) return false;
 
     if (strCategory === 'rooms') {
       const strMinRent = String(objFilters.minRent ?? '');
@@ -204,8 +243,15 @@ export const applyClientFilters = (
       const strFoodType = String(objFilters.foodType ?? '');
       if (strFoodType && strFoodType !== ANY_VALUE) {
         const strHaystack = `${objListing.title} ${objListing.tags.join(' ')} ${objListing.amenities.join(' ')}`.toLowerCase();
-        if (strFoodType === 'veg' && !strHaystack.includes('veg')) return false;
-        if (strFoodType === 'nonveg' && strHaystack.includes('veg')) return false;
+        const strNormalizedFoodType = strFoodType.toLowerCase();
+        if (strNormalizedFoodType === 'veg' && !strHaystack.includes('veg')) return false;
+        if (
+          (strNormalizedFoodType === 'nonveg' || strNormalizedFoodType === 'non-veg') &&
+          !strHaystack.includes('non')
+        ) {
+          return false;
+        }
+        if (strNormalizedFoodType === 'egg' && !strHaystack.includes('egg')) return false;
       }
     }
 

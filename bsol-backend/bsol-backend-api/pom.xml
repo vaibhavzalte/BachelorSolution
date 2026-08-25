@@ -33,6 +33,7 @@
                 <version>7.24.0</version>
                 <executions>
                     <execution>
+                        <id>generate-listing-api</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
@@ -44,6 +45,32 @@
                             <generateModelTests>false</generateModelTests>
                             <generateApiDocumentation>false</generateApiDocumentation>
                             <generateModelDocumentation>false</generateModelDocumentation>
+                            <ignoreFileOverride>${project.basedir}/.openapi-generator-ignore</ignoreFileOverride>
+                            <openapiNormalizer>REF_AS_PARENT_IN_ALLOF=true</openapiNormalizer>
+                            <configOptions>
+                                <modelPackage>com.uv.generated.app.model</modelPackage>
+                                <apiPackage>com.uv.generated.app.api</apiPackage>
+                                <useSpringBoot3>true</useSpringBoot3>
+                                <documentationProvider>springdoc</documentationProvider>
+                                <interfaceOnly>false</interfaceOnly>
+                                <skipDefaultInterface>false</skipDefaultInterface>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-master-api</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/static/Master_OpenAPI3.0.3.json
+                            </inputSpec>
+                            <generatorName>spring</generatorName>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
+                            <generateApiDocumentation>false</generateApiDocumentation>
+                            <generateModelDocumentation>false</generateModelDocumentation>
+                            <generateSupportingFiles>false</generateSupportingFiles>
                             <ignoreFileOverride>${project.basedir}/.openapi-generator-ignore</ignoreFileOverride>
                             <openapiNormalizer>REF_AS_PARENT_IN_ALLOF=true</openapiNormalizer>
                             <configOptions>

@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import QueryProvider from "@/providers/QueryProvider";
 import ToastProvider from "@/providers/ToastProvider";
+import { MasterProvider } from "@/providers/MasterProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -42,8 +43,10 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <QueryProvider>
-          {children}
-          <ToastProvider />
+          <MasterProvider>
+            {children}
+            <ToastProvider />
+          </MasterProvider>
         </QueryProvider>
       </body>
     </html>

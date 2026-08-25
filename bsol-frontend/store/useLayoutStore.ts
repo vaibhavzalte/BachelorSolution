@@ -11,6 +11,9 @@ interface LayoutState {
   setSelectedLocation: (location: string) => void;
   selectedTime: string;
   setSelectedTime: (time: string) => void;
+  defaultCity: string;
+  defaultTime: string;
+  applyMasterDefaults: (strCity: string, strTime: string) => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   categoryFilters: CategoryFiltersState;
@@ -26,10 +29,19 @@ export const useLayoutStore = create<LayoutState>((set) => ({
   setActiveSidebarItem: (item) => set({ activeSidebarItem: item }),
   activeCategory: 'rooms',
   setActiveCategory: (category) => set({ activeCategory: category }),
-  selectedLocation: 'Pune',
+  selectedLocation: '',
   setSelectedLocation: (location) => set({ selectedLocation: location }),
-  selectedTime: 'Any Time',
+  selectedTime: '',
   setSelectedTime: (time) => set({ selectedTime: time }),
+  defaultCity: '',
+  defaultTime: '',
+  applyMasterDefaults: (strCity, strTime) =>
+    set((state) => ({
+      defaultCity: strCity,
+      defaultTime: strTime,
+      selectedLocation: state.selectedLocation || strCity,
+      selectedTime: state.selectedTime || strTime,
+    })),
   searchQuery: '',
   setSearchQuery: (query) => set({ searchQuery: query }),
   categoryFilters: {},
@@ -44,12 +56,13 @@ export const useLayoutStore = create<LayoutState>((set) => ({
       return { categoryFilters: objUpdated };
     }),
   clearAllFilters: () =>
-    set({
-      selectedLocation: 'Pune',
-      selectedTime: 'Any Time',
+    set((state) => ({
+      selectedLocation: state.defaultCity,
+      selectedTime: state.defaultTime,
       searchQuery: '',
       categoryFilters: {},
-    }),
+    })),
   mobileSidebarOpen: false,
   setMobileSidebarOpen: (open) => set({ mobileSidebarOpen: open }),
 }));
+

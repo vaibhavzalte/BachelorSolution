@@ -6,6 +6,7 @@ import { CategoryFiltersState } from '@/types/filter.types';
 import {
   applyClientFilters,
   buildListingApiParams,
+  buildListingFilterContext,
   getCategoryFilters,
 } from '@/lib/filter.utils';
 import {
@@ -16,6 +17,8 @@ import {
   ListingRequestPayload,
   ListingTypeName,
 } from '@/types/api.types';
+import { MasterCatalog } from '@/types/master.types';
+import { getMasterDefault } from '@/lib/master.utils';
 
 const normalizeStringArray = (value: unknown): string[] => {
   if (Array.isArray(value)) {
@@ -142,12 +145,13 @@ const getListingTitle = (payload: ListingApiResponse): string => {
 export const mapApiListingToUi = (
   payload: ListingApiResponse,
   strPreferredCategory?: ListingCategory,
+  strDefaultCity = '',
 ): Listing => {
   const strType = String(payload.type ?? '');
   const strCategory = typeNameToCategory(strType || 'Room', strPreferredCategory);
   const strTitle = getListingTitle(payload);
   const strArea = String(payload.area ?? '');
-  const strCity = String(payload.city ?? 'Pune');
+  const strCity = String(payload.city ?? strDefaultCity);
   const strAddress = String(payload.address ?? payload.location ?? '');
   const strRoomType = String(payload.roomType ?? '');
   const strAvailableFor = String(payload.availableFor ?? payload.preferredTenant ?? '');
@@ -162,7 +166,7 @@ export const mapApiListingToUi = (
       .map((strPart) => capitalizeWords(strPart))
       .join(', ') ||
     capitalizeWords(strAddress) ||
-    'Pune';
+    strDefaultCity;
 
   const priceValue =
     payload.rent ?? payload.monthlyFee ?? payload.perMealFee ?? payload.rating;
@@ -276,17 +280,21 @@ export const getListings = async (
   location?: string,
   time?: string,
   categoryFilters?: CategoryFiltersState,
+  objCatalog?: MasterCatalog,
 ): Promise<Listing[]> => {
   const strCategory = (
     category && category !== 'all' ? category : 'rooms'
   ) as ListingCategory;
   const objFilters = getCategoryFilters(categoryFilters ?? {}, strCategory);
   const strTypeName = categoryToTypeName(strCategory);
+  const objFilterContext = buildListingFilterContext(objCatalog);
+  const strDefaultCity = objFilterContext.strDefaultCity;
   const objParams = buildListingApiParams(
     objFilters,
-    location ?? 'Pune',
-    time ?? 'Any Time',
+    location ?? strDefaultCity,
+    time ?? getMasterDefault(objCatalog, 'TIME'),
     strCategory,
+    objFilterContext,
   );
 
   if (query?.trim()) {
@@ -295,9 +303,17 @@ export const getListings = async (
 
   const response = await listingApi.getListings(strTypeName, objParams);
   const arrPayload = Array.isArray(response.data) ? response.data : [];
-  const arrListings = arrPayload.map((item) => mapApiListingToUi(item, strCategory));
+  const arrListings = arrPayload.map((item) =>
+    mapApiListingToUi(item, strCategory, strDefaultCity),
+  );
 
-  return applyClientFilters(arrListings, strCategory, objFilters, location ?? 'Pune');
+  return applyClientFilters(
+    arrListings,
+    strCategory,
+    objFilters,
+    location ?? strDefaultCity,
+    strDefaultCity,
+  );
 };
 
 export const getListingById = async (

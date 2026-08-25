@@ -19,4 +19,6 @@ export interface FilterFieldConfig {
   type: FilterFieldType;
   options?: FilterOption[];
   placeholder?: string;
+  masterGroup?: string;
+  includeAny?: boolean;
 }
