@@ -6,6 +6,7 @@ import { ListingCategory } from '@/types/listing.types';
 import { useListing } from '@/hooks/useListings';
 import ListingDetailView from '@/components/listing/ListingDetailView';
 import { Button } from '@/components/ui/button';
+import { useI18n } from '@/hooks/useI18n';
 
 interface ListingDetailClientProps {
   category: ListingCategory;
@@ -17,6 +18,7 @@ export default function ListingDetailClient({
   id,
 }: ListingDetailClientProps) {
   const { data, isLoading, isError, refetch } = useListing(category, id);
+  const { t } = useI18n();
 
   if (isLoading) {
     return (
@@ -28,9 +30,9 @@ export default function ListingDetailClient({
     return (
       <div className="flex flex-col items-center justify-center rounded-3xl border border-slate-100 bg-white p-12 text-center shadow-soft dark:border-zinc-800 dark:bg-zinc-900">
         <RefreshCw className="mb-4 h-10 w-10 text-rose-500" />
-        <h3 className="text-sm font-bold text-slate-800">Listing not found</h3>
+        <h3 className="text-sm font-bold text-slate-800">{t('detail.notFound')}</h3>
         <Button className="mt-4 rounded-xl" onClick={() => refetch()}>
-          Try Again
+          {t('feed.tryAgain')}
         </Button>
       </div>
     );

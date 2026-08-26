@@ -12,6 +12,8 @@ import {
   getRouteByCategory,
 } from '@/constants/listing-routes';
 import { ListingCategory } from '@/types/listing.types';
+import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
+import { useI18n } from '@/hooks/useI18n';
 
 export default function Navbar() {
   const { 
@@ -21,6 +23,7 @@ export default function Navbar() {
     setMobileSidebarOpen,
     activeCategory,
   } = useLayoutStore();
+  const { t } = useI18n();
 
   const strCategory: ListingCategory =
     activeCategory === 'all' ? 'rooms' : activeCategory;
@@ -40,7 +43,7 @@ export default function Navbar() {
             size="icon"
             className="flex md:hidden text-[var(--foreground)]"
             onClick={() => setMobileSidebarOpen(true)}
-            aria-label="Open navigation menu"
+            aria-label={t('nav.openMenu')}
           >
             <Menu className="h-6 w-6" />
           </Button>
@@ -63,7 +66,7 @@ export default function Navbar() {
                 Bachelor<span className="text-blue-600">Solution</span>
               </span>
               <span className="text-[9px] font-semibold leading-none tracking-wider text-slate-400">
-                PREMIUM LIVING
+                {t('brand.tagline')}
               </span>
             </div>
           </Link>
@@ -81,7 +84,7 @@ export default function Navbar() {
           {/* Input field */}
           <input
             type="text"
-            placeholder="Search for rooms, flatmates, food, mess..."
+            placeholder={t('nav.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full bg-transparent px-2 text-xs text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-200"
@@ -99,8 +102,10 @@ export default function Navbar() {
             href={strCreatePath}
             className="hidden items-center gap-1.5 rounded-full bg-[var(--primary)] px-5 py-2 text-xs font-semibold text-white shadow-soft hover:bg-blue-600 sm:flex"
           >
-            <span className="text-sm font-bold">+</span> Post Listing
+            <span className="text-sm font-bold">+</span> {t('nav.postListing')}
           </Link>
+
+          <LanguageSwitcher />
 
           {/* Action Icons */}
           <div className="flex items-center gap-1 sm:gap-2">
@@ -108,7 +113,7 @@ export default function Navbar() {
               variant="ghost"
               size="icon"
               className="rounded-full text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-              aria-label="Messages"
+              aria-label={t('nav.messages')}
             >
               <MessageSquare className="h-5 w-5" />
             </Button>
@@ -116,7 +121,7 @@ export default function Navbar() {
               variant="ghost"
               size="icon"
               className="relative rounded-full text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-              aria-label="Notifications"
+              aria-label={t('nav.notifications')}
             >
               <Bell className="h-5 w-5" />
               <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-red-500"></span>
@@ -140,7 +145,7 @@ export default function Navbar() {
         <MapPin className="h-4 w-4 ml-2 text-slate-400" />
         <input
           type="text"
-          placeholder="Search rooms, flatmates, food..."
+          placeholder={t('nav.searchPlaceholderMobile')}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full bg-transparent px-1 text-xs text-slate-800 outline-none placeholder:text-slate-400"

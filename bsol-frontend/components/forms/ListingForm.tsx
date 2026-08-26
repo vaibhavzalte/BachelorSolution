@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
 import {
@@ -23,13 +23,13 @@ import { ListingApiResponse } from '@/types/api.types';
 import {
   getDefaultListingValues,
   getListingSchema,
+  getFormMessagesFromT,
   ListingFormValues,
   toListingRequestPayload,
 } from '@/lib/listing-form.schema';
 import { useCreateListing, useUpdateListing } from '@/hooks/useListings';
 import {
   buildListingDetailPath,
-  getRouteByCategory,
 } from '@/constants/listing-routes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,6 +38,7 @@ import { getAreaOptionsForCity, getMasterOptions } from '@/lib/master.utils';
 import { MASTER_GROUPS } from '@/types/master.types';
 import { FilterOption } from '@/types/filter.types';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/hooks/useI18n';
 
 interface ListingFormProps {
   category: ListingCategory;
@@ -114,10 +115,14 @@ export default function ListingForm({
 }: ListingFormProps) {
   const router = useRouter();
   const [arrImages, setArrImages] = useState<File[]>([]);
-  const objSchema = useMemo(() => getListingSchema(category), [category]);
+  const { t, strLocale } = useI18n();
+  const objSchema = useMemo(
+    () => getListingSchema(category, getFormMessagesFromT(t)),
+    [category, strLocale, t],
+  );
   const createMutation = useCreateListing(category);
   const updateMutation = useUpdateListing(category);
-  const strLabel = getRouteByCategory(category).label;
+  const strLabel = t(`categories.${category}`);
   const { objCatalog, boolReady } = useMasters();
 
   const arrCityOptions = useMemo(
@@ -221,7 +226,7 @@ export default function ListingForm({
           listing: objPayload,
           images: arrImages,
         });
-        toast.success('Listing updated');
+        toast.success(t('form.updated'));
         router.push(buildListingDetailPath(category, objUpdated.id));
         return;
       }
@@ -230,10 +235,10 @@ export default function ListingForm({
         listing: objPayload,
         images: arrImages,
       });
-      toast.success('Listing created');
+      toast.success(t('form.created'));
       router.push(buildListingDetailPath(category, objCreated.id));
     } catch {
-      toast.error('Could not save listing. Check the API and try again.');
+      toast.error(t('form.saveFailed'));
     }
   };
 
@@ -312,7 +317,7 @@ export default function ListingForm({
   if (!boolReady) {
     return (
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-3 rounded-3xl border border-slate-100 bg-white p-8 text-sm text-slate-500 shadow-card dark:border-zinc-800 dark:bg-zinc-900">
-        Loading form options...
+        {t('form.loading')}
       </div>
     );
   }
@@ -326,15 +331,14 @@ export default function ListingForm({
         <div className="mb-6 flex flex-col gap-3 border-b border-slate-100 pb-5 dark:border-zinc-800 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-blue-600">
-              {mode === 'create' ? 'New listing' : 'Edit listing'}
+              {mode === 'create' ? t('form.newListing') : t('form.editListing')}
             </p>
             <h1 className="mt-1 text-xl font-bold text-slate-800 dark:text-slate-100 md:text-2xl">
-              {mode === 'create' ? `Post ${strLabel}` : `Edit ${strLabel}`}
+              {mode === 'create'
+                ? t('form.postCategory', { category: strLabel })
+                : t('form.editCategory', { category: strLabel })}
             </h1>
-            <p className="mt-1 text-xs text-slate-500">
-              Fields marked with <span className="text-rose-500">*</span> are required. Images are
-              optional.
-            </p>
+            <p className="mt-1 text-xs text-slate-500">{t('form.requiredHint')}</p>
           </div>
           <span className="w-fit rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-700 dark:bg-blue-950/40 dark:text-blue-300">
             {strLabel}
@@ -343,28 +347,28 @@ export default function ListingForm({
 
         <div className="flex flex-col gap-4">
           <FormSection
-            strTitle="Listing details"
-            strHint="Core information buyers will see first."
+            strTitle={t('form.details')}
+            strHint={t('form.detailsHint')}
             objIcon={ClipboardList}
           >
             {category === 'rooms' && (
               <>
-                {renderTextInput('title', 'Title', 'Spacious 1BHK Room', 'text', true, true)}
-                {renderSelect('roomType', 'Room Type', arrRoomTypeOptions, 'Select room type', true)}
+                {renderTextInput('title', t('form.title'), 'Spacious 1BHK Room', 'text', true, true)}
+                {renderSelect('roomType', t('form.roomType'), arrRoomTypeOptions, t('form.selectRoomType'), true)}
                 {renderSelect(
                   'availableFor',
-                  'Available For',
+                  t('form.availableFor'),
                   arrAvailableForOptions,
-                  'Select availability',
+                  t('form.selectAvailability'),
                   true,
                 )}
-                {renderTextInput('rent', 'Rent (₹)', '15000', 'number', true)}
-                {renderTextInput('deposit', 'Deposit (₹)', '30000', 'number')}
-                {renderTextInput('maintenance', 'Maintenance (₹)', '1500', 'number')}
-                {renderTextInput('brokerage', 'Brokerage (₹)', '0', 'number')}
+                {renderTextInput('rent', t('form.rent'), '15000', 'number', true)}
+                {renderTextInput('deposit', t('form.deposit'), '30000', 'number')}
+                {renderTextInput('maintenance', t('form.maintenance'), '1500', 'number')}
+                {renderTextInput('brokerage', t('form.brokerage'), '0', 'number')}
                 {renderTextInput(
                   'amenities',
-                  'Amenities (comma separated)',
+                  t('form.amenities'),
                   'WiFi, Parking',
                   'text',
                   false,
@@ -375,22 +379,22 @@ export default function ListingForm({
 
             {(category === 'roommates' || category === 'vacancies') && (
               <>
-                {renderTextInput('title', 'Title', '1 sharing vacancy', 'text', true, true)}
-                {renderSelect('roomType', 'Room Type', arrRoomTypeOptions, 'Select room type', true)}
+                {renderTextInput('title', t('form.title'), '1 sharing vacancy', 'text', true, true)}
+                {renderSelect('roomType', t('form.roomType'), arrRoomTypeOptions, t('form.selectRoomType'), true)}
                 {renderSelect(
                   'preferredTenant',
-                  'Preferred Tenant',
+                  t('form.preferredTenant'),
                   arrPreferredTenantOptions,
-                  'Select preferred tenant',
+                  t('form.selectPreferredTenant'),
                   true,
                 )}
-                {renderTextInput('totalVacancies', 'Total Vacancies', '1', 'number')}
-                {renderTextInput('rent', 'Rent (₹)', '8000', 'number', true)}
-                {renderTextInput('deposit', 'Deposit (₹)', '16000', 'number')}
-                {renderTextInput('availableFrom', 'Available From', '', 'date')}
+                {renderTextInput('totalVacancies', t('form.totalVacancies'), '1', 'number')}
+                {renderTextInput('rent', t('form.rent'), '8000', 'number', true)}
+                {renderTextInput('deposit', t('form.deposit'), '16000', 'number')}
+                {renderTextInput('availableFrom', t('form.availableFrom'), '', 'date')}
                 {renderTextInput(
                   'amenities',
-                  'Amenities (comma separated)',
+                  t('form.amenities'),
                   'WiFi, Parking',
                   'text',
                   false,
@@ -401,63 +405,63 @@ export default function ListingForm({
 
             {category === 'mess' && (
               <>
-                {renderTextInput('messName', 'Mess Name', 'Shree Veg Mess', 'text', true, true)}
-                {renderSelect('foodType', 'Food Type', arrFoodTypeOptions, 'Select food type', true)}
-                {renderSelect('mealType', 'Meal Type', arrMealTypeOptions, 'Select meal type', true)}
-                {renderTextInput('monthlyFee', 'Monthly Fee (₹)', '3500', 'number', true)}
-                {renderTextInput('perMealFee', 'Per Meal Fee (₹)', '80', 'number')}
+                {renderTextInput('messName', t('form.messName'), 'Shree Veg Mess', 'text', true, true)}
+                {renderSelect('foodType', t('form.foodType'), arrFoodTypeOptions, t('form.selectFoodType'), true)}
+                {renderSelect('mealType', t('form.mealType'), arrMealTypeOptions, t('form.selectMealType'), true)}
+                {renderTextInput('monthlyFee', t('form.monthlyFee'), '3500', 'number', true)}
+                {renderTextInput('perMealFee', t('form.perMealFee'), '80', 'number')}
                 <div className="grid gap-3 sm:col-span-2 sm:grid-cols-2">
-                  {renderCheckbox('homeDelivery', 'Home Delivery')}
-                  {renderCheckbox('diningArea', 'Dining Area')}
+                  {renderCheckbox('homeDelivery', t('form.homeDelivery'))}
+                  {renderCheckbox('diningArea', t('form.diningArea'))}
                 </div>
               </>
             )}
 
             {category === 'food' && (
               <>
-                {renderTextInput('stallName', 'Stall Name', 'Campus Maggi Point', 'text', true, true)}
-                {renderSelect('foodType', 'Food Type', arrFoodTypeOptions, 'Select food type', true)}
-                {renderTextInput('location', 'Landmark', 'Near Gate 2')}
-                {renderTextInput('rating', 'Rating', '4.5', 'number')}
-                {renderCheckbox('isOpen', 'Open Now')}
+                {renderTextInput('stallName', t('form.stallName'), 'Campus Maggi Point', 'text', true, true)}
+                {renderSelect('foodType', t('form.foodType'), arrFoodTypeOptions, t('form.selectFoodType'), true)}
+                {renderTextInput('location', t('form.landmark'), 'Near Gate 2')}
+                {renderTextInput('rating', t('form.rating'), '4.5', 'number')}
+                {renderCheckbox('isOpen', t('form.openNow'))}
               </>
             )}
 
             {category === 'study' && (
               <>
-                {renderTextInput('roomName', 'Room Name', 'Silent Study Room A', 'text', true, true)}
-                {renderTextInput('location', 'Landmark', '2nd Floor, Building B')}
-                {renderTextInput('capacity', 'Capacity', '40', 'number')}
-                {renderTextInput('availableSeats', 'Available Seats', '12', 'number')}
-                {renderTextInput('rules', 'Rules', 'No talking, no calls', 'text', false, true)}
-                {renderTextInput('rating', 'Rating', '4.6', 'number')}
+                {renderTextInput('roomName', t('form.roomName'), 'Silent Study Room A', 'text', true, true)}
+                {renderTextInput('location', t('form.landmark'), '2nd Floor, Building B')}
+                {renderTextInput('capacity', t('form.capacity'), '40', 'number')}
+                {renderTextInput('availableSeats', t('form.availableSeats'), '12', 'number')}
+                {renderTextInput('rules', t('form.rules'), 'No talking, no calls', 'text', false, true)}
+                {renderTextInput('rating', t('form.rating'), '4.6', 'number')}
                 <div className="grid gap-3 sm:col-span-2 sm:grid-cols-2 lg:grid-cols-4">
-                  {renderCheckbox('isAvailable', 'Available')}
-                  {renderCheckbox('hasWifi', 'WiFi')}
-                  {renderCheckbox('hasChargingPoints', 'Charging Points')}
-                  {renderCheckbox('hasAC', 'AC')}
+                  {renderCheckbox('isAvailable', t('form.available'))}
+                  {renderCheckbox('hasWifi', t('form.wifi'))}
+                  {renderCheckbox('hasChargingPoints', t('form.chargingPoints'))}
+                  {renderCheckbox('hasAC', t('form.ac'))}
                 </div>
               </>
             )}
           </FormSection>
 
           <FormSection
-            strTitle="Location"
-            strHint="Area options update when you choose a city."
+            strTitle={t('form.location')}
+            strHint={t('form.locationHint')}
             objIcon={MapPin}
           >
-            {renderSelect('city', 'City', arrCityOptions, 'Select city', true)}
+            {renderSelect('city', t('form.city'), arrCityOptions, t('form.selectCity'), true)}
             {renderSelect(
               'area',
-              'Area',
+              t('form.area'),
               arrAreaOptions,
-              strSelectedCity ? 'Select area' : 'Select city first',
+              strSelectedCity ? t('form.selectArea') : t('form.selectCityFirst'),
               true,
               !strSelectedCity,
             )}
             {renderTextInput(
               'googleMap',
-              'Google Map URL',
+              t('form.googleMap'),
               'https://maps.google.com/?q=18.5590,73.7868',
               'url',
               true,
@@ -465,48 +469,48 @@ export default function ListingForm({
             )}
             {category !== 'food' &&
               category !== 'study' &&
-              renderTextInput('address', 'Address', 'Street, landmark', 'text', false, true)}
+              renderTextInput('address', t('form.address'), 'Street, landmark', 'text', false, true)}
           </FormSection>
 
           <FormSection
-            strTitle="Owner / contact"
-            strHint="This is shown to interested users."
+            strTitle={t('form.owner')}
+            strHint={t('form.ownerHint')}
             objIcon={UserRound}
           >
-            {renderTextInput('ownerName', 'Owner Name', 'Rahul Sharma', 'text', true)}
+            {renderTextInput('ownerName', t('form.ownerName'), 'Rahul Sharma', 'text', true)}
             {renderTextInput(
               strContactName,
-              'Contact Number',
+              t('form.contactNumber'),
               '9876543210',
               'tel',
               true,
             )}
             {boolHasOwnerEmail &&
-              renderTextInput('ownerEmail', 'Owner Email', 'owner@example.com', 'email')}
+              renderTextInput('ownerEmail', t('form.ownerEmail'), 'owner@example.com', 'email')}
           </FormSection>
 
           <FormSection
-            strTitle="Description & photos"
-            strHint="Add extra context and optional images."
+            strTitle={t('form.media')}
+            strHint={t('form.mediaHint')}
             objIcon={ImageIcon}
           >
             <Field
-              strLabel="Description"
+              strLabel={t('form.description')}
               strError={getError('description')}
               boolFullWidth
             >
               <textarea
                 className={cn(STR_CONTROL_CLASS, 'min-h-28 py-3')}
-                placeholder="Describe the listing..."
+                placeholder={t('form.descriptionPlaceholder')}
                 {...register('description' as Path<ListingFormValues>)}
               />
             </Field>
             <Field
-              strLabel="Images"
+              strLabel={t('form.images')}
               strHint={
                 arrImages.length > 0
-                  ? `${arrImages.length} file(s) selected`
-                  : 'JPG or PNG. You can add more later.'
+                  ? t('form.imagesSelected', { count: arrImages.length })
+                  : t('form.imagesHint')
               }
               boolFullWidth
             >
@@ -533,7 +537,7 @@ export default function ListingForm({
             className="h-11 rounded-xl px-5"
             onClick={() => router.back()}
           >
-            Cancel
+            {t('form.cancel')}
           </Button>
           <Button
             type="submit"
@@ -541,10 +545,10 @@ export default function ListingForm({
             className="h-11 rounded-xl bg-[var(--primary)] px-6 text-white"
           >
             {boolPending
-              ? 'Saving...'
+              ? t('form.saving')
               : mode === 'create'
-                ? 'Create Listing'
-                : 'Save Changes'}
+                ? t('form.create')
+                : t('form.save')}
           </Button>
         </div>
       </div>

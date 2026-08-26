@@ -5,6 +5,7 @@ import { SearchX, RefreshCw } from 'lucide-react';
 import { useLayoutStore } from '@/store/useLayoutStore';
 import { useListings } from '@/hooks/useListings';
 import ListingCard from '@/components/cards/ListingCard';
+import { useI18n } from '@/hooks/useI18n';
 
 export default function ListingFeed() {
   const {
@@ -15,6 +16,7 @@ export default function ListingFeed() {
     categoryFilters,
     clearAllFilters,
   } = useLayoutStore();
+  const { t } = useI18n();
 
   const { data: listings, isLoading, isError, refetch } = useListings(
     activeCategory,
@@ -55,15 +57,15 @@ export default function ListingFeed() {
     return (
       <div className="flex flex-col items-center justify-center p-12 text-center bg-white dark:bg-zinc-900 border border-slate-100 dark:border-zinc-800 rounded-3xl shadow-soft mt-4">
         <RefreshCw className="h-10 w-10 text-rose-500 mb-4 animate-spin" />
-        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Failed to load listings</h3>
+        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">{t('feed.loadErrorTitle')}</h3>
         <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-xs">
-          Something went wrong while retrieving data. Please try again.
+          {t('feed.loadErrorHint')}
         </p>
         <button 
           onClick={() => refetch()}
           className="mt-4 rounded-xl bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700 shadow-soft"
         >
-          Try Again
+          {t('feed.tryAgain')}
         </button>
       </div>
     );
@@ -75,15 +77,15 @@ export default function ListingFeed() {
         <div className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 dark:bg-zinc-800 text-slate-400 mb-4">
           <SearchX className="h-6 w-6" />
         </div>
-        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">No listings found</h3>
+        <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">{t('feed.emptyTitle')}</h3>
         <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5 max-w-xs">
-          We couldn't find any accommodation or service listings matching "{searchQuery}" in this category.
+          {t('feed.emptyHint', { query: searchQuery || '' })}
         </p>
         <button 
           onClick={() => clearAllFilters()}
           className="mt-5 rounded-xl bg-blue-600 px-4.5 py-2 text-xs font-semibold text-white hover:bg-blue-700 shadow-soft"
         >
-          Reset Filters
+          {t('feed.resetFilters')}
         </button>
       </div>
     );

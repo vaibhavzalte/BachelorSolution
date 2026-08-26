@@ -22,104 +22,150 @@ const coerceOptionalBoolean = z.preprocess((value) => {
   return Boolean(value);
 }, z.boolean().optional()) as z.ZodType<boolean | undefined>;
 
+export type ListingFormMessages = {
+  cityRequired: string;
+  areaRequired: string;
+  ownerNameRequired: string;
+  contactRequired: string;
+  contactInvalid: string;
+  emailInvalid: string;
+  mapRequired: string;
+  mapInvalid: string;
+  titleRequired: string;
+  roomTypeRequired: string;
+  availableForRequired: string;
+  rentRequired: string;
+  messNameRequired: string;
+  foodTypeRequired: string;
+  mealTypeRequired: string;
+  monthlyFeeRequired: string;
+  preferredTenantRequired: string;
+  stallNameRequired: string;
+  roomNameRequired: string;
+};
+
+export const DEFAULT_FORM_MESSAGES: ListingFormMessages = {
+  cityRequired: 'City is required',
+  areaRequired: 'Area is required',
+  ownerNameRequired: 'Owner name is required',
+  contactRequired: 'Contact number is required',
+  contactInvalid: 'Enter a valid 10-digit contact number',
+  emailInvalid: 'Enter a valid email',
+  mapRequired: 'Google Map URL is required',
+  mapInvalid: 'Enter a valid Google Map URL',
+  titleRequired: 'Title is required',
+  roomTypeRequired: 'Room type is required',
+  availableForRequired: 'Available for is required',
+  rentRequired: 'Rent is required',
+  messNameRequired: 'Mess name is required',
+  foodTypeRequired: 'Food type is required',
+  mealTypeRequired: 'Meal type is required',
+  monthlyFeeRequired: 'Monthly fee is required',
+  preferredTenantRequired: 'Preferred tenant is required',
+  stallNameRequired: 'Stall name is required',
+  roomNameRequired: 'Room name is required',
+};
+
 const requiredString = (strMessage: string) => z.string().trim().min(1, strMessage);
 
-const requiredUrl = requiredString('Google Map URL is required').refine((strValue) => {
-  try {
-    const objUrl = new URL(strValue);
-    return objUrl.protocol === 'http:' || objUrl.protocol === 'https:';
-  } catch {
-    return false;
-  }
-}, 'Enter a valid Google Map URL');
+const buildRequiredUrl = (objMessages: ListingFormMessages) =>
+  requiredString(objMessages.mapRequired).refine((strValue) => {
+    try {
+      const objUrl = new URL(strValue);
+      return objUrl.protocol === 'http:' || objUrl.protocol === 'https:';
+    } catch {
+      return false;
+    }
+  }, objMessages.mapInvalid);
 
-const requiredContact = requiredString('Contact number is required').refine(
-  (strValue) => strValue.replace(/\D/g, '').length >= 10,
-  'Enter a valid 10-digit contact number',
-);
+const buildRequiredContact = (objMessages: ListingFormMessages) =>
+  requiredString(objMessages.contactRequired).refine(
+    (strValue) => strValue.replace(/\D/g, '').length >= 10,
+    objMessages.contactInvalid,
+  );
 
-const locationFields = {
-  city: requiredString('City is required'),
-  area: requiredString('Area is required'),
+const buildLocationFields = (objMessages: ListingFormMessages) => ({
+  city: requiredString(objMessages.cityRequired),
+  area: requiredString(objMessages.areaRequired),
   address: z.string().optional(),
   subType: z.string().optional(),
   primaryId: z.string().optional(),
   latitude: coerceOptionalNumber,
   longitude: coerceOptionalNumber,
-  ownerName: requiredString('Owner name is required'),
-  ownerContact: requiredContact,
-  ownerEmail: z.string().email('Enter a valid email').optional().or(z.literal('')),
-};
+  ownerName: requiredString(objMessages.ownerNameRequired),
+  ownerContact: buildRequiredContact(objMessages),
+  ownerEmail: z.string().email(objMessages.emailInvalid).optional().or(z.literal('')),
+});
 
 export const roomListingSchema = z.object({
-  ...locationFields,
-  title: z.string().trim().min(3, 'Title is required'),
+  ...buildLocationFields(DEFAULT_FORM_MESSAGES),
+  title: z.string().trim().min(3, DEFAULT_FORM_MESSAGES.titleRequired),
   description: z.string().optional(),
-  roomType: requiredString('Room type is required'),
-  availableFor: requiredString('Available for is required'),
-  rent: coerceRequiredNumber('Rent is required'),
+  roomType: requiredString(DEFAULT_FORM_MESSAGES.roomTypeRequired),
+  availableFor: requiredString(DEFAULT_FORM_MESSAGES.availableForRequired),
+  rent: coerceRequiredNumber(DEFAULT_FORM_MESSAGES.rentRequired),
   deposit: coerceOptionalNumber,
   maintenance: coerceOptionalNumber,
   brokerage: coerceOptionalNumber,
   amenities: z.string().optional(),
-  googleMap: requiredUrl,
+  googleMap: buildRequiredUrl(DEFAULT_FORM_MESSAGES),
 });
 
 export const messListingSchema = z.object({
-  ...locationFields,
-  messName: z.string().trim().min(2, 'Mess name is required'),
+  ...buildLocationFields(DEFAULT_FORM_MESSAGES),
+  messName: z.string().trim().min(2, DEFAULT_FORM_MESSAGES.messNameRequired),
   description: z.string().optional(),
-  foodType: requiredString('Food type is required'),
-  mealType: requiredString('Meal type is required'),
-  monthlyFee: coerceRequiredNumber('Monthly fee is required'),
+  foodType: requiredString(DEFAULT_FORM_MESSAGES.foodTypeRequired),
+  mealType: requiredString(DEFAULT_FORM_MESSAGES.mealTypeRequired),
+  monthlyFee: coerceRequiredNumber(DEFAULT_FORM_MESSAGES.monthlyFeeRequired),
   perMealFee: coerceOptionalNumber,
   homeDelivery: coerceOptionalBoolean,
   diningArea: coerceOptionalBoolean,
-  googleMap: requiredUrl,
+  googleMap: buildRequiredUrl(DEFAULT_FORM_MESSAGES),
 });
 
 export const vacancyListingSchema = z.object({
-  ...locationFields,
-  title: z.string().trim().min(3, 'Title is required'),
+  ...buildLocationFields(DEFAULT_FORM_MESSAGES),
+  title: z.string().trim().min(3, DEFAULT_FORM_MESSAGES.titleRequired),
   description: z.string().optional(),
-  roomType: requiredString('Room type is required'),
+  roomType: requiredString(DEFAULT_FORM_MESSAGES.roomTypeRequired),
   totalVacancies: coerceOptionalNumber,
-  preferredTenant: requiredString('Preferred tenant is required'),
-  rent: coerceRequiredNumber('Rent is required'),
+  preferredTenant: requiredString(DEFAULT_FORM_MESSAGES.preferredTenantRequired),
+  rent: coerceRequiredNumber(DEFAULT_FORM_MESSAGES.rentRequired),
   deposit: coerceOptionalNumber,
   maintenance: coerceOptionalNumber,
   brokerage: coerceOptionalNumber,
   amenities: z.string().optional(),
   availableFrom: z.string().optional(),
-  googleMap: requiredUrl,
+  googleMap: buildRequiredUrl(DEFAULT_FORM_MESSAGES),
 });
 
 export const foodStallListingSchema = z.object({
-  city: requiredString('City is required'),
-  area: requiredString('Area is required'),
+  city: requiredString(DEFAULT_FORM_MESSAGES.cityRequired),
+  area: requiredString(DEFAULT_FORM_MESSAGES.areaRequired),
   subType: z.string().optional(),
   primaryId: z.string().optional(),
   latitude: coerceOptionalNumber,
   longitude: coerceOptionalNumber,
-  stallName: z.string().trim().min(2, 'Stall name is required'),
-  ownerName: requiredString('Owner name is required'),
-  contactNumber: requiredContact,
+  stallName: z.string().trim().min(2, DEFAULT_FORM_MESSAGES.stallNameRequired),
+  ownerName: requiredString(DEFAULT_FORM_MESSAGES.ownerNameRequired),
+  contactNumber: buildRequiredContact(DEFAULT_FORM_MESSAGES),
   location: z.string().optional(),
-  foodType: requiredString('Food type is required'),
+  foodType: requiredString(DEFAULT_FORM_MESSAGES.foodTypeRequired),
   rating: coerceOptionalNumber,
   isOpen: coerceOptionalBoolean,
   description: z.string().optional(),
-  googleMap: requiredUrl,
+  googleMap: buildRequiredUrl(DEFAULT_FORM_MESSAGES),
 });
 
 export const studyRoomListingSchema = z.object({
-  city: requiredString('City is required'),
-  area: requiredString('Area is required'),
+  city: requiredString(DEFAULT_FORM_MESSAGES.cityRequired),
+  area: requiredString(DEFAULT_FORM_MESSAGES.areaRequired),
   subType: z.string().optional(),
   primaryId: z.string().optional(),
   latitude: coerceOptionalNumber,
   longitude: coerceOptionalNumber,
-  roomName: z.string().trim().min(2, 'Room name is required'),
+  roomName: z.string().trim().min(2, DEFAULT_FORM_MESSAGES.roomNameRequired),
   location: z.string().optional(),
   capacity: coerceOptionalNumber,
   availableSeats: coerceOptionalNumber,
@@ -131,9 +177,9 @@ export const studyRoomListingSchema = z.object({
   rating: coerceOptionalNumber,
   description: z.string().optional(),
   createdBy: z.string().optional(),
-  ownerName: requiredString('Owner name is required'),
-  ownerContact: requiredContact,
-  googleMap: requiredUrl,
+  ownerName: requiredString(DEFAULT_FORM_MESSAGES.ownerNameRequired),
+  ownerContact: buildRequiredContact(DEFAULT_FORM_MESSAGES),
+  googleMap: buildRequiredUrl(DEFAULT_FORM_MESSAGES),
 });
 
 export type RoomListingFormValues = z.infer<typeof roomListingSchema>;
@@ -149,20 +195,126 @@ export type ListingFormValues =
   | FoodStallListingFormValues
   | StudyRoomListingFormValues;
 
-export const getListingSchema = (strCategory: ListingCategory) => {
+export const getFormMessagesFromT = (
+  fnTranslate: (strKey: string) => string,
+): ListingFormMessages => ({
+  cityRequired: fnTranslate('validation.cityRequired'),
+  areaRequired: fnTranslate('validation.areaRequired'),
+  ownerNameRequired: fnTranslate('validation.ownerNameRequired'),
+  contactRequired: fnTranslate('validation.contactRequired'),
+  contactInvalid: fnTranslate('validation.contactInvalid'),
+  emailInvalid: fnTranslate('validation.emailInvalid'),
+  mapRequired: fnTranslate('validation.mapRequired'),
+  mapInvalid: fnTranslate('validation.mapInvalid'),
+  titleRequired: fnTranslate('validation.titleRequired'),
+  roomTypeRequired: fnTranslate('validation.roomTypeRequired'),
+  availableForRequired: fnTranslate('validation.availableForRequired'),
+  rentRequired: fnTranslate('validation.rentRequired'),
+  messNameRequired: fnTranslate('validation.messNameRequired'),
+  foodTypeRequired: fnTranslate('validation.foodTypeRequired'),
+  mealTypeRequired: fnTranslate('validation.mealTypeRequired'),
+  monthlyFeeRequired: fnTranslate('validation.monthlyFeeRequired'),
+  preferredTenantRequired: fnTranslate('validation.preferredTenantRequired'),
+  stallNameRequired: fnTranslate('validation.stallNameRequired'),
+  roomNameRequired: fnTranslate('validation.roomNameRequired'),
+});
+
+export const getListingSchema = (
+  strCategory: ListingCategory,
+  objMessages: ListingFormMessages = DEFAULT_FORM_MESSAGES,
+) => {
+  const objLocation = buildLocationFields(objMessages);
+  const objUrl = buildRequiredUrl(objMessages);
+  const objContact = buildRequiredContact(objMessages);
+
   switch (strCategory) {
     case 'mess':
-      return messListingSchema;
+      return z.object({
+        ...objLocation,
+        messName: z.string().trim().min(2, objMessages.messNameRequired),
+        description: z.string().optional(),
+        foodType: requiredString(objMessages.foodTypeRequired),
+        mealType: requiredString(objMessages.mealTypeRequired),
+        monthlyFee: coerceRequiredNumber(objMessages.monthlyFeeRequired),
+        perMealFee: coerceOptionalNumber,
+        homeDelivery: coerceOptionalBoolean,
+        diningArea: coerceOptionalBoolean,
+        googleMap: objUrl,
+      });
     case 'roommates':
     case 'vacancies':
-      return vacancyListingSchema;
+      return z.object({
+        ...objLocation,
+        title: z.string().trim().min(3, objMessages.titleRequired),
+        description: z.string().optional(),
+        roomType: requiredString(objMessages.roomTypeRequired),
+        totalVacancies: coerceOptionalNumber,
+        preferredTenant: requiredString(objMessages.preferredTenantRequired),
+        rent: coerceRequiredNumber(objMessages.rentRequired),
+        deposit: coerceOptionalNumber,
+        maintenance: coerceOptionalNumber,
+        brokerage: coerceOptionalNumber,
+        amenities: z.string().optional(),
+        availableFrom: z.string().optional(),
+        googleMap: objUrl,
+      });
     case 'food':
-      return foodStallListingSchema;
+      return z.object({
+        city: requiredString(objMessages.cityRequired),
+        area: requiredString(objMessages.areaRequired),
+        subType: z.string().optional(),
+        primaryId: z.string().optional(),
+        latitude: coerceOptionalNumber,
+        longitude: coerceOptionalNumber,
+        stallName: z.string().trim().min(2, objMessages.stallNameRequired),
+        ownerName: requiredString(objMessages.ownerNameRequired),
+        contactNumber: objContact,
+        location: z.string().optional(),
+        foodType: requiredString(objMessages.foodTypeRequired),
+        rating: coerceOptionalNumber,
+        isOpen: coerceOptionalBoolean,
+        description: z.string().optional(),
+        googleMap: objUrl,
+      });
     case 'study':
-      return studyRoomListingSchema;
+      return z.object({
+        city: requiredString(objMessages.cityRequired),
+        area: requiredString(objMessages.areaRequired),
+        subType: z.string().optional(),
+        primaryId: z.string().optional(),
+        latitude: coerceOptionalNumber,
+        longitude: coerceOptionalNumber,
+        roomName: z.string().trim().min(2, objMessages.roomNameRequired),
+        location: z.string().optional(),
+        capacity: coerceOptionalNumber,
+        availableSeats: coerceOptionalNumber,
+        isAvailable: coerceOptionalBoolean,
+        hasWifi: coerceOptionalBoolean,
+        hasChargingPoints: coerceOptionalBoolean,
+        hasAC: coerceOptionalBoolean,
+        rules: z.string().optional(),
+        rating: coerceOptionalNumber,
+        description: z.string().optional(),
+        createdBy: z.string().optional(),
+        ownerName: requiredString(objMessages.ownerNameRequired),
+        ownerContact: objContact,
+        googleMap: objUrl,
+      });
     case 'rooms':
     default:
-      return roomListingSchema;
+      return z.object({
+        ...objLocation,
+        title: z.string().trim().min(3, objMessages.titleRequired),
+        description: z.string().optional(),
+        roomType: requiredString(objMessages.roomTypeRequired),
+        availableFor: requiredString(objMessages.availableForRequired),
+        rent: coerceRequiredNumber(objMessages.rentRequired),
+        deposit: coerceOptionalNumber,
+        maintenance: coerceOptionalNumber,
+        brokerage: coerceOptionalNumber,
+        amenities: z.string().optional(),
+        googleMap: objUrl,
+      });
   }
 };
 

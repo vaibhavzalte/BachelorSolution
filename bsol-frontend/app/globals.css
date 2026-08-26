@@ -175,4 +175,8 @@
   html {
     @apply font-sans;
   }
+  html.locale-devanagari,
+  html.locale-devanagari body {
+    font-family: var(--font-devanagari), var(--font-sans), sans-serif;
+  }
 }

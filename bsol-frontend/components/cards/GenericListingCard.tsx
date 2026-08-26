@@ -15,6 +15,7 @@ import ListingImage from '@/components/common/ListingImage';
 import ListingMediaPlaceholder from '@/components/common/ListingMediaPlaceholder';
 import { formatDisplayName } from '@/lib/avatar.utils';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/hooks/useI18n';
 
 interface GenericListingCardProps {
   listing: Listing;
@@ -67,6 +68,11 @@ export default function GenericListingCard({ listing }: GenericListingCardProps)
 
   const config = categoryConfigs[category as keyof typeof categoryConfigs] || categoryConfigs.rooms;
   const strDisplayName = formatDisplayName(userName);
+  const { t } = useI18n();
+  const strPeriod =
+    t(`period.${pricePeriod}`) === `period.${pricePeriod}`
+      ? pricePeriod
+      : t(`period.${pricePeriod}`);
 
   return (
     <div className="flex flex-col sm:flex-row items-stretch gap-4 md:gap-6 w-full group">
@@ -78,7 +84,7 @@ export default function GenericListingCard({ listing }: GenericListingCardProps)
           </span>
           {verified && (
             <span className="flex items-center gap-0.5 text-[9px] font-semibold text-emerald-600 mt-0.5">
-              <Sparkles className="h-2 w-2 fill-emerald-600" /> Verified
+              <Sparkles className="h-2 w-2 fill-emerald-600" /> {t('card.verified')}
             </span>
           )}
         </div>
@@ -87,7 +93,7 @@ export default function GenericListingCard({ listing }: GenericListingCardProps)
       <div className="relative flex-1 rounded-3xl border border-slate-100 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 shadow-soft hover:shadow-hover transition-all duration-300 flex flex-col md:flex-row justify-between gap-4">
         <button
           className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-          aria-label="More options"
+          aria-label={t('card.more')}
         >
           <MoreVertical className="h-4 w-4" />
         </button>
@@ -117,19 +123,19 @@ export default function GenericListingCard({ listing }: GenericListingCardProps)
 
             <div className="flex items-baseline gap-1 mt-2">
               <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">
-                {pricePeriod.toLowerCase() === 'starting from' ? 'Starting from' : ''}
+                {pricePeriod.toLowerCase() === 'starting from' ? t('card.startingFrom') : ''}
               </span>
               <span className="text-sm sm:text-base font-extrabold text-slate-800 dark:text-slate-100">
                 {price}
               </span>
               {pricePeriod.toLowerCase() !== 'starting from' && (
                 <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">
-                  / {pricePeriod}
+                  / {strPeriod}
                 </span>
               )}
               {negotiable && (
                 <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 ml-1.5 bg-slate-50 dark:bg-zinc-800 px-1.5 py-0.5 rounded-md border border-slate-100 dark:border-zinc-800">
-                  (Negotiable)
+                  ({t('card.negotiable')})
                 </span>
               )}
             </div>
@@ -183,7 +189,7 @@ export default function GenericListingCard({ listing }: GenericListingCardProps)
       <div className="hidden sm:flex items-center shrink-0">
         <button
           className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-100 bg-white text-slate-500 shadow-soft transition-all duration-200 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
-          aria-label="Share listing"
+          aria-label={t('card.share')}
         >
           <Share2 className="h-4.5 w-4.5" />
         </button>
@@ -192,7 +198,7 @@ export default function GenericListingCard({ listing }: GenericListingCardProps)
       <div className="flex sm:hidden justify-end px-4 -mt-2">
         <button
           className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-100 bg-white text-slate-500 shadow-soft"
-          aria-label="Share listing"
+          aria-label={t('card.share')}
         >
           <Share2 className="h-3.5 w-3.5" />
         </button>

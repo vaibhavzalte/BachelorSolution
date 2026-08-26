@@ -17,6 +17,7 @@ import { ListingCategory } from '@/types/listing.types';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { DEFAULT_LISTING_ROUTE } from '@/constants/listing-routes';
+import { useI18n } from '@/hooks/useI18n';
 
 const SIDEBAR_MIN_WIDTH = 60;
 const SIDEBAR_MAX_WIDTH = 320;
@@ -33,41 +34,42 @@ const iconMap = {
 };
 
 interface MenuItem {
-  name: string;
+  id: 'home' | 'saved' | 'myListings' | 'messages' | 'profile' | 'settings' | 'logout';
   iconName: keyof typeof iconMap;
   category?: ListingCategory | 'all';
 }
 
 const primaryMenuItems: MenuItem[] = [
-  { name: 'Home',        iconName: 'Home',          category: 'all' },
-  { name: 'Saved',       iconName: 'Bookmark' },
-  { name: 'My Listings', iconName: 'List' },
-  { name: 'Messages',    iconName: 'MessageCircle' },
+  { id: 'home', iconName: 'Home', category: 'all' },
+  { id: 'saved', iconName: 'Bookmark' },
+  { id: 'myListings', iconName: 'List' },
+  { id: 'messages', iconName: 'MessageCircle' },
 ];
 
 const secondaryMenuItems: MenuItem[] = [
-  { name: 'Profile',     iconName: 'User' },
-  { name: 'Settings',    iconName: 'Settings' },
-  { name: 'Logout',      iconName: 'LogOut' },
+  { id: 'profile', iconName: 'User' },
+  { id: 'settings', iconName: 'Settings' },
+  { id: 'logout', iconName: 'LogOut' },
 ];
 
 interface SidebarInnerProps {
   isCollapsed: boolean;
   activeSidebarItem: string;
   onItemClick: (item: MenuItem) => void;
+  t: (strKey: string) => string;
 }
 
-function SidebarInner({ isCollapsed, activeSidebarItem, onItemClick }: SidebarInnerProps) {
+function SidebarInner({ isCollapsed, activeSidebarItem, onItemClick, t }: SidebarInnerProps) {
   return (
     <div className="flex h-full flex-col justify-between bg-white py-5 dark:bg-zinc-950 overflow-y-auto">
-      {/* Top: site actions */}
       <nav className="flex flex-col gap-0.5 px-3">
         {primaryMenuItems.map((item) => {
           const Icon = iconMap[item.iconName];
-          const isActive = activeSidebarItem === item.name;
+          const strLabel = t(`sidebar.${item.id}`);
+          const isActive = activeSidebarItem === item.id;
           return (
             <button
-              key={item.name}
+              key={item.id}
               onClick={() => onItemClick(item)}
               className={cn(
                 'flex items-center rounded-xl px-3 py-2.5 text-[11px] font-semibold transition-all duration-150',
@@ -76,24 +78,24 @@ function SidebarInner({ isCollapsed, activeSidebarItem, onItemClick }: SidebarIn
                   ? 'bg-[var(--sidebar-active-bg)] text-[var(--sidebar-active-text)]'
                   : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-zinc-900 dark:hover:text-slate-100'
               )}
-              title={item.name}
+              title={strLabel}
             >
               <Icon className={cn('h-4.5 w-4.5 shrink-0', isActive ? 'text-[var(--sidebar-active-text)]' : 'text-slate-400')} />
-              {!isCollapsed && <span className="truncate">{item.name}</span>}
+              {!isCollapsed && <span className="truncate">{strLabel}</span>}
             </button>
           );
         })}
       </nav>
 
-      {/* Bottom: account actions + promo */}
       <div className="flex flex-col gap-4 px-3">
         <nav className="flex flex-col gap-0.5">
           {secondaryMenuItems.map((item) => {
             const Icon = iconMap[item.iconName];
-            const isActive = activeSidebarItem === item.name;
+            const strLabel = t(`sidebar.${item.id}`);
+            const isActive = activeSidebarItem === item.id;
             return (
               <button
-                key={item.name}
+                key={item.id}
                 onClick={() => onItemClick(item)}
                 className={cn(
                   'flex items-center rounded-xl px-3 py-2.5 text-[11px] font-semibold transition-all duration-150',
@@ -102,16 +104,14 @@ function SidebarInner({ isCollapsed, activeSidebarItem, onItemClick }: SidebarIn
                     ? 'bg-[var(--sidebar-active-bg)] text-[var(--sidebar-active-text)]'
                     : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800 dark:text-slate-400 dark:hover:bg-zinc-900 dark:hover:text-slate-100'
                 )}
-                title={item.name}
+                title={strLabel}
               >
                 <Icon className={cn('h-4.5 w-4.5 shrink-0', isActive ? 'text-[var(--sidebar-active-text)]' : 'text-slate-400')} />
-                {!isCollapsed && <span className="truncate">{item.name}</span>}
+                {!isCollapsed && <span className="truncate">{strLabel}</span>}
               </button>
             );
           })}
         </nav>
-
-       
       </div>
     </div>
   );
@@ -119,6 +119,7 @@ function SidebarInner({ isCollapsed, activeSidebarItem, onItemClick }: SidebarIn
 
 export default function Sidebar() {
   const router = useRouter();
+  const { t } = useI18n();
   const { 
     activeSidebarItem, 
     setActiveSidebarItem,
@@ -135,7 +136,7 @@ export default function Sidebar() {
   const isCollapsed = sidebarWidth <= SIDEBAR_MIN_WIDTH + 20;
 
   const handleItemClick = useCallback((item: MenuItem) => {
-    setActiveSidebarItem(item.name);
+    setActiveSidebarItem(item.id);
     if (item.category) {
       setActiveCategory(item.category === 'all' ? 'rooms' : item.category);
       router.push(DEFAULT_LISTING_ROUTE.path);
@@ -186,13 +187,14 @@ export default function Sidebar() {
           isCollapsed={isCollapsed}
           activeSidebarItem={activeSidebarItem}
           onItemClick={handleItemClick}
+          t={t}
         />
 
         {/* Drag Handle */}
         <div
           onMouseDown={onMouseDown}
           className="absolute right-0 top-0 h-full w-1.5 cursor-col-resize group z-10 flex items-center justify-center"
-          title="Drag to resize"
+          title={t('sidebar.resize')}
         >
           {/* Visible resize indicator line */}
           <div className="w-0.5 h-full group-hover:bg-blue-400 transition-colors duration-150 bg-transparent" />
@@ -216,7 +218,7 @@ export default function Sidebar() {
                 <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
                   Batchelor<span className="text-blue-600">Solution</span>
                 </p>
-                <p className="text-[8px] font-semibold tracking-wider text-slate-400">PREMIUM LIVING</p>
+                <p className="text-[8px] font-semibold tracking-wider text-slate-400">{t('brand.tagline')}</p>
               </div>
             </div>
             <div className="flex-1 overflow-y-auto">
@@ -224,6 +226,7 @@ export default function Sidebar() {
                 isCollapsed={false}
                 activeSidebarItem={activeSidebarItem}
                 onItemClick={handleItemClick}
+                t={t}
               />
             </div>
           </div>

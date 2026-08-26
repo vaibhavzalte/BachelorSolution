@@ -5,6 +5,7 @@ import { ListingCategory } from '@/types/listing.types';
 import { useListing } from '@/hooks/useListings';
 import ListingForm from '@/components/forms/ListingForm';
 import { Button } from '@/components/ui/button';
+import { useI18n } from '@/hooks/useI18n';
 
 interface ListingEditClientProps {
   category: ListingCategory;
@@ -16,6 +17,7 @@ export default function ListingEditClient({
   id,
 }: ListingEditClientProps) {
   const { data, isLoading, isError, refetch } = useListing(category, id);
+  const { t } = useI18n();
 
   if (isLoading) {
     return (
@@ -26,9 +28,9 @@ export default function ListingEditClient({
   if (isError || !data) {
     return (
       <div className="rounded-3xl border border-slate-100 bg-white p-10 text-center shadow-soft">
-        <p className="text-sm font-semibold text-slate-700">Could not load listing</p>
+        <p className="text-sm font-semibold text-slate-700">{t('detail.loadFailed')}</p>
         <Button className="mt-4 rounded-xl" onClick={() => refetch()}>
-          Retry
+          {t('detail.retry')}
         </Button>
       </div>
     );

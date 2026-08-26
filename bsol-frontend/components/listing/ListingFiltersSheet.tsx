@@ -21,6 +21,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useMasters } from '@/providers/MasterProvider';
+import { useI18n } from '@/hooks/useI18n';
 
 interface ListingFiltersSheetProps {
   open: boolean;
@@ -35,6 +36,7 @@ export default function ListingFiltersSheet({ open, onOpenChange }: ListingFilte
     clearCategoryFilters,
   } = useLayoutStore();
   const { objCatalog } = useMasters();
+  const { t, tMaster } = useI18n();
 
   const strCategory = activeCategory === 'all' ? 'rooms' : activeCategory;
   const arrFieldConfig = useMemo(
@@ -87,7 +89,7 @@ export default function ListingFiltersSheet({ open, onOpenChange }: ListingFilte
     onOpenChange(false);
   };
 
-  const strCategoryLabel = strCategory.charAt(0).toUpperCase() + strCategory.slice(1);
+  const strCategoryLabel = t(`categories.${strCategory}`);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -99,10 +101,10 @@ export default function ListingFiltersSheet({ open, onOpenChange }: ListingFilte
         <SheetHeader className="border-b border-slate-100 dark:border-zinc-800">
           <SheetTitle className="flex items-center gap-2">
             <SlidersHorizontal className="h-4 w-4 text-blue-600" />
-            {strCategoryLabel} Filters
+            {strCategoryLabel} {t('filters.title')}
           </SheetTitle>
           <SheetDescription>
-            Refine results based on {strCategoryLabel.toLowerCase()} listing details.
+            {t('filters.sheetHint', { category: strCategoryLabel })}
           </SheetDescription>
         </SheetHeader>
 
@@ -110,7 +112,9 @@ export default function ListingFiltersSheet({ open, onOpenChange }: ListingFilte
           {arrFieldConfig.map((objField) => (
             <div key={objField.id} className="space-y-2.5">
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
-                {objField.label}
+                {t(`filters.${objField.id}`) === `filters.${objField.id}`
+                  ? objField.label
+                  : t(`filters.${objField.id}`)}
               </label>
 
               {objField.type === 'select' && (
@@ -121,7 +125,7 @@ export default function ListingFiltersSheet({ open, onOpenChange }: ListingFilte
                 >
                   {objField.options?.map((objOption) => (
                     <option key={`${objField.id}-${objOption.value}`} value={objOption.value}>
-                      {objOption.label}
+                      {tMaster(objOption.label)}
                     </option>
                   ))}
                 </select>
@@ -158,7 +162,7 @@ export default function ListingFiltersSheet({ open, onOpenChange }: ListingFilte
                             : 'bg-white dark:bg-zinc-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-zinc-700 hover:border-blue-300',
                         )}
                       >
-                        {objOption.label}
+                        {tMaster(objOption.label)}
                       </button>
                     );
                   })}
@@ -170,10 +174,10 @@ export default function ListingFiltersSheet({ open, onOpenChange }: ListingFilte
 
         <SheetFooter className="border-t border-slate-100 dark:border-zinc-800 flex-row gap-2">
           <Button variant="outline" className="flex-1" onClick={handleClear}>
-            Clear All
+            {t('filters.clearAll')}
           </Button>
           <Button className="flex-1" onClick={handleApply}>
-            Apply Filters{intActiveCount > 0 ? ` (${intActiveCount})` : ''}
+            {t('filters.apply')}{intActiveCount > 0 ? ` (${intActiveCount})` : ''}
           </Button>
         </SheetFooter>
       </SheetContent>

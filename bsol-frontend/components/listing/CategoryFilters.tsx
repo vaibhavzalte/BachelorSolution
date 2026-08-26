@@ -25,6 +25,7 @@ import { LISTING_ROUTES, getRouteByCategory } from '@/constants/listing-routes';
 import { cn } from '@/lib/utils';
 import { useMasters } from '@/providers/MasterProvider';
 import { getLocationOptions, getMasterOptions } from '@/lib/master.utils';
+import { useI18n } from '@/hooks/useI18n';
 
 const iconMap = {
   rooms: { icon: Bed, color: 'text-indigo-500' },
@@ -47,6 +48,7 @@ export default function CategoryFilters() {
     setSelectedTime,
     categoryFilters,
   } = useLayoutStore();
+  const { t, tMaster } = useI18n();
   const { objCatalog } = useMasters();
   const objFilterConfigs = useMemo(
     () => buildCategoryFilterConfigs(objCatalog),
@@ -99,7 +101,7 @@ export default function CategoryFilters() {
                     )}
                   />
                 )}
-                <span>{objRoute.label}</span>
+                <span>{t(`categories.${objRoute.category}`)}</span>
               </button>
             );
           })}
@@ -130,7 +132,7 @@ export default function CategoryFilters() {
             >
               {arrTimeOptions.map((objOption) => (
                 <option key={objOption.value} value={objOption.value}>
-                  {objOption.label}
+                  {tMaster(objOption.label)}
                 </option>
               ))}
             </select>
@@ -149,7 +151,7 @@ export default function CategoryFilters() {
             )}
           >
             <SlidersHorizontal className="h-3.5 w-3.5 text-slate-500" />
-            <span>Filters</span>
+            <span>{t('filters.title')}</span>
             {intFilterCount > 0 && (
               <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-blue-600 px-1 text-[9px] font-bold text-white">
                 {intFilterCount}

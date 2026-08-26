@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Geist, Geist_Mono, Inter, Noto_Sans_Devanagari } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import QueryProvider from "@/providers/QueryProvider";
 import ToastProvider from "@/providers/ToastProvider";
 import { MasterProvider } from "@/providers/MasterProvider";
+import { LocaleProvider } from "@/providers/LocaleProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+const notoDevanagari = Noto_Sans_Devanagari({
+  subsets: ["devanagari"],
+  variable: "--font-devanagari",
+  weight: ["400", "500", "600", "700"],
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +43,7 @@ export default function RootLayout({
         "antialiased",
         geistSans.variable,
         geistMono.variable,
+        notoDevanagari.variable,
         "font-sans",
         inter.variable,
       )}
@@ -44,8 +51,10 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <QueryProvider>
           <MasterProvider>
-            {children}
-            <ToastProvider />
+            <LocaleProvider>
+              {children}
+              <ToastProvider />
+            </LocaleProvider>
           </MasterProvider>
         </QueryProvider>
       </body>

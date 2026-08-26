@@ -25,7 +25,7 @@ interface LayoutState {
 }
 
 export const useLayoutStore = create<LayoutState>((set) => ({
-  activeSidebarItem: 'Home',
+  activeSidebarItem: 'home',
   setActiveSidebarItem: (item) => set({ activeSidebarItem: item }),
   activeCategory: 'rooms',
   setActiveCategory: (category) => set({ activeCategory: category }),
