@@ -8,7 +8,30 @@
     {
       "groupCode": "AREA",
       "groupLabel": "Area",
-      "data": ["WAKAD", "HINJAWADI", "BANER", "AUNDH"]
+      "data": [
+        "PUNE:WAKAD",
+        "PUNE:HINJAWADI",
+        "PUNE:BANER",
+        "PUNE:AUNDH",
+        "PUNE:KOTHRUD",
+        "PUNE:VIMAN_NAGAR",
+        "PUNE:KHARADI",
+        "PUNE:PIMPLE_SAUDAGAR",
+        "PUNE:BALEWADI",
+        "PUNE:HADAPSAR",
+        "MUMBAI:ANDHERI",
+        "MUMBAI:POWAI",
+        "MUMBAI:BANDRA",
+        "MUMBAI:THANE",
+        "MUMBAI:NAVI_MUMBAI",
+        "MUMBAI:GOREGAON",
+        "MUMBAI:MALAD",
+        "NASHIK:GANGAPUR",
+        "NASHIK:COLLEGE_ROAD",
+        "NASHIK:CIDCO",
+        "NASHIK:INDIRA_NAGAR",
+        "NASHIK:PANCHAVATI"
+      ]
     },
     {
       "groupCode": "TIME",

@@ -8,6 +8,13 @@ const coerceOptionalNumber = z.preprocess((value) => {
   return Number.isNaN(numValue) ? undefined : numValue;
 }, z.number().optional()) as z.ZodType<number | undefined>;
 
+const coerceRequiredNumber = (strMessage: string) =>
+  z.preprocess((value) => {
+    if (value === '' || value === null || value === undefined) return undefined;
+    const numValue = Number(value);
+    return Number.isNaN(numValue) ? undefined : numValue;
+  }, z.number().positive(strMessage)) as z.ZodType<number>;
+
 const coerceOptionalBoolean = z.preprocess((value) => {
   if (value === 'true' || value === true) return true;
   if (value === 'false' || value === false) return false;
@@ -15,84 +22,104 @@ const coerceOptionalBoolean = z.preprocess((value) => {
   return Boolean(value);
 }, z.boolean().optional()) as z.ZodType<boolean | undefined>;
 
-const commonFields = {
-  city: z.string().min(1, 'City is required'),
-  area: z.string().optional(),
+const requiredString = (strMessage: string) => z.string().trim().min(1, strMessage);
+
+const requiredUrl = requiredString('Google Map URL is required').refine((strValue) => {
+  try {
+    const objUrl = new URL(strValue);
+    return objUrl.protocol === 'http:' || objUrl.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}, 'Enter a valid Google Map URL');
+
+const requiredContact = requiredString('Contact number is required').refine(
+  (strValue) => strValue.replace(/\D/g, '').length >= 10,
+  'Enter a valid 10-digit contact number',
+);
+
+const locationFields = {
+  city: requiredString('City is required'),
+  area: requiredString('Area is required'),
   address: z.string().optional(),
   subType: z.string().optional(),
   primaryId: z.string().optional(),
   latitude: coerceOptionalNumber,
   longitude: coerceOptionalNumber,
-  ownerName: z.string().optional(),
-  ownerContact: z.string().optional(),
-  ownerEmail: z.string().email().optional().or(z.literal('')),
+  ownerName: requiredString('Owner name is required'),
+  ownerContact: requiredContact,
+  ownerEmail: z.string().email('Enter a valid email').optional().or(z.literal('')),
 };
 
 export const roomListingSchema = z.object({
-  ...commonFields,
-  title: z.string().min(3, 'Title is required'),
+  ...locationFields,
+  title: z.string().trim().min(3, 'Title is required'),
   description: z.string().optional(),
-  roomType: z.string().optional(),
-  availableFor: z.string().optional(),
-  rent: coerceOptionalNumber,
+  roomType: requiredString('Room type is required'),
+  availableFor: requiredString('Available for is required'),
+  rent: coerceRequiredNumber('Rent is required'),
   deposit: coerceOptionalNumber,
   maintenance: coerceOptionalNumber,
   brokerage: coerceOptionalNumber,
   amenities: z.string().optional(),
-  googleMap: z.string().optional(),
+  googleMap: requiredUrl,
 });
 
 export const messListingSchema = z.object({
-  ...commonFields,
-  messName: z.string().min(2, 'Mess name is required'),
+  ...locationFields,
+  messName: z.string().trim().min(2, 'Mess name is required'),
   description: z.string().optional(),
-  foodType: z.string().optional(),
-  mealType: z.string().optional(),
-  monthlyFee: coerceOptionalNumber,
+  foodType: requiredString('Food type is required'),
+  mealType: requiredString('Meal type is required'),
+  monthlyFee: coerceRequiredNumber('Monthly fee is required'),
   perMealFee: coerceOptionalNumber,
   homeDelivery: coerceOptionalBoolean,
   diningArea: coerceOptionalBoolean,
+  googleMap: requiredUrl,
 });
 
 export const vacancyListingSchema = z.object({
-  ...commonFields,
-  title: z.string().min(3, 'Title is required'),
+  ...locationFields,
+  title: z.string().trim().min(3, 'Title is required'),
   description: z.string().optional(),
-  roomType: z.string().optional(),
+  roomType: requiredString('Room type is required'),
   totalVacancies: coerceOptionalNumber,
-  preferredTenant: z.string().optional(),
-  rent: coerceOptionalNumber,
+  preferredTenant: requiredString('Preferred tenant is required'),
+  rent: coerceRequiredNumber('Rent is required'),
   deposit: coerceOptionalNumber,
   maintenance: coerceOptionalNumber,
   brokerage: coerceOptionalNumber,
   amenities: z.string().optional(),
   availableFrom: z.string().optional(),
-  googleMap: z.string().optional(),
+  googleMap: requiredUrl,
 });
 
 export const foodStallListingSchema = z.object({
-  city: z.string().min(1, 'City is required'),
+  city: requiredString('City is required'),
+  area: requiredString('Area is required'),
   subType: z.string().optional(),
   primaryId: z.string().optional(),
   latitude: coerceOptionalNumber,
   longitude: coerceOptionalNumber,
-  stallName: z.string().min(2, 'Stall name is required'),
-  ownerName: z.string().optional(),
-  contactNumber: z.string().optional(),
+  stallName: z.string().trim().min(2, 'Stall name is required'),
+  ownerName: requiredString('Owner name is required'),
+  contactNumber: requiredContact,
   location: z.string().optional(),
-  foodType: z.string().optional(),
+  foodType: requiredString('Food type is required'),
   rating: coerceOptionalNumber,
   isOpen: coerceOptionalBoolean,
   description: z.string().optional(),
+  googleMap: requiredUrl,
 });
 
 export const studyRoomListingSchema = z.object({
-  city: z.string().min(1, 'City is required'),
+  city: requiredString('City is required'),
+  area: requiredString('Area is required'),
   subType: z.string().optional(),
   primaryId: z.string().optional(),
   latitude: coerceOptionalNumber,
   longitude: coerceOptionalNumber,
-  roomName: z.string().min(2, 'Room name is required'),
+  roomName: z.string().trim().min(2, 'Room name is required'),
   location: z.string().optional(),
   capacity: coerceOptionalNumber,
   availableSeats: coerceOptionalNumber,
@@ -104,6 +131,9 @@ export const studyRoomListingSchema = z.object({
   rating: coerceOptionalNumber,
   description: z.string().optional(),
   createdBy: z.string().optional(),
+  ownerName: requiredString('Owner name is required'),
+  ownerContact: requiredContact,
+  googleMap: requiredUrl,
 });
 
 export type RoomListingFormValues = z.infer<typeof roomListingSchema>;
@@ -158,12 +188,18 @@ export const toListingRequestPayload = (
 
   if (strCategory === 'food') {
     const objFood = objValues as FoodStallListingFormValues;
-    return { ...objFood };
+    return {
+      ...objFood,
+      location: objFood.location?.trim() || objFood.area,
+    };
   }
 
   if (strCategory === 'study') {
     const objStudy = objValues as StudyRoomListingFormValues;
-    return { ...objStudy };
+    return {
+      ...objStudy,
+      location: objStudy.location?.trim() || objStudy.area,
+    };
   }
 
   if (strCategory === 'roommates' || strCategory === 'vacancies') {
@@ -187,11 +223,6 @@ export const getDefaultListingValues = (
   strCategory: ListingCategory,
   objMasterDefaults: {
     strCity?: string;
-    strRoomType?: string;
-    strAvailableFor?: string;
-    strFoodType?: string;
-    strMealType?: string;
-    strPreferredTenant?: string;
   } = {},
 ): ListingFormValues => {
   const strCity = objMasterDefaults.strCity ?? '';
@@ -204,6 +235,7 @@ export const getDefaultListingValues = (
     ownerEmail: '',
     latitude: undefined,
     longitude: undefined,
+    googleMap: '',
   };
 
   switch (strCategory) {
@@ -212,47 +244,49 @@ export const getDefaultListingValues = (
         ...objCommon,
         messName: '',
         description: '',
-        foodType: objMasterDefaults.strFoodType ?? '',
-        mealType: objMasterDefaults.strMealType ?? '',
+        foodType: '',
+        mealType: '',
         monthlyFee: undefined,
         perMealFee: undefined,
         homeDelivery: false,
         diningArea: true,
-      } as ListingFormValues;
+      } as unknown as ListingFormValues;
     case 'roommates':
     case 'vacancies':
       return {
         ...objCommon,
         title: '',
         description: '',
-        roomType: objMasterDefaults.strRoomType ?? '',
+        roomType: '',
         totalVacancies: 1,
-        preferredTenant: objMasterDefaults.strPreferredTenant ?? '',
+        preferredTenant: '',
         rent: undefined,
         deposit: undefined,
         maintenance: undefined,
         brokerage: undefined,
         amenities: '',
         availableFrom: '',
-        googleMap: '',
-      } as ListingFormValues;
+      } as unknown as ListingFormValues;
     case 'food':
       return {
         city: strCity,
+        area: '',
         latitude: undefined,
         longitude: undefined,
         stallName: '',
         ownerName: '',
         contactNumber: '',
         location: '',
-        foodType: objMasterDefaults.strFoodType ?? '',
+        foodType: '',
         rating: undefined,
         isOpen: true,
         description: '',
-      } as ListingFormValues;
+        googleMap: '',
+      } as unknown as ListingFormValues;
     case 'study':
       return {
         city: strCity,
+        area: '',
         latitude: undefined,
         longitude: undefined,
         roomName: '',
@@ -267,21 +301,23 @@ export const getDefaultListingValues = (
         rating: undefined,
         description: '',
         createdBy: 'guest',
-      } as ListingFormValues;
+        ownerName: '',
+        ownerContact: '',
+        googleMap: '',
+      } as unknown as ListingFormValues;
     case 'rooms':
     default:
       return {
         ...objCommon,
         title: '',
         description: '',
-        roomType: objMasterDefaults.strRoomType ?? '',
-        availableFor: objMasterDefaults.strAvailableFor ?? '',
+        roomType: '',
+        availableFor: '',
         rent: undefined,
         deposit: undefined,
         maintenance: undefined,
         brokerage: undefined,
-        amenities: 'WiFi, Parking',
-        googleMap: '',
-      } as ListingFormValues;
+        amenities: '',
+      } as unknown as ListingFormValues;
   }
 };

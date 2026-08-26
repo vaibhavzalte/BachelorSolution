@@ -25,4 +25,5 @@ public class MessPayload implements HasImages {
     private String ownerName;
     private String ownerContact;
     private String ownerEmail;
+    private String googleMap;
 }

@@ -15,6 +15,7 @@ public class StudyRoomPayload implements HasImages {
     private List<String> images;
     private String roomName;
     private String location;
+    private String area;
     private Integer capacity;
     private Integer availableSeats;
     private Boolean isAvailable;
@@ -27,4 +28,7 @@ public class StudyRoomPayload implements HasImages {
     private Double rating;
     private String description;
     private String createdBy;
+    private String ownerName;
+    private String ownerContact;
+    private String googleMap;
 }

@@ -540,6 +540,10 @@
               },
               "ownerEmail": {
                 "type": "string"
+              },
+              "googleMap": {
+                "type": "string",
+                "example": "https://maps.google.com/?q=18.5590,73.7868"
               }
             }
           }
@@ -645,6 +649,10 @@
                 "type": "string",
                 "example": "Near Gate 2, Baner"
               },
+              "area": {
+                "type": "string",
+                "example": "Baner"
+              },
               "foodType": {
                 "type": "string",
                 "example": "VEG"
@@ -668,6 +676,10 @@
               },
               "description": {
                 "type": "string"
+              },
+              "googleMap": {
+                "type": "string",
+                "example": "https://maps.google.com/?q=18.5590,73.7868"
               }
             }
           }
@@ -688,6 +700,10 @@
               "location": {
                 "type": "string",
                 "example": "2nd Floor, Building B, Baner"
+              },
+              "area": {
+                "type": "string",
+                "example": "Baner"
               },
               "capacity": {
                 "type": "integer",
@@ -736,6 +752,18 @@
               "createdBy": {
                 "type": "string",
                 "example": "admin"
+              },
+              "ownerName": {
+                "type": "string",
+                "example": "Rahul Sharma"
+              },
+              "ownerContact": {
+                "type": "string",
+                "example": "9876543210"
+              },
+              "googleMap": {
+                "type": "string",
+                "example": "https://maps.google.com/?q=18.5590,73.7868"
               }
             }
           }

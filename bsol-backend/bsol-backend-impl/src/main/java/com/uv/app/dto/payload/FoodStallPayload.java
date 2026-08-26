@@ -21,10 +21,12 @@ public class FoodStallPayload implements HasImages {
     private String ownerName;
     private String contactNumber;
     private String location;
+    private String area;
     private String foodType;
     private Double rating;
     private Boolean isOpen;
     private OffsetDateTime openingTime;
     private OffsetDateTime closingTime;
     private String description;
+    private String googleMap;
 }

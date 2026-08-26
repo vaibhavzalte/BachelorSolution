@@ -24,7 +24,7 @@
           "Masters"
         ],
         "summary": "Get all master data",
-        "description": "Returns every active master group. Each group has a JSON `data` array of codes, for example CITY: `[\"PUNE\",\"MUMBAI\",\"NASHIK\"]`. The first code in each array is the default.",
+        "description": "Returns every active master group. Each group has a JSON `data` array of codes, for example CITY: `[\"PUNE\",\"MUMBAI\",\"NASHIK\"]`. AREA codes use `CITY:AREA` so the frontend can filter areas by selected city, for example `[\"PUNE:BANER\",\"MUMBAI:ANDHERI\"]`. The first code in each array is the default.",
         "operationId": "getMasters",
         "responses": {
           "200": {

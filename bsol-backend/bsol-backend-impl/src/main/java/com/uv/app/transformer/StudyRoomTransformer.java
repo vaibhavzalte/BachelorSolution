@@ -25,6 +25,7 @@ public class StudyRoomTransformer extends BaseTransformer<StudyRoomRequest, Stud
         return StudyRoomPayload.builder()
                 .roomName(listing.getRoomName())
                 .location(listing.getLocation())
+                .area(listing.getArea())
                 .capacity(listing.getCapacity())
                 .availableSeats(listing.getAvailableSeats())
                 .isAvailable(listing.getIsAvailable())
@@ -37,6 +38,9 @@ public class StudyRoomTransformer extends BaseTransformer<StudyRoomRequest, Stud
                 .rating(listing.getRating())
                 .description(listing.getDescription())
                 .createdBy(listing.getCreatedBy())
+                .ownerName(listing.getOwnerName())
+                .ownerContact(listing.getOwnerContact())
+                .googleMap(listing.getGoogleMap())
                 .images(listing.getImages())
                 .build();
     }
@@ -55,6 +59,7 @@ public class StudyRoomTransformer extends BaseTransformer<StudyRoomRequest, Stud
                 .status(listingEntity.getStatus() == null ? null : listingEntity.getStatus().name())
                 .roomName(studyRoomPayload.getRoomName())
                 .location(studyRoomPayload.getLocation())
+                .area(studyRoomPayload.getArea())
                 .capacity(studyRoomPayload.getCapacity())
                 .availableSeats(studyRoomPayload.getAvailableSeats())
                 .isAvailable(studyRoomPayload.getIsAvailable())
@@ -67,6 +72,9 @@ public class StudyRoomTransformer extends BaseTransformer<StudyRoomRequest, Stud
                 .rating(studyRoomPayload.getRating())
                 .description(studyRoomPayload.getDescription())
                 .createdBy(studyRoomPayload.getCreatedBy())
+                .ownerName(studyRoomPayload.getOwnerName())
+                .ownerContact(studyRoomPayload.getOwnerContact())
+                .googleMap(studyRoomPayload.getGoogleMap())
                 .createdAt(listingEntity.getCreateTime())
                 .updatedAt(listingEntity.getUpdateTime());
     }

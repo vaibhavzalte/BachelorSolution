@@ -36,6 +36,7 @@ public class MessTransformer extends BaseTransformer<MessRequest, MessPayload, M
                 .ownerName(listing.getOwnerName())
                 .ownerContact(listing.getOwnerContact())
                 .ownerEmail(listing.getOwnerEmail())
+                .googleMap(listing.getGoogleMap())
                 .images(listing.getImages())
                 .build();
     }
@@ -64,7 +65,8 @@ public class MessTransformer extends BaseTransformer<MessRequest, MessPayload, M
                 .area(messPayload.getArea())
                 .ownerName(messPayload.getOwnerName())
                 .ownerContact(messPayload.getOwnerContact())
-                .ownerEmail(messPayload.getOwnerEmail());
+                .ownerEmail(messPayload.getOwnerEmail())
+                .googleMap(messPayload.getGoogleMap());
     }
 
     @Override

@@ -27,12 +27,14 @@ public class FoodStallTransformer extends BaseTransformer<FoodStallRequest, Food
                 .ownerName(listing.getOwnerName())
                 .contactNumber(listing.getContactNumber())
                 .location(listing.getLocation())
+                .area(listing.getArea())
                 .foodType(listing.getFoodType())
                 .rating(listing.getRating())
                 .isOpen(listing.getIsOpen())
                 .openingTime(listing.getOpeningTime())
                 .closingTime(listing.getClosingTime())
                 .description(listing.getDescription())
+                .googleMap(listing.getGoogleMap())
                 .images(listing.getImages())
                 .build();
     }
@@ -53,12 +55,14 @@ public class FoodStallTransformer extends BaseTransformer<FoodStallRequest, Food
                 .ownerName(foodStallPayload.getOwnerName())
                 .contactNumber(foodStallPayload.getContactNumber())
                 .location(foodStallPayload.getLocation())
+                .area(foodStallPayload.getArea())
                 .foodType(foodStallPayload.getFoodType())
                 .rating(foodStallPayload.getRating())
                 .isOpen(foodStallPayload.getIsOpen())
                 .openingTime(foodStallPayload.getOpeningTime())
                 .closingTime(foodStallPayload.getClosingTime())
-                .description(foodStallPayload.getDescription());
+                .description(foodStallPayload.getDescription())
+                .googleMap(foodStallPayload.getGoogleMap());
     }
 
     @Override
