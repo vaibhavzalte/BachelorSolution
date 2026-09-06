@@ -13,10 +13,6 @@ public enum ListingType {
         this.value = value;
     }
 
-    public String getValue() {
-        return value;
-    }
-
     public static ListingType fromValue(String value) {
         for (ListingType listingType : ListingType.values()) {
             if (listingType.value.equals(value)) {
@@ -24,5 +20,9 @@ public enum ListingType {
             }
         }
         throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+
+    public String getValue() {
+        return value;
     }
 }

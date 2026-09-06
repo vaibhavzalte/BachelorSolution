@@ -2,11 +2,7 @@ package com.uv.app.transformer;
 
 import com.uv.app.enums.ListingType;
 import com.uv.app.exception.BadRequestException;
-import com.uv.generated.app.model.FoodStallRequest;
-import com.uv.generated.app.model.MessRequest;
-import com.uv.generated.app.model.RoomRequest;
-import com.uv.generated.app.model.RoomVacancyRequest;
-import com.uv.generated.app.model.StudyRoomRequest;
+import com.uv.generated.app.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tools.jackson.databind.ObjectMapper;
