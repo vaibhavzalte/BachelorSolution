@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Bachelor Solution - Security API",
-    "description": "Authentication, authorization, user registration, login, OTP verification, Google OAuth2 authentication and user profile APIs for Bachelor Solution.",
+    "description": "Authentication, authorization, user registration, login, password recovery, OTP-based verification, Google OAuth2 authentication and user profile APIs for Bachelor Solution.",
     "version": "v1"
   },
   "servers": [
@@ -14,7 +14,7 @@
   "tags": [
     {
       "name": "Authentication",
-      "description": "User registration, login, OTP verification and authentication session management"
+      "description": "User registration, login, password recovery and authentication session management"
     },
     {
       "name": "OAuth2",
@@ -89,76 +89,13 @@
       }
     },
 
-    "/auth/register/verify-otp": {
-      "post": {
-        "tags": [
-          "Authentication"
-        ],
-        "summary": "Verify registration OTP",
-        "description": "Verifies the OTP sent to the provided email address. If the OTP is valid, the backend marks the email address as verified for registration. The user can then complete registration within the verification validity period.",
-        "operationId": "verifyRegistrationOtp",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/VerifyRegistrationOtpRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Email verified successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MessageResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid or expired OTP",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Email is already registered",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "429": {
-            "description": "Too many OTP verification attempts",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-
     "/auth/register/resend-otp": {
       "post": {
         "tags": [
           "Authentication"
         ],
         "summary": "Resend registration OTP",
-        "description": "Generates and sends a new OTP to the provided email address. The previous OTP becomes invalid.",
+        "description": "Generates and sends a new registration OTP to the provided email address. The previous registration OTP becomes invalid.",
         "operationId": "resendRegistrationOtp",
         "requestBody": {
           "required": true,
@@ -210,8 +147,8 @@
         "tags": [
           "Authentication"
         ],
-        "summary": "Complete user registration",
-        "description": "Creates a new local user account. The provided email address must have been successfully verified through the registration OTP flow and the verification must still be valid.",
+        "summary": "Register a new user",
+        "description": "Creates a new local user account after validating the registration OTP. The OTP must be valid, unexpired and issued for the registration purpose. The OTP is consumed after successful registration.",
         "operationId": "register",
         "requestBody": {
           "required": true,
@@ -235,7 +172,7 @@
             }
           },
           "400": {
-            "description": "Invalid registration data or email has not been verified",
+            "description": "Invalid registration data or invalid/expired OTP",
             "content": {
               "application/json": {
                 "schema": {
@@ -246,6 +183,69 @@
           },
           "409": {
             "description": "Email is already registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many registration or OTP verification attempts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/auth/forgot-password": {
+      "put": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Reset password",
+        "description": "Resets the user's password after validating the password reset OTP. The OTP must be valid, unexpired and issued for the password reset purpose. The OTP is consumed after a successful password reset.",
+        "operationId": "resetPassword",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password reset successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request, invalid/expired OTP or invalid password",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Too many OTP verification attempts",
             "content": {
               "application/json": {
                 "schema": {
@@ -521,39 +521,17 @@
         }
       },
 
-      "VerifyRegistrationOtpRequest": {
-        "type": "object",
-        "required": [
-          "email",
-          "otp"
-        ],
-        "properties": {
-          "email": {
-            "type": "string",
-            "format": "email",
-            "maxLength": 320,
-            "example": "vaibhav@gmail.com"
-          },
-          "otp": {
-            "type": "string",
-            "pattern": "^[0-9]{6}$",
-            "example": "123456"
-          }
-        }
-      },
-
       "RegisterRequest": {
         "type": "object",
         "required": [
           "name",
           "email",
-          "password"
+          "password",
+          "otp"
         ],
         "properties": {
           "name": {
             "type": "string",
-            "minLength": 2,
-            "maxLength": 100,
             "example": "Vaibhav Zalte"
           },
           "email": {
@@ -565,9 +543,56 @@
           "password": {
             "type": "string",
             "format": "password",
-            "minLength": 8,
-            "maxLength": 100,
+            "minLength": 4,
             "example": "Password123"
+          },
+          "otp": {
+            "type": "string",
+            "description": "OTP received by email for registration.",
+            "example": "123456"
+          }
+        }
+      },
+
+      "RequestPasswordResetOtpRequest": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 320,
+            "example": "vaibhav@gmail.com"
+          }
+        }
+      },
+
+      "ForgotPasswordRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "otp",
+          "newPassword"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 320,
+            "example": "vaibhav@gmail.com"
+          },
+          "otp": {
+            "type": "string",
+            "description": "OTP received by email for password reset.",
+            "example": "123456"
+          },
+          "newPassword": {
+            "type": "string",
+            "format": "password",
+            "minLength": 4,
+            "example": "NewPassword123"
           }
         }
       },
@@ -619,7 +644,7 @@
         "properties": {
           "accessToken": {
             "type": "string",
-            "description": "New short-lived JWT access token",
+            "description": "New short-lived access token",
             "example": "eyJhbGciOiJIUzI1NiJ9..."
           }
         }
