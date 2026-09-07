@@ -1,4 +1,4 @@
-package com.uv.app.enums;
+package com.uv.app.enums.listing;
 
 public enum ListingType {
     ROOM("Room"),

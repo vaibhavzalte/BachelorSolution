@@ -1,6 +1,6 @@
 package com.uv.app.transformer;
 
-import com.uv.app.enums.ListingType;
+import com.uv.app.enums.listing.ListingType;
 import com.uv.app.exception.BadRequestException;
 import com.uv.generated.app.model.*;
 import org.springframework.beans.factory.annotation.Autowired;

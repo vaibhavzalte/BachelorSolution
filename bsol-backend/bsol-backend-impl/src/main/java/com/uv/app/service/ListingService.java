@@ -2,7 +2,7 @@ package com.uv.app.service;
 
 import com.uv.app.entity.ListingAttributesEntity;
 import com.uv.app.entity.ListingEntity;
-import com.uv.app.enums.ListingStatus;
+import com.uv.app.enums.listing.ListingStatus;
 import com.uv.app.exception.FileStorageException;
 import com.uv.app.exception.ListingNotFoundException;
 import com.uv.app.model.HasImages;

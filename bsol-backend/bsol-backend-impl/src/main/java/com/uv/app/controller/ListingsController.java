@@ -1,6 +1,6 @@
 package com.uv.app.controller;
 
-import com.uv.app.enums.ListingType;
+import com.uv.app.enums.listing.ListingType;
 import com.uv.app.service.ListingService;
 import com.uv.app.transformer.DataTransformer;
 import com.uv.app.transformer.DataTransformerFactory;

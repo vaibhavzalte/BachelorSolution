@@ -1,6 +1,6 @@
 package com.uv.app.entity;
 
-import com.uv.app.enums.ListingStatus;
+import com.uv.app.enums.listing.ListingStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
