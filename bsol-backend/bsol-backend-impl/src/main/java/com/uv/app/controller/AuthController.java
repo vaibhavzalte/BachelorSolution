@@ -2,6 +2,7 @@ package com.uv.app.controller;
 
 
 import com.uv.app.service.AuthService;
+import com.uv.app.service.UserService;
 import com.uv.security.generated.app.api.AuthApiController;
 import com.uv.security.generated.app.model.LoginResponse;
 import com.uv.security.generated.app.model.MessageResponse;
@@ -49,6 +50,7 @@ public class AuthController extends AuthApiController {
     public ResponseEntity<LoginResponse> register(
             @Valid RegisterRequest request) {
 
+        log.info("User registration request received for email: {}",request.getEmail());
         LoginResponse response = authService.registerUser(
                 request.getName(),
                 request.getEmail(),

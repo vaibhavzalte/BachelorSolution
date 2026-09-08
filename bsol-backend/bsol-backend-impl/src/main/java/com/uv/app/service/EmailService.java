@@ -1,5 +1,6 @@
 package com.uv.app.service;
 
+import com.uv.app.enums.OtpVerificationResult;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -285,28 +286,25 @@ public class EmailService {
         );
     }
 
-    public String verifyOtp(String email, String otp) {
+    public OtpVerificationResult verifyOtp(String email, String otp) {
 
         OtpDetails otpDetails = otpStore.get(email);
 
         if (otpDetails == null) {
-            return "OTP not found. Please request a new OTP.";
+            return OtpVerificationResult.OTP_NOT_FOUND;
         }
 
         if (LocalDateTime.now().isAfter(otpDetails.expiryTime())) {
-
             otpStore.remove(email);
-
-            return "OTP has expired. Please request a new OTP.";
+            return OtpVerificationResult.OTP_EXPIRED;
         }
 
         if (!otpDetails.otp().equals(otp)) {
-            return "Invalid OTP. Please enter the correct OTP.";
+            return OtpVerificationResult.OTP_INVALID;
         }
 
         otpStore.remove(email);
-
-        return "OTP verified successfully.";
+        return OtpVerificationResult.OTP_VERIFIED;
     }
 
     private record OtpDetails(

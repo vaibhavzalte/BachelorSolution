@@ -657,9 +657,7 @@
           "name",
           "email",
           "role",
-          "authProvider",
-          "emailVerified",
-          "status"
+          "authProvider"
         ],
         "properties": {
           "id": {
@@ -678,41 +676,27 @@
           },
           "profileImageUrl": {
             "type": "string",
-            "format": "uri",
-            "nullable": true,
             "description": "Profile image URL. For Google users, this can contain the Google profile picture URL. Null when no profile image is available.",
             "example": "https://lh3.googleusercontent.com/a/example"
           },
           "role": {
             "type": "string",
-            "enum": [
-              "USER",
-              "ADMIN"
-            ],
             "example": "USER"
           },
           "authProvider": {
             "type": "string",
-            "enum": [
-              "LOCAL",
-              "GOOGLE"
-            ],
             "example": "LOCAL"
-          },
-          "emailVerified": {
-            "type": "boolean",
-            "example": true
           },
           "status": {
             "type": "string",
-            "enum": [
-              "ACTIVE",
-              "SUSPENDED",
-              "DELETED"
-            ],
             "example": "ACTIVE"
           },
           "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-04T10:30:00Z"
+          },
+          "updatedAt": {
             "type": "string",
             "format": "date-time",
             "example": "2026-09-04T10:30:00Z"
