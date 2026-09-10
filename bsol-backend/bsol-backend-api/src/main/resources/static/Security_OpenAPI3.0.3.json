@@ -88,7 +88,6 @@
         }
       }
     },
-
     "/auth/register/resend-otp": {
       "post": {
         "tags": [
@@ -141,7 +140,6 @@
         }
       }
     },
-
     "/auth/register": {
       "post": {
         "tags": [
@@ -204,7 +202,6 @@
         }
       }
     },
-
     "/auth/forgot-password": {
       "put": {
         "tags": [
@@ -257,7 +254,6 @@
         }
       }
     },
-
     "/auth/login": {
       "post": {
         "tags": [
@@ -320,7 +316,6 @@
         }
       }
     },
-
     "/auth/refresh": {
       "post": {
         "tags": [
@@ -353,7 +348,6 @@
         }
       }
     },
-
     "/auth/logout": {
       "post": {
         "tags": [
@@ -384,7 +378,6 @@
         }
       }
     },
-
     "/oauth2/authorization/google": {
       "get": {
         "tags": [
@@ -400,7 +393,6 @@
         }
       }
     },
-
     "/users/me": {
       "get": {
         "tags": [
@@ -494,7 +486,6 @@
       }
     }
   },
-
   "components": {
     "securitySchemes": {
       "bearerAuth": {
@@ -504,7 +495,6 @@
         "description": "Short-lived JWT access token. Example: Bearer eyJhbGciOiJIUzI1NiJ9..."
       }
     },
-
     "schemas": {
       "RequestRegistrationOtpRequest": {
         "type": "object",
@@ -520,7 +510,6 @@
           }
         }
       },
-
       "RegisterRequest": {
         "type": "object",
         "required": [
@@ -553,7 +542,6 @@
           }
         }
       },
-
       "RequestPasswordResetOtpRequest": {
         "type": "object",
         "required": [
@@ -568,7 +556,6 @@
           }
         }
       },
-
       "ForgotPasswordRequest": {
         "type": "object",
         "required": [
@@ -596,7 +583,6 @@
           }
         }
       },
-
       "LoginRequest": {
         "type": "object",
         "required": [
@@ -617,7 +603,6 @@
           }
         }
       },
-
       "LoginResponse": {
         "type": "object",
         "required": [
@@ -635,7 +620,6 @@
           }
         }
       },
-
       "RefreshTokenResponse": {
         "type": "object",
         "required": [
@@ -649,7 +633,6 @@
           }
         }
       },
-
       "UserResponse": {
         "type": "object",
         "required": [
@@ -703,7 +686,6 @@
           }
         }
       },
-
       "UpdateUserRequest": {
         "type": "object",
         "properties": {
@@ -721,7 +703,6 @@
           }
         }
       },
-
       "MessageResponse": {
         "type": "object",
         "required": [
@@ -734,7 +715,6 @@
           }
         }
       },
-
       "ErrorResponse": {
         "type": "object",
         "required": [

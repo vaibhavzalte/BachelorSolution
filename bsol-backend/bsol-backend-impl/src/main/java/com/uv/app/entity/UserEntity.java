@@ -5,9 +5,13 @@ import com.uv.app.enums.security.Role;
 import com.uv.app.enums.security.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -16,7 +20,7 @@ import java.time.OffsetDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserEntity {
+public class UserEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -69,4 +73,15 @@ public class UserEntity {
         updatedAt = OffsetDateTime.now();
     }
 
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(
+                new SimpleGrantedAuthority(role.name())
+        );
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
 }
