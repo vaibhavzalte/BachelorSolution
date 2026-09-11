@@ -6,6 +6,7 @@ import com.uv.app.enums.security.Role;
 import com.uv.app.repository.UsersRepository;
 import com.uv.security.generated.app.model.UserResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,12 @@ public class UserService {
         UserEntity savedUser = usersRepository.save(userEntity);
 
         return convertToResponse(savedUser);
+    }
+
+    public UserResponse findByEmail(String email) {
+        UserEntity user = usersRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email" + email));
+        return convertToResponse(user);
     }
 
     private UserResponse convertToResponse(UserEntity userEntity) {
