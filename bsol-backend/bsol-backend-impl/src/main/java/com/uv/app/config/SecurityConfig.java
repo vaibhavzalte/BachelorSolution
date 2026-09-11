@@ -37,13 +37,13 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 "/health",
-                                "/auth/register/request-otp",
-                                "/auth/register/resend-otp",
-                                "/auth/register",
-                                "/auth/login",
-                                "/auth/forgot-password",
-                                "/auth/refresh",
-                                "/oauth2/authorization/**"
+                                "/uv-api/v1/auth/register/request-otp",
+                                "/uv-api/v1/auth/register/resend-otp",
+                                "/uv-api/v1/auth/register",
+                                "/uv-api/v1/auth/login",
+                                "/uv-api/v1/auth/forgot-password",
+                                "/uv-api/v1/auth/refresh",
+                                "/uv-api/v1/auth/oauth2/authorization/**"
                         ).permitAll()
 
                         .requestMatchers(

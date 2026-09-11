@@ -2,26 +2,30 @@ package com.uv.app.service;
 
 import com.uv.app.entity.UserEntity;
 import com.uv.app.enums.security.AuthProvider;
+import com.uv.app.enums.security.Role;
 import com.uv.app.repository.UsersRepository;
 import com.uv.security.generated.app.model.UserResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
 public class UserService {
     private final UsersRepository usersRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UserResponse createUser() {
         return null;
     }
 
-    public UserResponse createUser(String name, String email, String passwordHash, AuthProvider authProvider) {
+    public UserResponse createUser(String name, String email, String password, AuthProvider authProvider) {
         UserEntity userEntity = UserEntity.builder()
                 .name(name)
                 .email(email)
-                .password(passwordHash)
+                .password(passwordEncoder.encode(password))
                 .authProvider(authProvider)
+                .role(Role.USER)
                 .build();
 
         UserEntity savedUser = usersRepository.save(userEntity);
